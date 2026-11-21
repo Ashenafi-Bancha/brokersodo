@@ -34,7 +34,7 @@ export function HeroSearch({ categories, areas }: { categories: Opt[]; areas: Op
     <form
       onSubmit={submit}
       role="search"
-      className="w-full max-w-3xl rounded-[22px] border border-line bg-white/75 p-3 shadow-pop backdrop-blur-xl sm:p-4 dark:bg-white/10"
+      className="w-full rounded-card border border-line bg-surface p-3 shadow-card sm:p-4"
     >
       <div className="mb-3 inline-flex gap-1 rounded-pill bg-navy-100 p-1" role="group" aria-label={`${t("buy")} / ${t("rent")}`}>
         {(["sale", "rent"] as const).map((d) => (
@@ -52,8 +52,8 @@ export function HeroSearch({ categories, areas }: { categories: Opt[]; areas: Op
           </button>
         ))}
       </div>
-      <div className="grid gap-2 sm:grid-cols-[1.6fr_1fr_1fr_auto]">
-        <label className="relative block">
+      <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+        <label className="relative block sm:col-span-3">
           <span className="sr-only">{t("keyword")}</span>
           <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-navy-400" />
           <input

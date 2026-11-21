@@ -7,14 +7,8 @@ import { getCategories, getSiteSettings } from "@/server/queries/public";
 import { telLink } from "@/lib/contact";
 import { localized } from "@/lib/utils";
 import { Logo } from "./brand";
-import {
-  CategoryMegaMenu,
-  HeaderSearch,
-  LanguageSwitcher,
-  MobileMenu,
-  ThemeToggle,
-  type NavCategory,
-} from "./header-controls";
+import { HeaderSearch, LanguageSwitcher, MobileMenu, ThemeToggle, type NavCategory } from "./header-controls";
+import { MainNav } from "./main-nav";
 
 export async function SiteHeader() {
   const [t, locale, categories, settings] = await Promise.all([
@@ -29,32 +23,19 @@ export async function SiteHeader() {
   const phoneHref = telLink(settings.phonePrimary);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg lg:bg-bg/85 lg:backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:h-[72px] lg:gap-4 lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-line bg-bg">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:gap-4 lg:px-8">
         <Suspense fallback={<span className="size-10 lg:hidden" />}>
           <MobileMenu categories={navCats} phoneHref={phoneHref} />
         </Suspense>
         <Link href="/" aria-label="BrokerSodo — home" className="mr-auto shrink-0 lg:mr-0">
-          <Logo className="h-9 sm:h-10 lg:h-11" priority />
+          <Logo className="h-9 sm:h-10 lg:h-12" priority />
         </Link>
 
-        <nav aria-label={t("mainNav")} className="ml-4 hidden items-center gap-1 lg:flex">
-          <CategoryMegaMenu categories={navCats} />
-          <Link href="/listings" className="inline-flex min-h-10 items-center rounded-btn px-3 font-semibold hover:bg-bg-2">
-            {t("buy")}
-          </Link>
-          <Link href="/listings?deal=rent" className="inline-flex min-h-10 items-center rounded-btn px-3 font-semibold hover:bg-bg-2">
-            {t("rent")}
-          </Link>
-          <Link href="/wanted" className="inline-flex min-h-10 items-center rounded-btn px-3 font-semibold hover:bg-bg-2">
-            {t("wanted")}
-          </Link>
-        </nav>
-
-        <HeaderSearch className="mx-2 hidden max-w-xs flex-1 xl:block" />
+        <HeaderSearch className="mx-4 hidden max-w-xl flex-1 lg:block" />
 
         <div className="flex items-center gap-1 lg:ml-auto lg:gap-2">
-          <Button asChild variant="ghost" size="icon-sm" className="xl:hidden" aria-label={t("search")}>
+          <Button asChild variant="ghost" size="icon-sm" className="lg:hidden" aria-label={t("search")}>
             <Link href="/listings">
               <Search />
             </Link>
@@ -77,6 +58,9 @@ export async function SiteHeader() {
             </a>
           </Button>
         </div>
+      </div>
+      <div className="border-t border-line">
+        <MainNav categories={navCats} />
       </div>
     </header>
   );

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight, BadgeCheck, CalendarCheck, Eye, Handshake, Megaphone, PhoneCall, Quote, Search, Send, Star, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -36,7 +37,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const tm = await getTranslations("meta");
   const [t, th, settings, categories, areas, featured, latest, rentals, vehicles, sold, stats, testimonials, faqs] = await Promise.all([
     getTranslations("home"),
     getTranslations("hero"),
@@ -62,44 +62,53 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       {/* 1. Hero */}
-      <section className="relative isolate overflow-hidden bg-bg text-fg">
-        <div aria-hidden className="absolute inset-0 -z-10 bg-pattern" />
-        <div aria-hidden className="absolute -top-40 -right-40 -z-10 size-[520px] rounded-full bg-red-500/10 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-48 -left-32 -z-10 size-[460px] rounded-full bg-yellow-500/15 blur-3xl" />
-        <Container className="flex flex-col items-start gap-6 pt-12 pb-16 sm:pt-20 sm:pb-24">
-          <span className="inline-flex items-center gap-2 rounded-pill bg-brand-gradient px-3 py-1.5 font-brand text-[13px] text-navy-900 uppercase">
-            {tm("tagline")}
-          </span>
-          <h1 className="max-w-3xl font-brand text-h1">
-            {heroTitle ? (
-              heroTitle
-            ) : (
-              <>
-                {th("title")} <span className="text-primary">{th("titleHighlight")}</span>
-              </>
-            )}
-          </h1>
-          <p className="max-w-2xl text-lg text-fg-2 sm:text-xl">{heroSubtitle}</p>
-          <ScopedIntl namespaces={["hero"]}>
-            <HeroSearch
-              categories={topCats.map((c) => ({ slug: c.slug, name: localized(c, "name", locale) }))}
-              areas={areas.map((a) => ({ slug: a.slug, name: localized(a, "name", locale) }))}
-            />
-          </ScopedIntl>
-          <div className="flex flex-wrap gap-2">
-            {topCats.slice(0, 5).map((c) => (
-              <Link
-                prefetch={false}
-                key={c.id}
-                href={`/c/${c.slug}`}
-                className="inline-flex min-h-9 items-center rounded-pill border-[1.5px] border-line-strong bg-bg px-4 text-sm font-semibold text-fg hover:border-yellow-500 hover:bg-yellow-500 hover:text-navy-900"
-              >
-                {localized(c, "name", locale)}
-              </Link>
-            ))}
+      <section className="border-b border-line bg-bg">
+        <Container className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-16">
+          <div className="min-w-0">
+            <h1 className="font-brand text-[clamp(2.15rem,4.5vw,3.5rem)] leading-[1.08] text-fg">
+              {heroTitle ? (
+                heroTitle
+              ) : (
+                <>
+                  {th("title")} <span className="block text-primary">{th("titleHighlight")}</span>
+                </>
+              )}
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-fg-2">{heroSubtitle}</p>
+            <div className="mt-7">
+              <ScopedIntl namespaces={["hero"]}>
+                <HeroSearch
+                  categories={topCats.map((c) => ({ slug: c.slug, name: localized(c, "name", locale) }))}
+                  areas={areas.map((a) => ({ slug: a.slug, name: localized(a, "name", locale) }))}
+                />
+              </ScopedIntl>
+            </div>
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-fg-2">
+              {(["trust1", "trust2", "trust3"] as const).map((k) => (
+                <li key={k} className="inline-flex items-center gap-1.5">
+                  <BadgeCheck className="size-4 text-sold" aria-hidden /> {th(k)}
+                </li>
+              ))}
+            </ul>
           </div>
+          <ul className="hidden grid-cols-2 gap-3 lg:grid">
+            {(
+              [
+                ["phone-1.webp", "tileSmall", "/c/electronics", "mt-8"],
+                ["bajaj-1.webp", "tileVehicles", "/c/motorbikes-bajaj", ""],
+                ["house-1.webp", "tileHomes", "/c/houses", "mt-8"],
+                ["land-1.webp", "tileLand", "/c/land", ""],
+              ] as const
+            ).map(([img, label, href, offset]) => (
+              <li key={img} className={offset}>
+                <Link prefetch={false} href={href} className="group relative block aspect-[4/3] overflow-hidden rounded-card shadow-card">
+                  <Image src={`/placeholders/${img}`} alt="" fill sizes="240px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-900/85 to-transparent px-3 pt-8 pb-2.5 text-sm font-bold text-white">{th(label)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Container>
-        <div aria-hidden className="h-2 bg-brand-gradient" />
       </section>
 
       {/* 2. Categories */}

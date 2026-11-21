@@ -77,13 +77,13 @@ function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigat
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "flex min-h-10 items-center gap-3 rounded-btn px-3 text-sm font-semibold transition-colors",
-                        active ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "text-fg-2 hover:bg-bg-2",
+                        active ? "bg-red-500 text-white shadow-card" : "text-fg-2 hover:bg-bg-2 hover:text-fg",
                       )}
                     >
                       <Icon className="size-[18px]" />
                       <span className="flex-1">{i.label}</span>
                       {badge[i.href] ? (
-                        <span className="rounded-pill bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">{badge[i.href]}</span>
+                        <span className={cn("rounded-pill px-2 py-0.5 text-[11px] font-bold", active ? "bg-white text-red-600" : "bg-red-500 text-white")}>{badge[i.href]}</span>
                       ) : null}
                     </Link>
                   </li>
@@ -115,9 +115,9 @@ export function AdminShell({ me, counts, children }: { me: Me; counts: Counts; c
     <ConfirmProvider>
     <div className="flex min-h-dvh">
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface lg:flex">
-        <div className="flex h-16 items-center border-b border-line px-5">
+        <div className="flex h-[76px] flex-col justify-center border-b border-line px-5">
           <Link href="/admin" aria-label="Dashboard">
-            <Logo className="h-8" />
+            <Logo className="h-10" />
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
@@ -157,7 +157,7 @@ export function AdminShell({ me, counts, children }: { me: Me; counts: Counts; c
               </Link>
             </Button>
             <Button asChild variant="ghost" size="icon-sm" aria-label="View public site">
-              <a href="/" target="_blank" rel="noopener noreferrer">
+              <a href="/" target="_blank" rel="noopener noreferrer" title="View website">
                 <ExternalLink />
               </a>
             </Button>
@@ -165,7 +165,7 @@ export function AdminShell({ me, counts, children }: { me: Me; counts: Counts; c
           </div>
         </header>
         <main id="main" className="flex-1 p-4 sm:p-6 lg:p-8">
-          {children}
+          <div className="mx-auto w-full max-w-[1500px]">{children}</div>
         </main>
       </div>
       <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} role={me.role} />
@@ -182,7 +182,7 @@ function UserBox({ me }: { me: Me }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-fg">{me.name}</p>
-        <p className="truncate text-xs text-muted">{me.role === "ADMIN" ? "Admin" : "Broker"}</p>
+        <p className="truncate text-xs text-muted">{me.role === "ADMIN" ? "Administrator" : "Broker"}</p>
       </div>
       <form action={logoutAction}>
         <Button type="submit" variant="ghost" size="icon-xs" aria-label="Sign out">

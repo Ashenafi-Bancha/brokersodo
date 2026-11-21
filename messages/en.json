@@ -40,17 +40,24 @@
   },
   "hero": {
     "title": "Every deal in Sodo,",
-    "titleHighlight": "in one cart.",
-    "subtitle": "Cars, Bajaj, houses, land and more — verified by local brokers. You deal with BrokerSodo, never with strangers.",
+    "titleHighlight": "from small things to big properties.",
+    "subtitle": "Buy, sell or rent phones, furniture, cars, Bajaj, houses, land and machinery. Local brokers check every listing and handle the deal with you.",
     "keyword": "What are you looking for?",
-    "keywordPlaceholder": "Toyota Vitz, 3-bedroom house, BS-V-0142…",
+    "keywordPlaceholder": "Search phones, cars, houses, land…",
     "category": "Category",
     "anyCategory": "Any category",
     "area": "Area",
     "anyArea": "Any area",
     "buy": "Buy",
     "rent": "Rent",
-    "search": "Search"
+    "search": "Search",
+    "trust1": "Checked by local brokers",
+    "trust2": "Owner numbers stay private",
+    "trust3": "Help until the deal closes",
+    "tileSmall": "Small items",
+    "tileVehicles": "Cars & Bajaj",
+    "tileHomes": "Houses & rentals",
+    "tileLand": "Land & plots"
   },
   "home": {
     "categoriesTitle": "Browse by category",

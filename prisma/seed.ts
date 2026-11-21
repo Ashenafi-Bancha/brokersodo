@@ -10,6 +10,7 @@ import bcrypt from "bcryptjs";
 import blurMap from "./placeholder-blur.json";
 import stockPhotos from "./placeholder-images.json";
 import { photoType } from "./placeholder-type";
+import { OFFICE_CATEGORY_NAME, extraDrafts, withExtraOptions } from "./sample-extra";
 import { formatRefCode, listingSlug } from "../src/lib/ref-code";
 import type { AttributeField } from "../src/lib/validators/attribute-schema";
 
@@ -115,7 +116,7 @@ const CATEGORIES = [
   { slug: "land", nameEn: "Land & Plots", nameAm: "መሬት", refPrefix: "L", icon: "land", schema: landSchema, descriptionEn: "Residential, commercial and farm land." },
   { slug: "machinery", nameEn: "Machinery", nameAm: "ማሽነሪ", refPrefix: "M", icon: "machinery", schema: machinerySchema, descriptionEn: "Tractors, mills, generators and construction equipment." },
   { slug: "electronics", nameEn: "Electronics", nameAm: "ኤሌክትሮኒክስ", refPrefix: "E", icon: "electronics", schema: electronicsSchema, descriptionEn: "Phones, laptops, TVs, fridges and solar systems." },
-  { slug: "printers-office", nameEn: "Printers & Office", nameAm: "ፕሪንተር እና ቢሮ", refPrefix: "P", icon: "printer", schema: printerSchema, descriptionEn: "Printers, photocopiers and office equipment." },
+  { slug: "printers-office", nameEn: OFFICE_CATEGORY_NAME.nameEn, nameAm: OFFICE_CATEGORY_NAME.nameAm, refPrefix: "P", icon: "printer", schema: printerSchema, descriptionEn: "Printers, photocopiers and office equipment." },
   { slug: "other", nameEn: "Other", nameAm: "ሌሎች", refPrefix: "O", icon: "other", schema: otherSchema, descriptionEn: "Everything else we broker." },
 ] as const;
 
@@ -140,6 +141,7 @@ type Draft = {
   condition?: "NEW" | "USED" | "REFURBISHED";
   attrs: Record<string, string | number | boolean>;
   desc: string;
+  photo?: string;
 };
 
 function vehicles(): Draft[] {
@@ -389,7 +391,7 @@ async function main() {
         icon: c.icon,
         descriptionEn: c.descriptionEn,
         sortOrder: i,
-        attributeSchema: c.schema as unknown as Prisma.InputJsonValue,
+        attributeSchema: withExtraOptions(c.slug, c.schema) as unknown as Prisma.InputJsonValue,
       },
     });
     cats.set(c.slug, row);
@@ -400,7 +402,7 @@ async function main() {
   }
 
   /* Listings */
-  const drafts = [...vehicles(), ...bikes(), ...houses(), ...rentals(), ...land(), ...machinery(), ...electronics(), ...printers(), ...other()];
+  const drafts = [...vehicles(), ...bikes(), ...houses(), ...rentals(), ...land(), ...machinery(), ...electronics(), ...printers(), ...other(), ...extraDrafts];
   const counters: Record<string, number> = {};
   const now = Date.now();
   const listingIds: string[] = [];
@@ -411,7 +413,7 @@ async function main() {
     const area = areas[i % areas.length];
     const status = i % 11 === 5 ? (d.dealType === "RENT" ? "RENTED" : "SOLD") : i % 13 === 7 ? "RESERVED" : i === drafts.length - 1 ? "DRAFT" : "PUBLISHED";
     const publishedAt = new Date(now - i * 1000 * 60 * 60 * int(5, 30));
-    const pool = photos[photoType(d.cat, d.titleEn, d.attrs)] ?? photos.house;
+    const pool = photos[d.photo ?? photoType(d.cat, d.titleEn, d.attrs)] ?? photos.house;
     const nImg = Math.min(int(2, 4), pool.length);
     const imgs = Array.from({ length: nImg }, (_, k) => {
       const name = pool[(i + k) % pool.length];

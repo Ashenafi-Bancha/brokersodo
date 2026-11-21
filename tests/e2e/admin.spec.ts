@@ -12,7 +12,7 @@ test("staff can sign in and publish a listing", async ({ page }) => {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Hello");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Welcome back");
 
   await page.goto("/admin/listings/new");
   await page.getByLabel("Category").selectOption({ label: "Land & Plots (L)" });

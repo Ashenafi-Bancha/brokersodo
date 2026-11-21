@@ -129,5 +129,75 @@
   "sofa-1.webp",
   "sofa-2.webp",
   "sofa-3.webp"
+ ],
+ "desktop": [
+  "desktop-1.webp",
+  "desktop-2.webp"
+ ],
+ "monitor": [
+  "monitor-1.webp"
+ ],
+ "projector": [
+  "projector-1.webp"
+ ],
+ "router": [
+  "router-1.webp"
+ ],
+ "chair": [
+  "chair-1.webp"
+ ],
+ "desk": [
+  "desk-1.webp",
+  "desk-2.webp"
+ ],
+ "pump": [
+  "pump-1.webp"
+ ],
+ "excavator": [
+  "excavator-1.webp",
+  "excavator-2.webp"
+ ],
+ "welder": [
+  "welder-1.webp"
+ ],
+ "sewing": [
+  "sewing-1.webp",
+  "sewing-2.webp"
+ ],
+ "forklift": [
+  "forklift-1.webp"
+ ],
+ "tablet": [
+  "tablet-1.webp",
+  "tablet-2.webp"
+ ],
+ "camera": [
+  "camera-1.webp"
+ ],
+ "washer": [
+  "washer-1.webp"
+ ],
+ "microwave": [
+  "microwave-1.webp"
+ ],
+ "bicycle": [
+  "bicycle-1.webp",
+  "bicycle-2.webp"
+ ],
+ "dining": [
+  "dining-1.webp",
+  "dining-2.webp"
+ ],
+ "bed": [
+  "bed-1.webp",
+  "bed-2.webp"
+ ],
+ "cafe": [
+  "cafe-1.webp",
+  "cafe-2.webp"
+ ],
+ "gym": [
+  "gym-1.webp",
+  "gym-2.webp"
  ]
 }

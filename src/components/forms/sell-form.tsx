@@ -115,7 +115,7 @@ export function SellForm({ categories, areas }: { categories: Cat[]; areas: Area
   }
 
   return (
-    <div ref={topRef} className="scroll-mt-24">
+    <div ref={topRef} className="scroll-mt-24 lg:scroll-mt-32">
       {/* Progress */}
       <ol className="mb-6 grid grid-cols-4 gap-2" aria-label={t("stepOf", { n: step + 1, total: STEPS.length })}>
         {STEPS.map((s, i) => (

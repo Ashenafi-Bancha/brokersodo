@@ -20,7 +20,9 @@ export function MobileMenuSheet({
 }) {
   const t = useTranslations("nav");
   const links = [
+    { href: "/", label: t("home") },
     { href: "/listings", label: t("allListings") },
+    { href: "/listings?deal=sale", label: t("buy") },
     { href: "/listings?deal=rent", label: t("rent") },
     { href: "/wanted", label: t("wanted") },
     { href: "/how-it-works", label: t("howItWorks") },

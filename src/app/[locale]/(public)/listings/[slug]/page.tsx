@@ -239,7 +239,7 @@ export default async function ListingDetailPage({ params }: Props) {
           </div>
 
           <aside className="space-y-5">
-            <div className="space-y-5 lg:sticky lg:top-24">
+            <div className="space-y-5 lg:sticky lg:top-32">
               <div className="overflow-hidden rounded-card bg-surface shadow-card">
                 <div aria-hidden className="h-2 bg-brand-gradient" />
                 <div className="space-y-4 p-5">

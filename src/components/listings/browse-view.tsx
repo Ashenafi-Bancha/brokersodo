@@ -96,7 +96,7 @@ export async function BrowseView({ params, category, basePath }: { params: Parse
 
       <Container className="grid gap-8 py-8 lg:grid-cols-[280px_1fr]">
         <aside className="hidden lg:block" aria-label={t("filters")}>
-          <div className="sticky top-24 max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-card bg-surface p-5 shadow-card">
+          <div className="sticky top-32 max-h-[calc(100dvh-9rem)] overflow-y-auto rounded-card bg-surface p-5 shadow-card">
             <h2 className="mb-4 text-lg font-bold text-fg">{t("filters")}</h2>
             <FilterSidebar {...filterProps} />
           </div>
