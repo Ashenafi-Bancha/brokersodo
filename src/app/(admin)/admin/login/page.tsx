@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata: Metadata = { title: "Admin login" };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string }> }) {
   const { callbackUrl } = await searchParams;
@@ -13,8 +13,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="p-7">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-stacked.webp" alt="BrokerSodo" width={640} height={530} className="mx-auto h-36 w-auto dark:rounded-btn dark:bg-white dark:p-2" />
-          <h1 className="mt-6 text-center text-xl font-bold text-fg">Staff sign in</h1>
-          <p className="mt-1 text-center text-sm text-muted">BrokerSodo admin — authorised staff only.</p>
+          <h1 className="mt-6 text-center text-xl font-bold text-fg">Admin Login</h1>
+          <p className="mt-1 text-center text-sm text-muted">Sign in to manage BrokerSodo.</p>
           <LoginForm callbackUrl={callbackUrl} />
         </div>
       </div>

@@ -357,9 +357,9 @@ async function main() {
       businessName: "BrokerSodo",
       taglineEn: "Buy. Sell. Rent. — Sodo's Deal Spotters.",
       taglineAm: "በእምነት ይግዙ፣ ይሽጡ፣ ይከራዩ።",
-      phonePrimary: "+251900000000",
-      telegramUsername: "BrokerSodo",
-      whatsappNumber: "+251900000000",
+      phonePrimary: "+251947565691",
+      telegramUsername: "Sunagent01",
+      whatsappNumber: "+251947565691",
       email: "hello@brokersodo.com",
       addressEn: "Main Road, Arada, Wolaita Sodo, Ethiopia",
       addressAm: "ዋና መንገድ፣ አራዳ፣ ወላይታ ሶዶ",
@@ -370,7 +370,7 @@ async function main() {
       statYears: 5,
       statClients: 1200,
       facebookUrl: "https://facebook.com/",
-      tiktokUrl: "https://tiktok.com/",
+      tiktokUrl: "https://www.tiktok.com/@BorkerSodo",
     },
   });
 
