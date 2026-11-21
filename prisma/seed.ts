@@ -8,11 +8,14 @@
 import { PrismaClient, type Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import blurMap from "./placeholder-blur.json";
+import stockPhotos from "./placeholder-images.json";
+import { photoType } from "./placeholder-type";
 import { formatRefCode, listingSlug } from "../src/lib/ref-code";
 import type { AttributeField } from "../src/lib/validators/attribute-schema";
 
 const db = new PrismaClient();
 const blur = blurMap as Record<string, string>;
+const photos = stockPhotos as Record<string, string[]>;
 
 // Deterministic PRNG so the seed is reproducible
 let s = 42;
@@ -408,11 +411,11 @@ async function main() {
     const area = areas[i % areas.length];
     const status = i % 11 === 5 ? (d.dealType === "RENT" ? "RENTED" : "SOLD") : i % 13 === 7 ? "RESERVED" : i === drafts.length - 1 ? "DRAFT" : "PUBLISHED";
     const publishedAt = new Date(now - i * 1000 * 60 * 60 * int(5, 30));
-    const icon = cat.icon;
-    const nImg = int(2, 4);
+    const pool = photos[photoType(d.cat, d.titleEn, d.attrs)] ?? photos.house;
+    const nImg = Math.min(int(2, 4), pool.length);
     const imgs = Array.from({ length: nImg }, (_, k) => {
-      const name = `${icon}-${((i + k) % 5) + 1}.webp`;
-      return { url: `/placeholders/${name}`, width: 1200, height: 900, alt: d.titleEn, sortOrder: k, isCover: k === 0, blurData: blur[name] ?? null };
+      const name = pool[(i + k) % pool.length];
+      return { url: `/placeholders/${name}`, width: 960, height: 720, alt: d.titleEn, sortOrder: k, isCover: k === 0, blurData: blur[name] ?? null };
     });
     const l = await db.listing.create({
       data: {
@@ -505,8 +508,8 @@ async function main() {
   }
   await db.propertySubmission.createMany({
     data: [
-      { name: "Tesfaye M.", phone: "+251916123456", categoryId: cats.get("vehicles")!.id, dealType: "SALE", title: "Suzuki Alto 2016", details: "Manual, 95,000 km, libre ready.", attributes: { make: "suzuki", year: 2016, mileage: 95000, transmission: "manual" }, expectedPrice: 950000, areaId: areas[1].id, photos: [{ url: "/placeholders/car-3.webp", width: 1200, height: 900 }] },
-      { name: "Aster G.", phone: "+251917654321", categoryId: cats.get("house-rent")!.id, dealType: "RENT", rentPeriod: "MONTH", title: "2-bedroom house near Wadu", details: "Water 24h, own meter.", attributes: { propertyType: "house", bedrooms: 2 }, expectedPrice: 9000, areaId: areas[4].id, photos: [{ url: "/placeholders/rentals-4.webp", width: 1200, height: 900 }] },
+      { name: "Tesfaye M.", phone: "+251916123456", categoryId: cats.get("vehicles")!.id, dealType: "SALE", title: "Suzuki Alto 2016", details: "Manual, 95,000 km, libre ready.", attributes: { make: "suzuki", year: 2016, mileage: 95000, transmission: "manual" }, expectedPrice: 950000, areaId: areas[1].id, photos: [{ url: "/placeholders/hatchback-1.webp", width: 960, height: 720 }] },
+      { name: "Aster G.", phone: "+251917654321", categoryId: cats.get("house-rent")!.id, dealType: "RENT", rentPeriod: "MONTH", title: "2-bedroom house near Wadu", details: "Water 24h, own meter.", attributes: { propertyType: "house", bedrooms: 2 }, expectedPrice: 9000, areaId: areas[4].id, photos: [{ url: "/placeholders/house-2.webp", width: 960, height: 720 }] },
     ],
   });
   await db.wantedRequest.createMany({

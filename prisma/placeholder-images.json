@@ -1,0 +1,133 @@
+{
+ "hatchback": [
+  "hatchback-1.webp",
+  "hatchback-2.webp"
+ ],
+ "sedan": [
+  "sedan-1.webp",
+  "sedan-2.webp",
+  "sedan-3.webp"
+ ],
+ "suv": [
+  "suv-1.webp",
+  "suv-2.webp",
+  "suv-3.webp"
+ ],
+ "pickup": [
+  "pickup-1.webp",
+  "pickup-2.webp"
+ ],
+ "truck": [
+  "truck-1.webp",
+  "truck-2.webp"
+ ],
+ "ev": [
+  "ev-1.webp",
+  "ev-2.webp"
+ ],
+ "bajaj": [
+  "bajaj-1.webp",
+  "bajaj-2.webp",
+  "bajaj-3.webp"
+ ],
+ "motorbike": [
+  "motorbike-1.webp",
+  "motorbike-2.webp",
+  "motorbike-3.webp"
+ ],
+ "house": [
+  "house-1.webp",
+  "house-2.webp",
+  "house-3.webp",
+  "house-4.webp"
+ ],
+ "villa": [
+  "villa-1.webp",
+  "villa-2.webp",
+  "villa-3.webp"
+ ],
+ "apartment": [
+  "apartment-1.webp",
+  "apartment-2.webp",
+  "apartment-3.webp"
+ ],
+ "room": [
+  "room-1.webp",
+  "room-2.webp"
+ ],
+ "shop": [
+  "shop-1.webp",
+  "shop-2.webp"
+ ],
+ "office": [
+  "office-1.webp",
+  "office-2.webp",
+  "office-3.webp"
+ ],
+ "warehouse": [
+  "warehouse-1.webp",
+  "warehouse-2.webp",
+  "warehouse-3.webp"
+ ],
+ "land": [
+  "land-1.webp",
+  "land-2.webp"
+ ],
+ "farmland": [
+  "farmland-1.webp",
+  "farmland-2.webp"
+ ],
+ "tractor": [
+  "tractor-1.webp",
+  "tractor-2.webp",
+  "tractor-3.webp"
+ ],
+ "mill": [
+  "mill-1.webp"
+ ],
+ "generator": [
+  "generator-1.webp"
+ ],
+ "mixer": [
+  "mixer-1.webp",
+  "mixer-2.webp"
+ ],
+ "phone": [
+  "phone-1.webp",
+  "phone-2.webp",
+  "phone-3.webp"
+ ],
+ "laptop": [
+  "laptop-1.webp",
+  "laptop-2.webp"
+ ],
+ "tv": [
+  "tv-1.webp",
+  "tv-2.webp"
+ ],
+ "solar": [
+  "solar-1.webp",
+  "solar-2.webp",
+  "solar-3.webp"
+ ],
+ "fridge": [
+  "fridge-1.webp",
+  "fridge-2.webp"
+ ],
+ "printer": [
+  "printer-1.webp",
+  "printer-2.webp"
+ ],
+ "copier": [
+  "copier-1.webp",
+  "copier-2.webp"
+ ],
+ "tent": [
+  "tent-1.webp"
+ ],
+ "sofa": [
+  "sofa-1.webp",
+  "sofa-2.webp",
+  "sofa-3.webp"
+ ]
+}

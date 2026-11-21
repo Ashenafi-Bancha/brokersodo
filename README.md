@@ -16,7 +16,7 @@ npm run db:seed               # categories, areas, 46 sample listings, admin use
 npm run dev                   # http://localhost:3000  — admin at /admin
 ```
 
-Useful scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (unit), `npm run test:e2e` (Playwright, needs a built app + seeded DB), `npm run placeholders` (regenerate branded placeholder photos).
+Useful scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test` (unit), `npm run test:e2e` (Playwright, needs a built app + seeded DB), `npm run brand` (regenerate logos and icons).
 
 ## Environment variables
 
@@ -47,3 +47,7 @@ Useful scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`
 - Categories define their own fields (`attributeSchema`) via the visual schema builder — no migrations needed.
 - Add Wolaita later: add `"wo"` to `src/i18n/routing.ts` and create `messages/wo.json`.
 - Out of scope (not built): payments / paid featured listings, public accounts, Telegram bot, saved-search alerts.
+
+## Sample photos
+
+The sample listing photos in `public/placeholders` are CC0 / public-domain images found through [Openverse](https://openverse.org). Sources are listed in `public/placeholders/CREDITS.json`. Replace them with real property photos before launch.
