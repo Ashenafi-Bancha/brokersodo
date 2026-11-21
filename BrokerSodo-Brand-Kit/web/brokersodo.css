@@ -1,0 +1,125 @@
+/* BrokerSodo brand CSS — v1.0
+   Fonts: add to <head>:
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;700;900&display=swap" rel="stylesheet"> */
+
+:root {
+  /* brand */
+  --bs-red: #E30613;  --bs-red-600: #C50715;  --bs-red-700: #A20816;  --bs-red-50: #FDEBEC;
+  --bs-yellow: #FFC20E; --bs-yellow-100: #FFF4D4; --bs-yellow-700: #C4910A;
+  --bs-amber: #F59E0B;
+  --bs-blue: #2E4A8F; --bs-blue-50: #EEF1F6;
+  --bs-navy: #0F1B3D; --bs-navy-800: #172344; --bs-navy-700: #222D4D;
+  /* neutrals */
+  --bs-white: #FFFFFF; --bs-surface: #F6F7FA; --bs-line: #E5E6EA; --bs-line-strong: #C5C8D0;
+  --bs-grey: #9FA4B1; --bs-muted: #505971; --bs-text: #0F1B3D; --bs-text-2: #353F5C;
+  /* status */
+  --bs-sold: #15803D; --bs-reserved: #B45309; --bs-reserved-bg: #FEF7EB;
+  --bs-error: #DC2626; --bs-info: #2563EB;
+  /* gradient */
+  --bs-gradient: linear-gradient(90deg, #E30613 0%, #F59E0B 55%, #FFC20E 100%);
+  /* type */
+  --bs-font-display: "Montserrat", system-ui, sans-serif;
+  --bs-font-body: "Inter", system-ui, sans-serif;
+  --bs-font-ethiopic: "Noto Sans Ethiopic", "Inter", sans-serif;
+  /* shape */
+  --bs-radius-sm: 8px; --bs-radius: 12px; --bs-radius-card: 18px; --bs-radius-pill: 999px;
+  --bs-shadow-card: 0 1px 2px rgba(15,27,61,.06), 0 8px 24px rgba(15,27,61,.06);
+  --bs-shadow-pop: 0 20px 40px rgba(15,27,61,.18);
+  /* surfaces */
+  --bs-bg: var(--bs-white); --bs-bg-2: var(--bs-surface); --bs-fg: var(--bs-text); --bs-fg-muted: var(--bs-muted);
+  --bs-primary: var(--bs-red); --bs-primary-hover: var(--bs-red-600); --bs-on-primary: #FFFFFF;
+}
+[data-theme="dark"] {
+  --bs-bg: #0F1B3D; --bs-bg-2: #172344; --bs-line: #222D4D; --bs-line-strong: #353F5C;
+  --bs-fg: #FFFFFF; --bs-fg-muted: #AEB6CC;
+  --bs-primary: #FF4D57; --bs-primary-hover: #FF6B73; --bs-on-primary: #0F1B3D;
+}
+
+body { font-family: var(--bs-font-body); color: var(--bs-fg); background: var(--bs-bg); }
+:lang(am), .bs-am { font-family: var(--bs-font-ethiopic); font-style: normal; }
+
+/* type */
+.bs-display, .bs-h1, .bs-h2, .bs-h3 { font-family: var(--bs-font-display); font-style: italic; font-weight: 900; letter-spacing: -0.01em; }
+.bs-h1 { font-size: clamp(36px, 5vw, 56px); line-height: 1.07; }
+.bs-h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; }
+.bs-h3 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.2; font-weight: 800; }
+.bs-h4 { font: 700 22px/1.35 var(--bs-font-body); }
+.bs-body { font: 400 17px/1.6 var(--bs-font-body); color: var(--bs-text-2); }
+.bs-caption { font: 500 13px/1.4 var(--bs-font-body); color: var(--bs-fg-muted); }
+.bs-price { font-family: var(--bs-font-display); font-style: italic; font-weight: 900; font-size: 24px; color: var(--bs-red); font-variant-numeric: tabular-nums; }
+.bs-price small { font: 600 14px var(--bs-font-body); color: var(--bs-fg-muted); }
+.bs-accent { color: var(--bs-primary); } .bs-hl { color: var(--bs-yellow); }
+
+/* buttons */
+.bs-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px;
+  border: 2px solid transparent; border-radius: var(--bs-radius); font: 700 16px/1 var(--bs-font-body); text-decoration: none; cursor: pointer; transition: background .15s, transform .1s; }
+.bs-btn:active { transform: translateY(1px); }
+.bs-btn:focus-visible { outline: 3px solid var(--bs-yellow); outline-offset: 2px; }
+.bs-btn--primary { background: var(--bs-primary); color: var(--bs-on-primary); }
+.bs-btn--primary:hover { background: var(--bs-primary-hover); }
+.bs-btn--secondary { background: var(--bs-navy); color: #fff; }
+.bs-btn--outline { background: transparent; color: var(--bs-fg); border-color: currentColor; }
+.bs-btn--highlight { background: var(--bs-yellow); color: var(--bs-navy); font-weight: 800; }
+.bs-btn--call { background: var(--bs-red); color: #fff; }
+.bs-btn--telegram { background: #1C7ED6; color: #fff; }
+.bs-btn--whatsapp { background: #15803D; color: #fff; }
+.bs-btn:disabled { background: var(--bs-line); color: var(--bs-grey); cursor: not-allowed; }
+
+/* inputs, chips, toggle */
+.bs-input { min-height: 48px; padding: 0 14px; border: 1.5px solid var(--bs-line-strong); border-radius: var(--bs-radius); font: 400 16px var(--bs-font-body); background: var(--bs-bg); color: var(--bs-fg); }
+.bs-input:focus { outline: none; border-color: var(--bs-navy); box-shadow: 0 0 0 3px var(--bs-yellow-100); }
+.bs-input[aria-invalid="true"] { border-color: var(--bs-error); }
+.bs-chip { min-height: 38px; padding: 0 16px; border-radius: var(--bs-radius-pill); border: 1.5px solid var(--bs-line-strong); background: transparent; font: 600 14px var(--bs-font-body); color: var(--bs-fg); cursor: pointer; }
+.bs-chip[aria-pressed="true"] { background: var(--bs-yellow); border-color: var(--bs-yellow); color: var(--bs-navy); }
+.bs-toggle { display: inline-flex; gap: 4px; padding: 4px; border-radius: var(--bs-radius-pill); background: var(--bs-navy-800); }
+.bs-toggle button { min-height: 40px; padding: 0 22px; border: 0; border-radius: var(--bs-radius-pill); background: transparent; color: #fff; font: 700 15px var(--bs-font-body); cursor: pointer; }
+.bs-toggle button[aria-pressed="true"] { background: var(--bs-red); }
+
+/* badges */
+.bs-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--bs-radius-sm); font: 800 13px/1 var(--bs-font-body); letter-spacing: .02em; }
+.bs-badge--sale { background: var(--bs-red); color: #fff; font-family: var(--bs-font-display); font-style: italic; font-weight: 900; }
+.bs-badge--rent { background: var(--bs-blue); color: #fff; font-family: var(--bs-font-display); font-style: italic; font-weight: 900; }
+.bs-badge--featured { background: var(--bs-yellow); color: var(--bs-navy); border-radius: var(--bs-radius-pill); }
+.bs-badge--verified { background: var(--bs-navy); color: #fff; border-radius: var(--bs-radius-pill); }
+.bs-badge--inspected { background: var(--bs-blue-50); color: var(--bs-blue); border-radius: var(--bs-radius-pill); }
+.bs-badge--negotiable { border: 2px solid currentColor; color: var(--bs-fg); border-radius: var(--bs-radius-pill); }
+.bs-badge--reserved { background: var(--bs-reserved-bg); color: var(--bs-reserved); border: 2px solid var(--bs-amber); }
+.bs-badge--sold, .bs-badge--rented { background: var(--bs-sold); color: #fff; font-family: var(--bs-font-display); font-style: italic; font-weight: 900; transform: rotate(-3deg); }
+.bs-badge--new { background: var(--bs-gradient); color: var(--bs-navy); border-radius: var(--bs-radius-pill); font-family: var(--bs-font-display); font-style: italic; font-weight: 900; }
+
+/* listing card */
+.bs-card { background: var(--bs-bg); border-radius: var(--bs-radius-card); overflow: hidden; box-shadow: var(--bs-shadow-card); display: flex; flex-direction: column; }
+.bs-card--featured { outline: 3px solid var(--bs-yellow); }
+.bs-card__media { position: relative; aspect-ratio: 4 / 3; background: var(--bs-line); }
+.bs-card__media img.bs-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bs-card__media .bs-badge { position: absolute; top: 12px; left: 12px; }
+.bs-card__media .bs-watermark { position: absolute; right: 10px; bottom: 10px; width: 22%; opacity: .9; }
+.bs-card__body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.bs-card__title { font: 700 16px var(--bs-font-body); }
+.bs-card--sold .bs-card__media::after { content: "SOLD ✓"; position: absolute; inset: 0; display: grid; place-items: center; background: rgba(15,27,61,.55); color: #fff;
+  font: italic 900 30px var(--bs-font-display); }
+.bs-card--sold .bs-price { color: var(--bs-grey); text-decoration: line-through; }
+
+/* photo overlays */
+.bs-fade { background: linear-gradient(180deg, rgba(15,27,61,0) 35%, rgba(15,27,61,.92) 100%); }
+.bs-ribbon { position: absolute; top: 26px; left: -46px; width: 200px; transform: rotate(-45deg); text-align: center; padding: 7px 0; background: var(--bs-red); color: #fff; font: italic 900 14px var(--bs-font-display); }
+.bs-price-tab { position: absolute; right: 0; bottom: 24px; padding: 10px 18px 10px 22px; border-radius: 999px 0 0 999px; background: var(--bs-yellow); color: var(--bs-navy); font: italic 900 22px var(--bs-font-display); }
+
+/* graphic devices */
+.bs-swoosh-bar { height: 8px; background: var(--bs-gradient); }
+.bs-pattern { background-image: url("../patterns/pattern-light.svg"); background-size: 140px; }
+[data-theme="dark"] .bs-pattern, .bs-pattern--dark { background-image: url("../patterns/pattern-dark.svg"); }
+
+/* bottom nav (mobile) */
+.bs-bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; padding: 8px 6px calc(10px + env(safe-area-inset-bottom));
+  background: var(--bs-bg); box-shadow: 0 -4px 20px rgba(15,27,61,.08); }
+.bs-bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 12px var(--bs-font-body); color: var(--bs-fg-muted); text-decoration: none; min-height: 44px; }
+.bs-bottom-nav a[aria-current="page"] { color: var(--bs-primary); }
+.bs-bottom-nav .bs-fab { width: 54px; height: 54px; margin-top: -26px; border-radius: 50%; background: var(--bs-red); border: 4px solid var(--bs-bg); display: grid; place-items: center; }
+
+@media (min-width: 768px) { .bs-bottom-nav { display: none; } }
+
+/* eye loader */
+.bs-loader { width: 64px; height: 40px; background: url("../logo/svg/eyes-full-colour.svg") center/contain no-repeat; animation: bs-look 1.2s ease-in-out infinite; }
+@keyframes bs-look { 0%,100% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .bs-loader { animation: none; } }

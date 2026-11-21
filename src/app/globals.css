@@ -1,0 +1,319 @@
+@import "tailwindcss";
+
+/*
+ * BrokerSodo design tokens — single source of truth.
+ * Values come from BrokerSodo-Brand-Kit/web/tokens.json + brokersodo.css (v1.0).
+ * To rebrand, change the variables in this file only.
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ---------- Raw brand palette (static) ---------- */
+@theme {
+  --color-red-50: #fdebec;
+  --color-red-100: #fad2d5;
+  --color-red-200: #f5a5aa;
+  --color-red-300: #ef747b;
+  --color-red-400: #e93d47;
+  --color-red-500: #e30613;
+  --color-red-600: #c50715;
+  --color-red-700: #a20816;
+  --color-red-800: #7f0a18;
+  --color-red-900: #5c0b1a;
+
+  --color-yellow-50: #fffaec;
+  --color-yellow-100: #fff4d4;
+  --color-yellow-200: #ffe9a8;
+  --color-yellow-300: #ffdd78;
+  --color-yellow-400: #ffcf43;
+  --color-yellow-500: #ffc20e;
+  --color-yellow-600: #e6ad0c;
+  --color-yellow-700: #c4910a;
+  --color-yellow-800: #a17307;
+  --color-yellow-900: #7e5605;
+
+  --color-amber-50: #fef7eb;
+  --color-amber-100: #fdeed3;
+  --color-amber-200: #fbdca7;
+  --color-amber-300: #f9c976;
+  --color-amber-400: #f7b341;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d48a0e;
+  --color-amber-700: #ae7311;
+  --color-amber-800: #895c14;
+  --color-amber-900: #634517;
+
+  --color-blue-50: #eef1f6;
+  --color-blue-100: #d9deeb;
+  --color-blue-200: #b4bed7;
+  --color-blue-300: #8a9ac0;
+  --color-blue-400: #5c72a8;
+  --color-blue-500: #2e4a8f;
+  --color-blue-600: #29427f;
+  --color-blue-700: #23386d;
+  --color-blue-800: #1d2e5b;
+  --color-blue-900: #182549;
+
+  --color-navy-50: #f3f4f5;
+  --color-navy-100: #e5e6ea;
+  --color-navy-200: #c5c8d0;
+  --color-navy-300: #9fa4b1;
+  --color-navy-400: #747b8e;
+  --color-navy-500: #505971;
+  --color-navy-600: #353f5c;
+  --color-navy-700: #222d4d;
+  --color-navy-800: #172344;
+  --color-navy-900: #0f1b3d;
+
+  --color-sold: #15803d;
+  --color-reserved: #b45309;
+  --color-reserved-bg: #fef7eb;
+  --color-error: #dc2626;
+  --color-info: #2563eb;
+  --color-telegram: #1971c2; /* darkened from #1C7ED6 for AA contrast with white text */
+  --color-whatsapp: #15803d;
+
+  --radius-sm: 8px;
+  --radius-btn: 12px;
+  --radius-card: 18px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(15, 27, 61, 0.06), 0 8px 24px rgba(15, 27, 61, 0.06);
+  --shadow-pop: 0 20px 40px rgba(15, 27, 61, 0.18);
+
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-display: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-ethiopic: var(--font-noto-ethiopic), "Noto Sans Ethiopic", var(--font-inter), sans-serif;
+
+  --text-h1: clamp(2.25rem, 5vw, 3.5rem);
+  --text-h1--line-height: 1.07;
+  --text-h2: clamp(1.75rem, 3.6vw, 2.5rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.375rem, 2.6vw, 1.875rem);
+  --text-h3--line-height: 1.2;
+  --text-price: 1.5rem;
+
+  --animate-look: bs-look 1.2s ease-in-out infinite;
+  --animate-pop: bs-pop 0.35s ease-out;
+}
+
+/* ---------- Semantic tokens (light) ---------- */
+:root {
+  --bg: #ffffff;
+  --bg-2: #f6f7fa;
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --fg: #0f1b3d;
+  --fg-2: #353f5c;
+  --fg-muted: #505971;
+  --line: #e5e6ea;
+  --line-strong: #c5c8d0;
+  --primary: #e30613;
+  --primary-hover: #c50715;
+  --on-primary: #ffffff;
+  --accent: #ffc20e;
+  --on-accent: #0f1b3d;
+  --secondary: #0f1b3d;
+  --on-secondary: #ffffff;
+  --ring: #ffc20e;
+  --input-focus: #0f1b3d;
+  --price: #e30613;
+  --gradient: linear-gradient(90deg, #e30613 0%, #f59e0b 55%, #ffc20e 100%);
+  --pattern: url("/brand/patterns/pattern-light.svg");
+  --chart-2: #2e4a8f;
+  color-scheme: light;
+}
+
+/* ---------- Semantic tokens (dark) ---------- */
+[data-theme="dark"] {
+  --bg: #0f1b3d;
+  --bg-2: #172344;
+  --surface: #172344;
+  --raised: #222d4d;
+  --fg: #ffffff;
+  --fg-2: #d9deeb;
+  --fg-muted: #aeb6cc;
+  --line: #222d4d;
+  --line-strong: #353f5c;
+  --primary: #ff4d57;
+  --primary-hover: #ff6b73;
+  --on-primary: #0f1b3d;
+  --accent: #ffc20e;
+  --on-accent: #0f1b3d;
+  --secondary: #ffffff;
+  --on-secondary: #0f1b3d;
+  --ring: #ffc20e;
+  --input-focus: #ffc20e;
+  --price: #ff4d57;
+  --pattern: url("/brand/patterns/pattern-dark.svg");
+  --chart-2: #8a9ac0;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--fg-muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-ring: var(--ring);
+  --color-price: var(--price);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :lang(am),
+  .font-am {
+    font-family: var(--font-ethiopic);
+    font-style: normal;
+  }
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@utility font-brand {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+/* Amharic text is never italicised */
+:lang(am) .font-brand,
+.font-brand:lang(am) {
+  font-family: var(--font-ethiopic);
+  font-style: normal;
+}
+
+@utility bg-brand-gradient {
+  background-image: var(--gradient);
+}
+@utility bg-pattern {
+  background-image: var(--pattern);
+  background-size: 140px;
+}
+@utility bg-pattern-dark {
+  background-image: url("/brand/patterns/pattern-dark.svg");
+  background-size: 140px;
+}
+@utility text-balance {
+  text-wrap: balance;
+}
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+/* Skip layout/paint for off-screen page sections until they are near the viewport. */
+@utility cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@keyframes bs-look {
+  0%,
+  100% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+@keyframes bs-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes bs-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Leaflet — loaded from the package; keep tiles below the sticky header */
+.leaflet-container {
+  z-index: 0;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-card);
+}
+
+/* Rich-text listing description */
+.prose-bs {
+  color: var(--fg-2);
+  line-height: 1.7;
+}
+.prose-bs p {
+  margin: 0 0 0.9em;
+}
+.prose-bs ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0 0 0.9em;
+}
+.prose-bs ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 0 0 0.9em;
+}
+.prose-bs strong {
+  color: var(--fg);
+}
+.prose-bs h2,
+.prose-bs h3 {
+  color: var(--fg);
+  font-weight: 700;
+  margin: 1.2em 0 0.5em;
+}
+.prose-bs a {
+  color: var(--primary);
+  text-decoration: underline;
+}

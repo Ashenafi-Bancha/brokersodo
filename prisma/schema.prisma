@@ -1,0 +1,411 @@
+// BrokerSodo — Phase 1 data model
+// Full-text search: `Listing.searchVector` is maintained by a Postgres trigger
+// (see prisma/migrations/*_search/migration.sql). Fuzzy matching uses pg_trgm.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [pg_trgm, unaccent]
+}
+
+enum Role {
+  ADMIN
+  BROKER
+}
+
+enum DealType {
+  SALE
+  RENT
+}
+
+enum RentPeriod {
+  DAY
+  MONTH
+  YEAR
+}
+
+enum Condition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+  RESERVED
+  SOLD
+  RENTED
+  ARCHIVED
+}
+
+enum ContactMethod {
+  CALL
+  TELEGRAM
+  WHATSAPP
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  VIEWING_SCHEDULED
+  NEGOTIATING
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WantedStatus {
+  OPEN
+  MATCHED
+  CLOSED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(BROKER)
+  avatar       String?
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listings  Listing[]       @relation("AssignedBroker")
+  inquiries Inquiry[]       @relation("InquiryBroker")
+  activity  ActivityLog[]
+
+  @@index([role, isActive])
+}
+
+model Category {
+  id              String     @id @default(cuid())
+  nameEn          String
+  nameAm          String?
+  slug            String     @unique
+  /// Short prefix used in reference codes, e.g. "V" -> BS-V-0142
+  refPrefix       String     @default("X")
+  /// Brand icon key, maps to /brand/icons/svg/ic-{icon}-navy.svg
+  icon            String     @default("other")
+  image           String?
+  descriptionEn   String?
+  descriptionAm   String?
+  sortOrder       Int        @default(0)
+  isActive        Boolean    @default(true)
+  parentId        String?
+  parent          Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children        Category[] @relation("CategoryTree")
+  /// Array of AttributeField — see src/lib/validators/attribute-schema.ts
+  attributeSchema Json       @default("[]")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  listings    Listing[]
+  submissions PropertySubmission[]
+  wanted      WantedRequest[]
+
+  @@index([isActive, sortOrder])
+  @@index([parentId])
+}
+
+model Area {
+  id        String   @id @default(cuid())
+  nameEn    String
+  nameAm    String?
+  slug      String   @unique
+  city      String   @default("Wolaita Sodo")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings    Listing[]
+  submissions PropertySubmission[]
+  wanted      WantedRequest[]
+
+  @@index([sortOrder])
+}
+
+/// Per-prefix counter used to allocate reference codes atomically.
+model RefCounter {
+  prefix String @id
+  value  Int    @default(0)
+}
+
+model Listing {
+  id            String        @id @default(cuid())
+  refCode       String        @unique
+  slug          String        @unique
+  titleEn       String
+  titleAm       String?
+  /// Sanitised HTML
+  descriptionEn String        @default("")
+  descriptionAm String?
+  videoUrl      String?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  dealType       DealType
+  rentPeriod     RentPeriod?
+  /// Whole Ethiopian Birr
+  price          Int?
+  isNegotiable   Boolean     @default(false)
+  priceOnRequest Boolean     @default(false)
+  condition      Condition?
+
+  areaId      String?
+  area        Area?   @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  addressHint String?
+  /// Approximate location — rendered as a privacy circle, never a pin
+  lat         Float?
+  lng         Float?
+
+  attributes Json @default("{}")
+
+  status        ListingStatus @default(DRAFT)
+  isVerified    Boolean       @default(false)
+  isInspected   Boolean       @default(false)
+  featured      Boolean       @default(false)
+  featuredUntil DateTime?
+
+  assignedBrokerId String?
+  assignedBroker   User?   @relation("AssignedBroker", fields: [assignedBrokerId], references: [id], onDelete: SetNull)
+
+  // ---- PRIVATE: staff only. Never select on public routes. ----
+  ownerName  String?
+  ownerPhone String?
+  ownerNotes String?
+
+  viewCount   Int       @default(0)
+  publishedAt DateTime?
+  soldAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  searchVector Unsupported("tsvector")?
+
+  images      ListingImage[]
+  inquiries   Inquiry[]
+  submissions PropertySubmission[]
+  wanted      WantedRequest[]       @relation("WantedMatches")
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([categoryId, status])
+  @@index([areaId, status])
+  @@index([dealType, status])
+  @@index([price])
+  @@index([featured, status])
+  @@index([assignedBrokerId])
+  @@index([searchVector], type: Gin)
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String?
+  width     Int      @default(1200)
+  height    Int      @default(900)
+  alt       String?
+  blurData  String?
+  sortOrder Int      @default(0)
+  isCover   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([listingId, sortOrder])
+}
+
+model Inquiry {
+  id               String        @id @default(cuid())
+  listingId        String?
+  listing          Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  name             String
+  phone            String
+  message          String?
+  preferredContact ContactMethod @default(CALL)
+  /// e.g. listing, contact, home
+  source           String        @default("listing")
+  status           InquiryStatus @default(NEW)
+  assignedBrokerId String?
+  assignedBroker   User?         @relation("InquiryBroker", fields: [assignedBrokerId], references: [id], onDelete: SetNull)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([listingId])
+  @@index([assignedBrokerId])
+  @@index([createdAt])
+}
+
+model PropertySubmission {
+  id              String           @id @default(cuid())
+  name            String
+  phone           String
+  categoryId      String?
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  dealType        DealType
+  rentPeriod      RentPeriod?
+  title           String
+  details         String?
+  attributes      Json             @default("{}")
+  expectedPrice   Int?
+  areaId          String?
+  area            Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  /// Array of { url, publicId, width, height }
+  photos          Json             @default("[]")
+  status          SubmissionStatus @default(PENDING)
+  rejectReason    String?
+  linkedListingId String?
+  linkedListing   Listing?         @relation(fields: [linkedListingId], references: [id], onDelete: SetNull)
+  staffNotes      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model WantedRequest {
+  id          String       @id @default(cuid())
+  name        String
+  phone       String
+  categoryId  String?
+  category    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  dealType    DealType
+  description String
+  budgetMin   Int?
+  budgetMax   Int?
+  areaId      String?
+  area        Area?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  status      WantedStatus @default(OPEN)
+  notes       String?
+  matches     Listing[]    @relation("WantedMatches")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  quoteEn   String
+  quoteAm   String?
+  rating    Int      @default(5)
+  avatar    String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Faq {
+  id         String   @id @default(cuid())
+  questionEn String
+  questionAm String?
+  answerEn   String
+  answerAm   String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  titleEn   String
+  titleAm   String?
+  /// Sanitised HTML
+  bodyEn    String   @default("")
+  bodyAm    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Singleton — always id = "site"
+model SiteSettings {
+  id               String   @id @default("site")
+  businessName     String   @default("BrokerSodo")
+  taglineEn        String?
+  taglineAm        String?
+  phonePrimary     String   @default("+251900000000")
+  phoneSecondary   String?
+  telegramUsername String   @default("BrokerSodo")
+  telegramChannel  String?
+  whatsappNumber   String   @default("+251900000000")
+  email            String?
+  addressEn        String?
+  addressAm        String?
+  mapLat           Float    @default(6.8556)
+  mapLng           Float    @default(37.7508)
+  hoursEn          String?
+  hoursAm          String?
+  facebookUrl      String?
+  tiktokUrl        String?
+  instagramUrl     String?
+  youtubeUrl       String?
+  heroTitleEn      String?
+  heroTitleAm      String?
+  heroSubtitleEn   String?
+  heroSubtitleAm   String?
+  /// Overrides for the homepage counters (null = use live DB value)
+  statListings     Int?
+  statDeals        Int?
+  statClients      Int?
+  statYears        Int?
+  seoTitle         String?
+  seoDescription   String?
+  updatedAt        DateTime @updatedAt
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  summary    String?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+}
+
+/// Simple fixed-window rate limiter store (works on serverless without Redis)
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+/// De-duplicates listing view counts (hashed visitor + listing per day)
+model ListingView {
+  id        String   @id
+  listingId String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
