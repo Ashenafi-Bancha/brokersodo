@@ -1,7 +1,7 @@
 {
   "meta": {
-    "siteTitle": "BrokerSodo — Buy, Sell & Rent in Wolaita Sodo",
-    "siteDescription": "Cars, Bajaj, houses, land, rentals, machinery and electronics — checked by local brokers in Wolaita Sodo. Buy. Sell. Rent. — Sodo's Deal Spotters.",
+    "siteTitle": "BrokerSodo — Buy, Sell & Rent in Wolaita and South Ethiopia",
+    "siteDescription": "Phones, cars, Bajaj, houses, land, rentals and machinery in Wolaita Sodo, across Wolaita and South Ethiopia — checked by local brokers.",
     "tagline": "Sodo's Deal Spotters"
   },
   "nav": {
@@ -21,7 +21,7 @@
     "categories": "Categories",
     "allCategories": "All categories",
     "search": "Search",
-    "searchPlaceholder": "Search cars, houses, Bajaj, ref code…",
+    "searchPlaceholder": "Search listings…",
     "call": "Call",
     "menu": "Menu",
     "close": "Close",
@@ -39,9 +39,9 @@
     "system": "System"
   },
   "hero": {
-    "title": "Every deal in Sodo,",
+    "title": "Every deal in Wolaita & South Ethiopia,",
     "titleHighlight": "from small things to big properties.",
-    "subtitle": "Buy, sell or rent phones, furniture, cars, Bajaj, houses, land and machinery. Local brokers check every listing and handle the deal with you.",
+    "subtitle": "Buy, sell or rent phones, furniture, cars, Bajaj, houses, land and machinery in Wolaita Sodo, across Wolaita and throughout South Ethiopia. Local brokers check every listing and handle the deal with you.",
     "keyword": "What are you looking for?",
     "keywordPlaceholder": "Search phones, cars, houses, land…",
     "category": "Category",
@@ -61,7 +61,7 @@
   },
   "home": {
     "categoriesTitle": "Browse by category",
-    "categoriesSubtitle": "Everything we broker in Wolaita Sodo.",
+    "categoriesSubtitle": "Everything we broker in Wolaita Sodo, across Wolaita and South Ethiopia.",
     "listingsCount": "{count, plural, =0 {No listings yet} one {# listing} other {# listings}}",
     "featuredTitle": "Featured deals",
     "featuredSubtitle": "Hand-picked by our brokers.",
@@ -87,12 +87,12 @@
       "3": { "title": "We market", "body": "Your listing goes live. Your number stays private." },
       "4": { "title": "You get paid", "body": "We bring serious buyers and help you close." }
     },
-    "statsTitle": "Trusted across Wolaita Sodo",
+    "statsTitle": "Trusted across Wolaita and South Ethiopia",
     "stats": {
       "listings": "Active listings",
       "deals": "Deals closed",
       "clients": "Happy clients",
-      "years": "Years in Sodo"
+      "years": "Years serving the region"
     },
     "soldTitle": "Recently sold",
     "soldSubtitle": "Real deals, closed by BrokerSodo.",
@@ -173,7 +173,7 @@
   },
   "browse": {
     "title": "All listings",
-    "metaTitle": "{category} in Wolaita Sodo",
+    "metaTitle": "{category} in Wolaita & South Ethiopia",
     "metaTitleArea": "{category} in {area}, Wolaita Sodo",
     "results": "{count, plural, =0 {No results} one {# result} other {# results}}",
     "filters": "Filters",
@@ -338,7 +338,7 @@
   },
   "footer": {
     "about": "About BrokerSodo",
-    "aboutText": "Wolaita Sodo's trusted brokers for vehicles, houses, land, rentals and more. Every listing is managed and verified by our team.",
+    "aboutText": "Trusted brokers for vehicles, houses, land, rentals and more in Wolaita Sodo, across Wolaita and South Ethiopia. Every listing is managed and verified by our team.",
     "quickLinks": "Quick links",
     "contactUs": "Contact us",
     "hours": "Hours",
@@ -369,7 +369,7 @@
     "why": {
       "1": { "title": "Verified listings", "body": "Our team checks each property and the owner before it goes live." },
       "2": { "title": "Your privacy", "body": "Owners' numbers are never published. Buyers talk to BrokerSodo." },
-      "3": { "title": "Local know-how", "body": "We know Sodo's prices, areas and paperwork." }
+      "3": { "title": "Local know-how", "body": "We know the prices, areas and paperwork across Wolaita and South Ethiopia." }
     }
   },
   "about": {

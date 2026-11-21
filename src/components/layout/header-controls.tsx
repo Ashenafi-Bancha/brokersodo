@@ -97,7 +97,7 @@ export function CategoryMegaMenu({ categories }: { categories: NavCategory[] }) 
         aria-expanded={open}
         aria-controls="category-menu"
         onClick={() => setOpen((o) => !o)}
-        className={cn("inline-flex min-h-10 cursor-pointer items-center gap-1 rounded-btn px-3 font-semibold text-fg hover:bg-bg-2", open && "bg-bg-2")}
+        className={cn("inline-flex min-h-9 cursor-pointer items-center gap-0.5 rounded-sm px-2 text-sm font-semibold whitespace-nowrap text-fg hover:bg-bg-2", open && "bg-bg-2")}
       >
         {t("categories")}
         <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
@@ -173,7 +173,7 @@ export function MobileMenu({ categories, phoneHref }: { categories: NavCategory[
         size="icon-sm"
         aria-label={t("menu")}
         aria-expanded={open}
-        className="lg:hidden"
+        className="xl:hidden"
         onClick={() => {
           setLoaded(true);
           setOpen(true);

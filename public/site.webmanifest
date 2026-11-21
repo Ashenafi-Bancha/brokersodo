@@ -1,7 +1,7 @@
 {
   "name": "BrokerSodo — Sodo Deals",
   "short_name": "BrokerSodo",
-  "description": "Buy, sell and rent anything in Wolaita Sodo.",
+  "description": "Buy, sell and rent anything in Wolaita and South Ethiopia.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",

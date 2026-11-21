@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 /** home → browse → filter → listing detail → submit inquiry */
 test("visitor can find a listing and send an inquiry", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Every deal in Sodo");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Every deal in Wolaita");
 
   // Browse a category from the home page
   await page.getByRole("link", { name: /Cars & Vehicles/ }).first().click();
@@ -49,7 +49,7 @@ test("visitor can find a listing and send an inquiry", async ({ page }) => {
 test("Amharic locale and 404", async ({ page }) => {
   await page.goto("/am");
   await expect(page.locator("html")).toHaveAttribute("lang", "am");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("በሶዶ");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("በወላይታ");
   const res = await page.goto("/listings/this-does-not-exist");
   expect(res?.status()).toBe(404);
 });

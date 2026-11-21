@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const linkClass = (active: boolean) =>
   cn(
-    "inline-flex min-h-10 items-center rounded-btn px-3 text-[15px] font-semibold whitespace-nowrap transition-colors hover:bg-bg-2",
+    "inline-flex min-h-9 items-center rounded-sm px-2 text-sm font-semibold whitespace-nowrap transition-colors hover:bg-bg-2",
     active ? "bg-red-50 text-primary dark:bg-navy-700" : "text-fg",
   );
 
@@ -38,7 +38,7 @@ function DealLink(props: { deal: "sale" | "rent"; label: string }) {
   );
 }
 
-/** Desktop navigation row with the site's main pages. */
+/** Desktop navigation, shown in the same row as the logo and search bar. */
 export function MainNav({ categories }: { categories: NavCategory[] }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -51,7 +51,7 @@ export function MainNav({ categories }: { categories: NavCategory[] }) {
     );
   };
   return (
-    <nav aria-label={t("mainNav")} className="mx-auto hidden h-12 max-w-7xl items-center gap-0.5 px-6 lg:flex lg:px-8">
+    <nav aria-label={t("mainNav")} className="hidden shrink-0 items-center xl:flex">
       {page("/", t("home"))}
       <CategoryMegaMenu categories={categories} />
       <DealLink deal="sale" label={t("buy")} />

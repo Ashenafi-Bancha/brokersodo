@@ -109,7 +109,7 @@ const machinerySchema: AttributeField[] = [
 const otherSchema: AttributeField[] = [F({ key: "brand", labelEn: "Brand", labelAm: "ብራንድ", type: "text" })];
 
 const CATEGORIES = [
-  { slug: "vehicles", nameEn: "Cars & Vehicles", nameAm: "መኪናዎች", refPrefix: "V", icon: "car", schema: vehicleSchema, descriptionEn: "Cars, pickups and minibuses for sale in Wolaita Sodo." },
+  { slug: "vehicles", nameEn: "Cars & Vehicles", nameAm: "መኪናዎች", refPrefix: "V", icon: "car", schema: vehicleSchema, descriptionEn: "Cars, pickups and minibuses for sale in Wolaita and South Ethiopia." },
   { slug: "motorbikes-bajaj", nameEn: "Motorbikes & Bajaj", nameAm: "ሞተር ሳይክል እና ባጃጅ", refPrefix: "B", icon: "bajaj", schema: bikeSchema, descriptionEn: "Bajaj three-wheelers and motorbikes." },
   { slug: "houses", nameEn: "Houses for Sale", nameAm: "የሚሸጡ ቤቶች", refPrefix: "H", icon: "house", schema: houseSchema, descriptionEn: "Family homes and villas for sale." },
   { slug: "house-rent", nameEn: "Rentals", nameAm: "ኪራይ", refPrefix: "R", icon: "rentals", schema: rentalSchema, descriptionEn: "Houses, apartments, shops, offices and warehouses for rent." },
@@ -475,6 +475,7 @@ async function main() {
       { sortOrder: 3, questionEn: "Do you charge buyers?", answerEn: "Our commission depends on the deal type. Ask your broker — we always agree on it in writing before a viewing." },
       { sortOrder: 4, questionEn: "Can you find something that isn't listed?", answerEn: "Yes. Post a Wanted request with your budget and area, and our brokers will look for a match." },
       { sortOrder: 5, questionEn: "Is the map location exact?", answerEn: "No. For privacy we show an approximate circle. The exact location is shared when you book a viewing." },
+      { sortOrder: 6, questionEn: "Which areas do you cover?", questionAm: "የትኞቹን አካባቢዎች ይሸፍናሉ?", answerEn: "We are based in Wolaita Sodo and cover other areas in Wolaita and across South Ethiopia. Call or message us about a property or item in your area.", answerAm: "መቀመጫችን ወላይታ ሶዶ ሲሆን ሌሎች የወላይታ አካባቢዎችን እና ደቡብ ኢትዮጵያን እንሸፍናለን። በአካባቢዎ ስላለ ንብረት ወይም ዕቃ ይደውሉልን ወይም መልዕክት ይላኩልን።" },
     ],
   });
   await db.page.createMany({
@@ -484,7 +485,7 @@ async function main() {
         titleEn: "About BrokerSodo",
         titleAm: "ስለ ብሮከርሶዶ",
         bodyEn:
-          "<p><strong>BrokerSodo</strong> is a brokerage in Wolaita Sodo that helps people buy, sell and rent vehicles, houses, land, rentals, machinery, electronics and more.</p><p>Unlike open classifieds, every listing on BrokerSodo is managed by our staff. We check the property and the owner, keep the owner's details private, and guide buyers and tenants all the way to a safe deal.</p><h2>Our promise</h2><ul><li>Verified listings with clear reference codes</li><li>Privacy for owners</li><li>Honest, local advice</li></ul>",
+          "<p><strong>BrokerSodo</strong> is a brokerage based in Wolaita Sodo, serving other areas in Wolaita and across South Ethiopia. We help people buy, sell and rent vehicles, houses, land, rentals, machinery, electronics and more.</p><p>Unlike open classifieds, every listing on BrokerSodo is managed by our staff. We check the property and the owner, keep the owner's details private, and guide buyers and tenants all the way to a safe deal.</p><h2>Our promise</h2><ul><li>Verified listings with clear reference codes</li><li>Privacy for owners</li><li>Honest, local advice</li></ul>",
       },
       { slug: "terms", titleEn: "Terms of use", bodyEn: "<p>These are placeholder terms. Replace them in Admin → Content → Pages before launch.</p><p>Listings are provided by BrokerSodo for information. Prices and availability may change. All deals are concluded through BrokerSodo.</p>" },
       { slug: "privacy", titleEn: "Privacy policy", bodyEn: "<p>These are placeholder privacy terms. Replace them in Admin → Content → Pages before launch.</p><p>We collect your name and phone number only to respond to your inquiry or submission. We never publish owners' contact details. Saved listings are stored only on your device.</p>" },

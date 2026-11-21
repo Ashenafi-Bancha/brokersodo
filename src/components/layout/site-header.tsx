@@ -24,17 +24,19 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6 lg:gap-4 lg:px-8">
-        <Suspense fallback={<span className="size-10 lg:hidden" />}>
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-2 px-4 sm:px-6 xl:gap-3">
+        <Suspense fallback={<span className="size-10 xl:hidden" />}>
           <MobileMenu categories={navCats} phoneHref={phoneHref} />
         </Suspense>
         <Link href="/" aria-label="BrokerSodo — home" className="mr-auto shrink-0 lg:mr-0">
-          <Logo className="h-9 sm:h-10 lg:h-12" priority />
+          <Logo className="h-9 sm:h-10" priority />
         </Link>
 
-        <HeaderSearch className="mx-4 hidden max-w-xl flex-1 lg:block" />
+        <MainNav categories={navCats} />
 
-        <div className="flex items-center gap-1 lg:ml-auto lg:gap-2">
+        <HeaderSearch className="hidden min-w-0 flex-1 lg:block" />
+
+        <div className="flex shrink-0 items-center gap-1 xl:gap-1.5">
           <Button asChild variant="ghost" size="icon-sm" className="lg:hidden" aria-label={t("search")}>
             <Link href="/listings">
               <Search />
@@ -44,7 +46,7 @@ export async function SiteHeader() {
             <LanguageSwitcher compact className="hidden sm:inline-flex" />
           </Suspense>
           <ThemeToggle className="hidden sm:inline-flex" />
-          <Button asChild variant="secondary" size="sm" className="hidden xl:inline-flex">
+          <Button asChild variant="secondary" size="sm" className="hidden 2xl:inline-flex">
             <a href={phoneHref}>
               <Phone /> {t("call")}
             </a>
@@ -52,15 +54,12 @@ export async function SiteHeader() {
           <Button asChild variant="primary" size="sm" className="hidden sm:inline-flex">
             <Link href="/sell">{t("sellWithUs")}</Link>
           </Button>
-          <Button asChild variant="call" size="icon-sm" className="xl:hidden" aria-label={t("call")}>
+          <Button asChild variant="call" size="icon-sm" className="2xl:hidden" aria-label={t("call")}>
             <a href={phoneHref}>
               <Phone />
             </a>
           </Button>
         </div>
-      </div>
-      <div className="border-t border-line">
-        <MainNav categories={navCats} />
       </div>
     </header>
   );
