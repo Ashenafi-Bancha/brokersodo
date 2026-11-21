@@ -65,7 +65,7 @@ export function Gallery({ images, title, muted }: { images: GalleryImage[]; titl
               />
               {img.watermark && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src="/brand/logo/svg/logo-horizontal-white.svg" alt="" aria-hidden className="pointer-events-none absolute right-3 bottom-3 w-[20%] opacity-80 drop-shadow" />
+                <img src="/brand/logo-horizontal.webp" loading="lazy" alt="" aria-hidden className="pointer-events-none absolute right-3 bottom-3 w-[20%] rounded-[4px] bg-white/90 p-0.5" />
               )}
             </button>
           ))}

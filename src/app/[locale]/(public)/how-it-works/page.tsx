@@ -48,16 +48,16 @@ export default async function HowPage({ params }: { params: Promise<{ locale: st
             </Button>
           </section>
         ))}
-        <section aria-labelledby="why" className="rounded-card bg-navy-900 p-8 text-white sm:p-10">
+        <section aria-labelledby="why" className="rounded-card bg-bg-2 p-8 text-fg sm:p-10">
           <h2 id="why" className="font-brand text-h3">
             {t("whyTitle")}
           </h2>
           <ul className="mt-6 grid gap-6 md:grid-cols-3">
             {why.map((Icon, i) => (
               <li key={i}>
-                <Icon className="size-8 text-yellow-500" />
+                <Icon className="size-8 text-primary" />
                 <p className="mt-3 font-bold">{t(`why.${i + 1}.title` as "why.1.title")}</p>
-                <p className="mt-1 text-sm text-navy-100">{t(`why.${i + 1}.body` as "why.1.body")}</p>
+                <p className="mt-1 text-sm text-fg-2">{t(`why.${i + 1}.body` as "why.1.body")}</p>
               </li>
             ))}
           </ul>

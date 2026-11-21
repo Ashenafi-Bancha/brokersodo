@@ -41,7 +41,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
     getListingBySlug(slug),
     font("montserrat/files/montserrat-latin-900-italic.woff"),
     font("inter/files/inter-latin-700-normal.woff"),
-    readFile(path.join(root, "public/brand/logo/png/logo-horizontal-white-600.png")),
+    readFile(path.join(root, "public/brand/logo-horizontal.png")),
   ]);
   const logoUrl = `data:image/png;base64,${logo.toString("base64")}`;
   const fonts = [
@@ -52,8 +52,8 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
   if (!listing) {
     return new ImageResponse(
       (
-        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#0F1B3D" }}>
-          <img src={logoUrl} width={600} height={115} alt="" />
+        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFFFFF" }}>
+          <img src={logoUrl} width={720} height={190} alt="" />
         </div>
       ),
       { ...size, fonts },
@@ -67,7 +67,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "#0F1B3D", fontFamily: "Inter" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#FFFFFF", fontFamily: "Inter" }}>
         <div style={{ width: 760, height: 630, display: "flex", position: "relative", background: "#172344" }}>
           {photo && <img src={photo} width={760} height={630} alt="" style={{ objectFit: "cover" }} />}
           <div
@@ -88,12 +88,12 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
           </div>
         </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "44px 40px 36px" }}>
-          <img src={logoUrl} width={340} height={65} alt="" />
+          <img src={logoUrl} width={340} height={90} alt="" />
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <div style={{ color: "#fff", fontSize: 40, lineHeight: 1.15, display: "flex" }}>{title.length > 70 ? `${title.slice(0, 68)}…` : title}</div>
-            <div style={{ color: "#FFC20E", fontFamily: "Montserrat", fontSize: price.length > 18 ? 42 : 52, display: "flex" }}>{price}</div>
+            <div style={{ color: "#0F1B3D", fontSize: 40, lineHeight: 1.15, display: "flex" }}>{title.length > 70 ? `${title.slice(0, 68)}…` : title}</div>
+            <div style={{ color: "#E30613", fontFamily: "Montserrat", fontSize: price.length > 18 ? 42 : 52, display: "flex" }}>{price}</div>
             <div style={{ display: "flex" }}>
-              <div style={{ display: "flex", padding: "8px 16px", borderRadius: 999, border: "2px dashed #AEB6CC", color: "#fff", fontSize: 26 }}>Ref {listing.refCode}</div>
+              <div style={{ display: "flex", padding: "8px 16px", borderRadius: 999, border: "2px dashed #9FA4B1", color: "#0F1B3D", fontSize: 26 }}>Ref {listing.refCode}</div>
             </div>
           </div>
           <div style={{ display: "flex", height: 10, borderRadius: 999, backgroundImage: "linear-gradient(90deg, #E30613 0%, #F59E0B 55%, #FFC20E 100%)" }} />

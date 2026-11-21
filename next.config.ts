@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
     "/**/opengraph-image*": [
       "./node_modules/@fontsource/montserrat/files/montserrat-latin-900-italic.woff",
       "./node_modules/@fontsource/inter/files/inter-latin-700-normal.woff",
-      "./public/brand/logo/png/logo-horizontal-white-600.png",
+      "./public/brand/logo-horizontal.png",
       "./public/placeholders/**",
     ],
   },

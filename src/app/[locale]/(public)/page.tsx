@@ -62,14 +62,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       {/* 1. Hero */}
-      <section className="relative isolate overflow-hidden bg-navy-900 text-white">
-        <div aria-hidden className="absolute inset-0 -z-10 bg-pattern-dark" />
-        <div aria-hidden className="absolute -top-40 -right-40 -z-10 size-[520px] rounded-full bg-red-500/25 blur-3xl" />
+      <section className="relative isolate overflow-hidden bg-bg text-fg">
+        <div aria-hidden className="absolute inset-0 -z-10 bg-pattern" />
+        <div aria-hidden className="absolute -top-40 -right-40 -z-10 size-[520px] rounded-full bg-red-500/10 blur-3xl" />
         <div aria-hidden className="absolute -bottom-48 -left-32 -z-10 size-[460px] rounded-full bg-yellow-500/15 blur-3xl" />
         <Container className="flex flex-col items-start gap-6 pt-12 pb-16 sm:pt-20 sm:pb-24">
           <span className="inline-flex items-center gap-2 rounded-pill bg-brand-gradient px-3 py-1.5 font-brand text-[13px] text-navy-900 uppercase">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo/svg/eyes-full-colour.svg" alt="" width={142} height={88} className="h-4 w-auto" />
             {tm("tagline")}
           </span>
           <h1 className="max-w-3xl font-brand text-h1">
@@ -77,11 +75,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               heroTitle
             ) : (
               <>
-                {th("title")} <span className="text-yellow-500">{th("titleHighlight")}</span>
+                {th("title")} <span className="text-primary">{th("titleHighlight")}</span>
               </>
             )}
           </h1>
-          <p className="max-w-2xl text-lg text-navy-100 sm:text-xl">{heroSubtitle}</p>
+          <p className="max-w-2xl text-lg text-fg-2 sm:text-xl">{heroSubtitle}</p>
           <ScopedIntl namespaces={["hero"]}>
             <HeroSearch
               categories={topCats.map((c) => ({ slug: c.slug, name: localized(c, "name", locale) }))}
@@ -94,7 +92,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 prefetch={false}
                 key={c.id}
                 href={`/c/${c.slug}`}
-                className="inline-flex min-h-9 items-center rounded-pill border-[1.5px] border-white/30 px-4 text-sm font-semibold text-white hover:border-yellow-500 hover:bg-yellow-500 hover:text-navy-900"
+                className="inline-flex min-h-9 items-center rounded-pill border-[1.5px] border-line-strong bg-bg px-4 text-sm font-semibold text-fg hover:border-yellow-500 hover:bg-yellow-500 hover:text-navy-900"
               >
                 {localized(c, "name", locale)}
               </Link>
@@ -214,8 +212,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
 
         {/* 8. Stats band */}
-        <section className="relative overflow-hidden bg-navy-900 py-14 text-white">
-          <div aria-hidden className="absolute inset-0 bg-pattern-dark" />
+        <section className="relative overflow-hidden border-y border-line bg-bg py-14 text-fg">
+          <div aria-hidden className="absolute inset-0 bg-pattern" />
           <Container className="relative">
             <h2 className="sr-only">{t("statsTitle")}</h2>
             <dl className="grid grid-cols-2 gap-8 text-center lg:grid-cols-4">
@@ -228,10 +226,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 ] as const
               ).map(([k, v, suffix]) => (
                 <div key={k}>
-                  <dd className="font-brand text-[44px] leading-none text-yellow-500 sm:text-[56px]">
+                  <dd className="font-brand text-[44px] leading-none text-primary sm:text-[56px]">
                     <Counter value={v} suffix={suffix} />
                   </dd>
-                  <dt className="mt-2 text-sm font-semibold text-navy-100">{t(`stats.${k}`)}</dt>
+                  <dt className="mt-2 text-sm font-semibold text-fg-2">{t(`stats.${k}`)}</dt>
                 </div>
               ))}
             </dl>
@@ -288,11 +286,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </Button>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-card bg-navy-900 p-8 text-white shadow-pop sm:p-10 dark:bg-navy-700">
-            <div aria-hidden className="absolute inset-0 bg-pattern-dark" />
+          <div className="relative overflow-hidden rounded-card bg-yellow-100 p-8 text-navy-900 shadow-card sm:p-10">
+            <div aria-hidden className="absolute inset-0 bg-[url(/brand/patterns/pattern-light.svg)] bg-[length:140px]" />
             <div className="relative">
               <h2 className="font-brand text-h3">{t("ctaWantedTitle")}</h2>
-              <p className="mt-3 max-w-md text-navy-100">{t("ctaWantedBody")}</p>
+              <p className="mt-3 max-w-md text-navy-700">{t("ctaWantedBody")}</p>
               <Button asChild className="mt-6 bg-red-500 text-white hover:bg-red-600">
                 <Link prefetch={false} href="/wanted">
                   <CalendarCheck /> {t("ctaWantedButton")}

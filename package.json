@@ -16,7 +16,8 @@
     "placeholders": "node scripts/generate-placeholders.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "brand": "node scripts/generate-brand.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

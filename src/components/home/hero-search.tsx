@@ -28,15 +28,15 @@ export function HeroSearch({ categories, areas }: { categories: Opt[]; areas: Op
   };
 
   const selectCls =
-    "min-h-12 w-full cursor-pointer appearance-none rounded-btn border-0 bg-white px-3.5 text-[15px] font-medium text-navy-900 outline-none focus-visible:ring-3 focus-visible:ring-yellow-500";
+    "min-h-12 w-full cursor-pointer appearance-none rounded-btn border-[1.5px] border-line-strong bg-white px-3.5 text-[15px] font-medium text-navy-900 outline-none focus-visible:ring-3 focus-visible:ring-yellow-500";
 
   return (
     <form
       onSubmit={submit}
       role="search"
-      className="w-full max-w-3xl rounded-[22px] border border-white/20 bg-white/12 p-3 shadow-pop backdrop-blur-xl sm:p-4"
+      className="w-full max-w-3xl rounded-[22px] border border-line bg-white/75 p-3 shadow-pop backdrop-blur-xl sm:p-4 dark:bg-white/10"
     >
-      <div className="mb-3 inline-flex gap-1 rounded-pill bg-navy-800/90 p-1" role="group" aria-label={`${t("buy")} / ${t("rent")}`}>
+      <div className="mb-3 inline-flex gap-1 rounded-pill bg-navy-100 p-1" role="group" aria-label={`${t("buy")} / ${t("rent")}`}>
         {(["sale", "rent"] as const).map((d) => (
           <button
             key={d}
@@ -44,8 +44,8 @@ export function HeroSearch({ categories, areas }: { categories: Opt[]; areas: Op
             aria-pressed={deal === d}
             onClick={() => setDeal(d)}
             className={cn(
-              "min-h-10 cursor-pointer rounded-pill px-6 text-[15px] font-bold text-white transition-colors",
-              deal === d ? "bg-red-500" : "hover:bg-white/10",
+              "min-h-10 cursor-pointer rounded-pill px-6 text-[15px] font-bold transition-colors",
+              deal === d ? "bg-red-500 text-white" : "text-navy-700 hover:bg-white",
             )}
           >
             {d === "sale" ? t("buy") : t("rent")}
@@ -60,7 +60,7 @@ export function HeroSearch({ categories, areas }: { categories: Opt[]; areas: Op
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t("keywordPlaceholder")}
-            className="min-h-12 w-full rounded-btn border-0 bg-white pr-3 pl-11 text-[15px] text-navy-900 outline-none placeholder:text-navy-400 focus-visible:ring-3 focus-visible:ring-yellow-500"
+            className="min-h-12 w-full rounded-btn border-[1.5px] border-line-strong bg-white pr-3 pl-11 text-[15px] text-navy-900 outline-none placeholder:text-navy-400 focus-visible:ring-3 focus-visible:ring-yellow-500"
           />
         </label>
         <label>

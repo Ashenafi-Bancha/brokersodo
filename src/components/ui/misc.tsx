@@ -18,12 +18,12 @@ export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   );
 }
 
-/** Brand "eyes" loader (bs-loader). */
-export function EyeLoader({ label = "Loading", className }: { label?: string; className?: string }) {
+/** Brand cart loader. */
+export function BrandLoader({ label = "Loading", className }: { label?: string; className?: string }) {
   return (
     <div role="status" aria-label={label} className={cn("inline-block", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo/svg/eyes-full-colour.svg" alt="" width={64} height={40} className="h-10 w-16 animate-look" />
+      <img src="/brand/logo-cart.webp" alt="" width={512} height={525} className="h-12 w-auto animate-look dark:rounded-sm dark:bg-white dark:p-0.5" />
     </div>
   );
 }

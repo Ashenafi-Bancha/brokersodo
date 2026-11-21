@@ -8,7 +8,7 @@ export default async function NotFound() {
   return (
     <Container className="flex flex-col items-center py-20 text-center">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/logo/svg/eyes-full-colour.svg" alt="" width={142} height={88} className="mb-6 h-20 w-auto animate-look" />
+      <img src="/brand/logo-cart.webp" alt="" width={512} height={525} className="mb-6 h-20 w-auto animate-look dark:rounded-sm dark:bg-white dark:p-1" />
       <p className="font-brand text-6xl text-primary">404</p>
       <h1 className="mt-3 font-brand text-h2 text-fg">{t("notFoundTitle")}</h1>
       <p className="mt-3 max-w-md text-muted">{t("notFoundBody")}</p>

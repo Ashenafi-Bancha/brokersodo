@@ -1,26 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 import { cn } from "@/lib/utils";
 
-/** Official BrokerSodo logo from the brand kit. Full colour on light, "on-navy" on dark. */
+/** Official BrokerSodo logo. It has a white background, so dark mode shows it on a white plate. */
 export function Logo({ className, priority }: { className?: string; priority?: boolean }) {
-  // Lazy + display:none means the browser downloads only the variant for the active theme.
-  const common = { width: 849, height: 162, decoding: "async" as const, loading: "lazy" as const };
   return (
     <span className={cn("inline-flex", className)}>
       <img
-        src="/brand/logo/svg/logo-horizontal-full-colour.svg"
+        src="/brand/logo-horizontal.webp"
         alt="BrokerSodo"
-        {...common}
+        width={720}
+        height={190}
+        decoding="async"
         fetchPriority={priority ? "high" : undefined}
-        className="h-full w-auto dark:hidden"
+        className="h-full w-auto dark:rounded-sm dark:bg-white dark:p-0.5"
       />
-      <img src="/brand/logo/svg/logo-horizontal-on-navy.svg" {...common} alt="" aria-hidden className="hidden h-full w-auto dark:block" />
     </span>
   );
-}
-
-export function LogoWhite({ className }: { className?: string }) {
-  return <img src="/brand/logo/svg/logo-horizontal-white.svg" alt="BrokerSodo" width={849} height={162} className={cn("h-full w-auto", className)} />;
 }
 
 export const CATEGORY_ICONS = [

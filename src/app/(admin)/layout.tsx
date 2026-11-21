@@ -8,7 +8,7 @@ import { pickMessages } from "@/components/scoped-intl";
 export const metadata: Metadata = {
   title: { default: "BrokerSodo Admin", template: "%s · BrokerSodo Admin" },
   robots: { index: false, follow: false },
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/favicon-32x32.png" },
 };
 
 /** Staff-only shell (English UI). */

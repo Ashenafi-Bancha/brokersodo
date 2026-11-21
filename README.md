@@ -2,7 +2,7 @@
 
 Next.js 15 (App Router, TypeScript strict) · Tailwind v4 (brand tokens in `src/app/globals.css`) · Prisma + PostgreSQL · Auth.js v5 · next-intl (EN / አማርኛ) · Cloudinary (optional) · Leaflet/OSM.
 
-Brand assets live in `public/brand` (copied from `BrokerSodo-Brand-Kit`). The brand kit is the source of truth for colours and fonts.
+The client's original logo is `public/brand/original/broker-sodo-logo.webp`; `npm run brand` regenerates every logo, favicon and share image from it. Colours and fonts come from `BrokerSodo-Brand-Kit`.
 
 ## Run locally
 
@@ -28,7 +28,7 @@ Useful scripts: `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`
 | `NEXT_PUBLIC_SITE_URL` | yes | Public URL, no trailing slash (canonicals, sitemap, share links) |
 | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` / `SEED_ADMIN_NAME` | for seeding | First admin account |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | production | Image storage/CDN. If empty, uploads go to `public/uploads` (dev only) |
-| `NEXT_PUBLIC_CLOUDINARY_WATERMARK_ID` | optional | Public ID of the watermark overlay (upload `public/brand/logo/png/logo-horizontal-white-600.png`) |
+| `NEXT_PUBLIC_CLOUDINARY_WATERMARK_ID` | optional | Public ID of the watermark overlay (upload `public/brand/logo-horizontal.png`) |
 
 ## Deploy (Vercel + Neon/Supabase)
 

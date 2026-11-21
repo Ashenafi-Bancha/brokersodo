@@ -20,10 +20,7 @@ export function generateStaticParams() {
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#E30613" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F1B3D" },
-  ],
+  themeColor: "#FFFFFF",
   width: "device-width",
   initialScale: 1,
 };
@@ -43,7 +40,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     icons: {
       icon: [
         { url: "/favicon.ico", sizes: "48x48" },
-        { url: "/favicon.svg", type: "image/svg+xml" },
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       ],
@@ -82,7 +78,7 @@ export default async function LocaleLayout({
     "@id": `${siteUrl()}/#org`,
     name: settings.businessName,
     url: siteUrl(),
-    logo: siteUrl("/brand/logo/png/logo-stacked-full-colour-500.png"),
+    logo: siteUrl("/brand/logo-stacked.png"),
     image: siteUrl("/og-image-1200x630.png"),
     telephone: settings.phonePrimary,
     email: settings.email ?? undefined,

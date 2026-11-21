@@ -76,7 +76,7 @@ export function ListingCard({
         )}
         {src && !hasCdnWatermark(src) && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/brand/logo/svg/logo-horizontal-white.svg" alt="" aria-hidden className="pointer-events-none absolute right-2.5 bottom-2.5 w-[22%] opacity-80 drop-shadow" />
+          <img src="/brand/logo-horizontal.webp" loading="lazy" alt="" aria-hidden className="pointer-events-none absolute right-2.5 bottom-2.5 w-[22%] rounded-[4px] bg-white/90 p-0.5" />
         )}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           {featuredActive && !closed ? (
