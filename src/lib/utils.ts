@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Absolute site URL without trailing slash. */
 export function siteUrl(path = ""): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const base = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
   return `${base}${path.startsWith("/") || path === "" ? path : `/${path}`}`;
 }
 

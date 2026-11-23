@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/lib/db";
 import { clientFingerprint, rateLimit } from "@/lib/rate-limit";
-import { storeImage, UploadError, type StoredImage } from "@/lib/storage";
+import { storeImage, trustedPhoto, UploadError, type StoredImage } from "@/lib/storage";
 import { contactSchema, inquirySchema, submissionSchema, wantedSchema } from "@/lib/validators/public-forms";
 import { parseAttributeSchema, validateAttributes } from "@/lib/validators/attribute-schema";
 import type { Prisma } from "@prisma/client";
@@ -146,8 +146,8 @@ export async function createSubmissionAction(input: unknown): Promise<PublicActi
     const fields = parseAttributeSchema(cat.attributeSchema).map((f) => ({ ...f, required: false }));
     const attrs = validateAttributes(fields, d.attributes);
     const area = d.areaId ? await db.area.findUnique({ where: { id: d.areaId }, select: { id: true } }) : null;
-    // Only accept photos our storage produced (Cloudinary or local uploads).
-    const photos = d.photos.filter((p) => p.url.startsWith("/uploads/") || p.url.startsWith("https://res.cloudinary.com/"));
+    // Only accept photos our own storage produced.
+    const photos = d.photos.map(trustedPhoto).filter((p) => p !== null);
     await db.propertySubmission.create({
       data: {
         name: d.name,

@@ -156,10 +156,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
 
         {/* 4. Latest */}
-        <Container className="py-14 sm:py-20">
-          <SectionHeading title={t("latestTitle")} subtitle={t("latestSubtitle")} action={<ViewAll href="/listings?sort=newest" />} />
-          <ListingGrid listings={latest} />
-        </Container>
+        {latest.length > 0 && (
+          <Container className="py-14 sm:py-20">
+            <SectionHeading title={t("latestTitle")} subtitle={t("latestSubtitle")} action={<ViewAll href="/listings?sort=newest" />} />
+            <ListingGrid listings={latest} />
+          </Container>
+        )}
 
         {/* 5. Rentals */}
         {rentals.length > 0 && (
@@ -221,29 +223,33 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
 
         {/* 8. Stats band */}
-        <section className="relative overflow-hidden border-y border-line bg-bg py-14 text-fg">
-          <div aria-hidden className="absolute inset-0 bg-pattern" />
-          <Container className="relative">
-            <h2 className="sr-only">{t("statsTitle")}</h2>
-            <dl className="grid grid-cols-2 gap-8 text-center lg:grid-cols-4">
-              {(
-                [
-                  ["listings", stats.listings, ""],
-                  ["deals", stats.deals, "+"],
-                  ["clients", stats.clients, "+"],
-                  ["years", stats.years, ""],
-                ] as const
-              ).map(([k, v, suffix]) => (
-                <div key={k}>
-                  <dd className="font-brand text-[44px] leading-none text-primary sm:text-[56px]">
-                    <Counter value={v} suffix={suffix} />
-                  </dd>
-                  <dt className="mt-2 text-sm font-semibold text-fg-2">{t(`stats.${k}`)}</dt>
-                </div>
-              ))}
-            </dl>
-          </Container>
-        </section>
+        {stats.listings + stats.deals + stats.clients + stats.years > 0 && (
+          <section className="relative overflow-hidden border-y border-line bg-bg py-14 text-fg">
+            <div aria-hidden className="absolute inset-0 bg-pattern" />
+            <Container className="relative">
+              <h2 className="sr-only">{t("statsTitle")}</h2>
+              <dl className="flex flex-wrap justify-center gap-x-16 gap-y-8 text-center lg:gap-x-24">
+                {(
+                  [
+                    ["listings", stats.listings, ""],
+                    ["deals", stats.deals, "+"],
+                    ["clients", stats.clients, "+"],
+                    ["years", stats.years, ""],
+                  ] as const
+                )
+                  .filter(([, v]) => v > 0)
+                  .map(([k, v, suffix]) => (
+                    <div key={k}>
+                      <dd className="font-brand text-[44px] leading-none text-primary sm:text-[56px]">
+                        <Counter value={v} suffix={suffix} />
+                      </dd>
+                      <dt className="mt-2 text-sm font-semibold text-fg-2">{t(`stats.${k}`)}</dt>
+                    </div>
+                  ))}
+              </dl>
+            </Container>
+          </section>
+        )}
 
         {/* 9. Recently sold */}
         {sold.length > 0 && (

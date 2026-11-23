@@ -17,7 +17,7 @@ import { StaticMap } from "@/components/listings/map-lazy";
 import { getListingBySlug, getSimilarListings, getSiteSettings } from "@/server/queries/public";
 import { telLink, telegramLink, whatsappLink } from "@/lib/contact";
 import { formatDate } from "@/lib/format";
-import { hasCdnWatermark, watermarked } from "@/lib/image";
+import { isStoredVariant } from "@/lib/image";
 import { alternates, jsonLdScript, localePath } from "@/lib/seo";
 import { sanitizeRichText, stripHtml } from "@/lib/sanitize";
 import { localized, siteUrl } from "@/lib/utils";
@@ -80,8 +80,8 @@ export default async function ListingDetailPage({ params }: Props) {
   const featuredActive = listing.featured && (!listing.featuredUntil || new Date(listing.featuredUntil) > new Date());
 
   const images = listing.images.map((i) => {
-    const src = watermarked(i.url);
-    return { id: i.id, url: src, width: i.width, height: i.height, alt: i.alt, blurData: i.blurData, watermark: !hasCdnWatermark(src) };
+    const src = i.url;
+    return { id: i.id, url: src, width: i.width, height: i.height, alt: i.alt, blurData: i.blurData, watermark: !isStoredVariant(src) };
   });
 
   const productLd = {

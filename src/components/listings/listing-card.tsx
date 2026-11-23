@@ -7,7 +7,7 @@ import { CategoryIcon } from "@/components/layout/brand";
 import { FavoriteButton } from "./favorite-button";
 import { Price } from "./price";
 import { relativeTime } from "@/lib/format";
-import { hasCdnWatermark, watermarked } from "@/lib/image";
+import { isStoredVariant } from "@/lib/image";
 import { cn, localized } from "@/lib/utils";
 import { formatAttributeValue, parseAttributeSchema } from "@/lib/validators/attribute-schema";
 import type { PublicListingCard } from "@/server/queries/selects";
@@ -41,7 +41,7 @@ export function ListingCard({
     .filter(Boolean)
     .slice(0, 3);
   const areaName = listing.area ? localized(listing.area, "name", locale) : null;
-  const src = cover ? watermarked(cover.url) : null;
+  const src = cover?.url ?? null;
 
   return (
     <article
@@ -74,7 +74,7 @@ export function ListingCard({
             <CategoryIcon icon={listing.category.icon} className="size-16 opacity-60" />
           </div>
         )}
-        {src && !hasCdnWatermark(src) && (
+        {src && !isStoredVariant(src) && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src="/brand/logo-horizontal.webp" loading="lazy" alt="" aria-hidden className="pointer-events-none absolute right-2.5 bottom-2.5 w-[22%] rounded-[4px] bg-white/90 p-0.5" />
         )}

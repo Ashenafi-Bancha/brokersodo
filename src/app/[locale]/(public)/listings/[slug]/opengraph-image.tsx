@@ -5,7 +5,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { getListingBySlug } from "@/server/queries/public";
 import { formatETB, rentSuffix } from "@/lib/format";
-import { cloudinaryResize, isCloudinary, watermarked } from "@/lib/image";
+import { isStoredVariant, variantUrl } from "@/lib/image";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
@@ -19,8 +19,8 @@ const font = (p: string) => readFile(path.join(root, "node_modules/@fontsource",
 async function photoDataUrl(url: string): Promise<string | null> {
   try {
     let buf: Buffer;
-    if (isCloudinary(url)) {
-      const res = await fetch(cloudinaryResize(watermarked(url), 1200).replace("f_auto", "f_jpg"));
+    if (isStoredVariant(url) && url.startsWith("http")) {
+      const res = await fetch(variantUrl(url, 960));
       if (!res.ok) return null;
       buf = Buffer.from(await res.arrayBuffer());
     } else if (url.startsWith("/")) {

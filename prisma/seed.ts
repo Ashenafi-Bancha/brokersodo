@@ -315,7 +315,92 @@ function other(): Draft[] {
   ];
 }
 
+const FAQS: Prisma.FaqCreateManyInput[] = [
+      { sortOrder: 0, questionEn: "Can I contact the owner directly?", questionAm: "ባለቤቱን በቀጥታ ማግኘት እችላለሁ?", answerEn: "No. Every listing is managed by BrokerSodo. Call or message us and quote the reference code (for example BS-V-0142) — a broker will answer your questions and arrange a viewing.", answerAm: "አይችሉም። እያንዳንዱ ዝርዝር በብሮከርሶዶ ይመራል። ይደውሉልን እና የማጣቀሻ ቁጥሩን ይጥቀሱ።" },
+      { sortOrder: 1, questionEn: "How do I sell or rent out my property?", answerEn: "Use the “Sell with us” form or visit our office. We verify the property, take photos if needed, and publish the listing. Your phone number is never shown publicly." },
+      { sortOrder: 2, questionEn: "What does “Verified” mean?", answerEn: "A BrokerSodo broker has checked the owner's identity and the key documents (for example the libre for vehicles or the title deed for land)." },
+      { sortOrder: 3, questionEn: "Do you charge buyers?", answerEn: "Our commission depends on the deal type. Ask your broker — we always agree on it in writing before a viewing." },
+      { sortOrder: 4, questionEn: "Can you find something that isn't listed?", answerEn: "Yes. Post a Wanted request with your budget and area, and our brokers will look for a match." },
+      { sortOrder: 5, questionEn: "Is the map location exact?", answerEn: "No. For privacy we show an approximate circle. The exact location is shared when you book a viewing." },
+      { sortOrder: 6, questionEn: "Which areas do you cover?", questionAm: "የትኞቹን አካባቢዎች ይሸፍናሉ?", answerEn: "We are based in Wolaita Sodo and cover other areas in Wolaita and across South Ethiopia. Call or message us about a property or item in your area.", answerAm: "መቀመጫችን ወላይታ ሶዶ ሲሆን ሌሎች የወላይታ አካባቢዎችን እና ደቡብ ኢትዮጵያን እንሸፍናለን። በአካባቢዎ ስላለ ንብረት ወይም ዕቃ ይደውሉልን ወይም መልዕክት ይላኩልን።" },
+];
+
+const PAGES: Prisma.PageCreateManyInput[] = [
+      {
+        slug: "about",
+        titleEn: "About BrokerSodo",
+        titleAm: "ስለ ብሮከርሶዶ",
+        bodyEn:
+          "<p><strong>BrokerSodo</strong> is a brokerage based in Wolaita Sodo, serving other areas in Wolaita and across South Ethiopia. We help people buy, sell and rent vehicles, houses, land, rentals, machinery, electronics and more.</p><p>Unlike open classifieds, every listing on BrokerSodo is managed by our staff. We check the property and the owner, keep the owner's details private, and guide buyers and tenants all the way to a safe deal.</p><h2>Our promise</h2><ul><li>Verified listings with clear reference codes</li><li>Privacy for owners</li><li>Honest, local advice</li></ul>",
+      },
+      { slug: "terms", titleEn: "Terms of use", bodyEn: "<p>These are placeholder terms. Replace them in Admin → Content → Pages before launch.</p><p>Listings are provided by BrokerSodo for information. Prices and availability may change. All deals are concluded through BrokerSodo.</p>" },
+      { slug: "privacy", titleEn: "Privacy policy", bodyEn: "<p>These are placeholder privacy terms. Replace them in Admin → Content → Pages before launch.</p><p>We collect your name and phone number only to respond to your inquiry or submission. We never publish owners' contact details. Saved listings are stored only on your device.</p>" },
+];
+
+const isLocalDatabase = () => /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(process.env.DATABASE_URL ?? "");
+
+/**
+ * Real-launch setup: categories, areas, business settings, FAQs, pages and one admin.
+ * Adds no sample listings, reviews or stats, and never deletes or overwrites existing data.
+ */
+async function launch() {
+  const email = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (!email || !password || password.length < 12) throw new Error("Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of 12+ characters.");
+  await db.user.upsert({
+    where: { email },
+    update: { role: "ADMIN", isActive: true },
+    create: { email, name: process.env.SEED_ADMIN_NAME || "BrokerSodo Admin", role: "ADMIN", passwordHash: await bcrypt.hash(password, 12) },
+  });
+  await db.siteSettings.upsert({
+    where: { id: "site" },
+    update: {},
+    create: {
+      id: "site",
+      businessName: "BrokerSodo",
+      phonePrimary: "+251947565691",
+      whatsappNumber: "+251947565691",
+      telegramUsername: "Sunagent01",
+      tiktokUrl: "https://www.tiktok.com/@BorkerSodo",
+      addressEn: "Wolaita Sodo, Ethiopia",
+      addressAm: "ወላይታ ሶዶ፣ ኢትዮጵያ",
+      mapLat: 6.8556,
+      mapLng: 37.7508,
+    },
+  });
+  for (const [i, c] of CATEGORIES.entries()) {
+    await db.category.upsert({
+      where: { slug: c.slug },
+      update: {},
+      create: {
+        slug: c.slug,
+        nameEn: c.nameEn,
+        nameAm: c.nameAm,
+        refPrefix: c.refPrefix,
+        icon: c.icon,
+        descriptionEn: c.descriptionEn,
+        sortOrder: i,
+        attributeSchema: withExtraOptions(c.slug, c.schema) as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
+  const launchAreas = [...AREAS, ["Other Wolaita areas", "ሌሎች የወላይታ አካባቢዎች", "other-wolaita"], ["South Ethiopia", "ደቡብ ኢትዮጵያ", "south-ethiopia"]] as const;
+  for (const [i, [nameEn, nameAm, slug]] of launchAreas.entries()) {
+    await db.area.upsert({ where: { slug }, update: {}, create: { nameEn, nameAm, slug, sortOrder: i, city: i < AREAS.length ? "Wolaita Sodo" : nameEn } });
+  }
+  if ((await db.faq.count()) === 0) await db.faq.createMany({ data: FAQS });
+  for (const page of PAGES) {
+    const bodyEn = page.bodyEn?.replace(/<p>These are placeholder[^<]*<\/p>/, "") ?? "";
+    await db.page.upsert({ where: { slug: page.slug }, update: {}, create: { ...page, bodyEn } });
+  }
+  console.log(`✔ Launch data ready. Admin: ${email}`);
+}
+
 async function main() {
+  if (process.argv.includes("--launch")) return launch();
+  if (!isLocalDatabase() && process.env.ALLOW_SAMPLE_DATA !== "yes") {
+    throw new Error("Refusing to replace a non-local database with sample data. Use npm run db:seed:launch.");
+  }
   console.log("Seeding BrokerSodo…");
 
   // Clear sample content (keeps users)
@@ -467,30 +552,8 @@ async function main() {
       { name: "Yonas B.", role: "Bajaj owner", quoteEn: "Fair price, fast sale, and they kept my number private. Recommended.", rating: 4, sortOrder: 3 },
     ],
   });
-  await db.faq.createMany({
-    data: [
-      { sortOrder: 0, questionEn: "Can I contact the owner directly?", questionAm: "ባለቤቱን በቀጥታ ማግኘት እችላለሁ?", answerEn: "No. Every listing is managed by BrokerSodo. Call or message us and quote the reference code (for example BS-V-0142) — a broker will answer your questions and arrange a viewing.", answerAm: "አይችሉም። እያንዳንዱ ዝርዝር በብሮከርሶዶ ይመራል። ይደውሉልን እና የማጣቀሻ ቁጥሩን ይጥቀሱ።" },
-      { sortOrder: 1, questionEn: "How do I sell or rent out my property?", answerEn: "Use the “Sell with us” form or visit our office. We verify the property, take photos if needed, and publish the listing. Your phone number is never shown publicly." },
-      { sortOrder: 2, questionEn: "What does “Verified” mean?", answerEn: "A BrokerSodo broker has checked the owner's identity and the key documents (for example the libre for vehicles or the title deed for land)." },
-      { sortOrder: 3, questionEn: "Do you charge buyers?", answerEn: "Our commission depends on the deal type. Ask your broker — we always agree on it in writing before a viewing." },
-      { sortOrder: 4, questionEn: "Can you find something that isn't listed?", answerEn: "Yes. Post a Wanted request with your budget and area, and our brokers will look for a match." },
-      { sortOrder: 5, questionEn: "Is the map location exact?", answerEn: "No. For privacy we show an approximate circle. The exact location is shared when you book a viewing." },
-      { sortOrder: 6, questionEn: "Which areas do you cover?", questionAm: "የትኞቹን አካባቢዎች ይሸፍናሉ?", answerEn: "We are based in Wolaita Sodo and cover other areas in Wolaita and across South Ethiopia. Call or message us about a property or item in your area.", answerAm: "መቀመጫችን ወላይታ ሶዶ ሲሆን ሌሎች የወላይታ አካባቢዎችን እና ደቡብ ኢትዮጵያን እንሸፍናለን። በአካባቢዎ ስላለ ንብረት ወይም ዕቃ ይደውሉልን ወይም መልዕክት ይላኩልን።" },
-    ],
-  });
-  await db.page.createMany({
-    data: [
-      {
-        slug: "about",
-        titleEn: "About BrokerSodo",
-        titleAm: "ስለ ብሮከርሶዶ",
-        bodyEn:
-          "<p><strong>BrokerSodo</strong> is a brokerage based in Wolaita Sodo, serving other areas in Wolaita and across South Ethiopia. We help people buy, sell and rent vehicles, houses, land, rentals, machinery, electronics and more.</p><p>Unlike open classifieds, every listing on BrokerSodo is managed by our staff. We check the property and the owner, keep the owner's details private, and guide buyers and tenants all the way to a safe deal.</p><h2>Our promise</h2><ul><li>Verified listings with clear reference codes</li><li>Privacy for owners</li><li>Honest, local advice</li></ul>",
-      },
-      { slug: "terms", titleEn: "Terms of use", bodyEn: "<p>These are placeholder terms. Replace them in Admin → Content → Pages before launch.</p><p>Listings are provided by BrokerSodo for information. Prices and availability may change. All deals are concluded through BrokerSodo.</p>" },
-      { slug: "privacy", titleEn: "Privacy policy", bodyEn: "<p>These are placeholder privacy terms. Replace them in Admin → Content → Pages before launch.</p><p>We collect your name and phone number only to respond to your inquiry or submission. We never publish owners' contact details. Saved listings are stored only on your device.</p>" },
-    ],
-  });
+  await db.faq.createMany({ data: FAQS });
+  await db.page.createMany({ data: PAGES });
 
   /* Inbox samples */
   const published = await db.listing.findMany({ where: { status: "PUBLISHED" }, select: { id: true }, take: 12 });

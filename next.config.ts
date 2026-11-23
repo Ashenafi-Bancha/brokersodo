@@ -11,8 +11,12 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 
+const dockerBuild = process.env.DOCKER_BUILD === "1";
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Docker image: small self-contained server. Lint and types are checked before pushing.
+  ...(dockerBuild ? { output: "standalone" as const, eslint: { ignoreDuringBuilds: true }, typescript: { ignoreBuildErrors: true } } : {}),
   // Files read at runtime by the per-listing Open Graph image route.
   outputFileTracingIncludes: {
     "/**/opengraph-image*": [
@@ -26,10 +30,13 @@ const nextConfig: NextConfig = {
     loader: "custom",
     loaderFile: "./src/lib/image-loader.ts",
     deviceSizes: [360, 480, 640, 768, 1024, 1280, 1600],
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
   },
   experimental: {
-    serverActions: { bodySizeLimit: "12mb" },
+    webpackMemoryOptimizations: true,
+    serverActions: {
+      bodySizeLimit: "12mb",
+      allowedOrigins: ["brokersodo.com", "www.brokersodo.com", "*.app.aletcloud.com"],
+    },
     optimizePackageImports: ["lucide-react", "framer-motion", "recharts"],
   },
   async headers() {

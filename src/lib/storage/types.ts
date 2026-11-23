@@ -7,7 +7,7 @@ export type StoredImage = {
 };
 
 export interface StorageProvider {
-  name: "cloudinary" | "local";
+  name: "s3" | "local";
   upload(file: Buffer, opts: { folder: string }): Promise<StoredImage>;
   remove(publicId: string): Promise<void>;
   /** Copy an existing stored file into another folder (submission → listing). */

@@ -1,17 +1,34 @@
 import "server-only";
 import sharp, { type Metadata } from "sharp";
-import { cloudinaryStorage } from "./cloudinary";
 import { localStorage } from "./local";
+import { s3IdFromUrl, s3Storage } from "./s3";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, type StorageProvider, type StoredImage } from "./types";
 
 export * from "./types";
 
-/** Swap providers here (e.g. S3 or R2) without touching the rest of the app. */
+/** Uses S3-compatible storage (AletCloud) when configured, otherwise local files in development. */
 export function getStorage(): StorageProvider {
-  return process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY ? cloudinaryStorage : localStorage;
+  if (s3Configured()) return s3Storage;
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_LOCAL_UPLOADS !== "true") {
+    throw new UploadError("Image storage is not configured");
+  }
+  return localStorage;
 }
 
 export class UploadError extends Error {}
+
+function s3Configured() {
+  return Boolean(process.env.S3_ENDPOINT && process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY);
+}
+
+/** Normalises a client-sent photo. Returns null unless it is a file our storage created. */
+export function trustedPhoto<T extends { url: string; publicId?: string | null }>(photo: T): T | null {
+  if (s3Configured()) {
+    const id = s3IdFromUrl(photo.url);
+    return id ? { ...photo, publicId: `s3:${id}` } : null;
+  }
+  return /^\/uploads\/submissions\/[0-9a-f-]{36}\.webp$/.test(photo.url) ? { ...photo, publicId: `local:${photo.url.slice("/uploads/".length)}` } : null;
+}
 
 /** Validate type and size, sniff the real format with sharp, then store. */
 export async function storeImage(file: File, folder: string): Promise<StoredImage> {

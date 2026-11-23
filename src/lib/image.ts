@@ -1,30 +1,20 @@
 /**
  * Image URL helpers shared by server and client.
- * Public listing photos get the BrokerSodo watermark through a Cloudinary
- * transformation, so the stored original is never modified.
+ * Uploaded photos are stored as pre-sized, watermarked WebP files named
+ * `<id>-w480.webp`, `<id>-w960.webp` and `<id>-w1600.webp`. The clean original is stored separately.
  */
-const UPLOAD_SEGMENT = "/image/upload/";
+export const IMAGE_WIDTHS = [480, 960, 1600] as const;
 
-export function isCloudinary(url: string) {
-  return url.includes("res.cloudinary.com") && url.includes(UPLOAD_SEGMENT);
+const VARIANT = /-w(?:480|960|1600)\.webp$/;
+
+/** True for an uploaded photo. Its watermark is already part of the image. */
+export function isStoredVariant(url: string) {
+  return VARIANT.test(url);
 }
 
-/** True when the CDN burns the watermark in (otherwise the UI overlays the brand mark). */
-export function hasCdnWatermark(url: string) {
-  return Boolean(process.env.NEXT_PUBLIC_CLOUDINARY_WATERMARK_ID) && isCloudinary(url);
-}
-
-export function watermarked(url: string): string {
-  const overlay = process.env.NEXT_PUBLIC_CLOUDINARY_WATERMARK_ID;
-  if (!overlay || !isCloudinary(url)) return url;
-  const layer = overlay.replace(/\//g, ":");
-  const t = `l_${layer},g_south_east,w_0.22,fl_relative,o_85,x_16,y_16/`;
-  return url.replace(UPLOAD_SEGMENT, `${UPLOAD_SEGMENT}${t}`);
-}
-
-/** Cloudinary resize (used by the next/image loader and OG images). */
-export function cloudinaryResize(url: string, width: number, quality?: number): string {
-  if (!isCloudinary(url)) return url;
-  const t = `f_auto,q_${quality ?? "auto"},c_limit,w_${width}/`;
-  return url.replace(UPLOAD_SEGMENT, `${UPLOAD_SEGMENT}${t}`);
+/** Smallest stored size that covers the requested width. */
+export function variantUrl(url: string, width: number): string {
+  if (!isStoredVariant(url)) return url;
+  const size = IMAGE_WIDTHS.find((w) => w >= width) ?? IMAGE_WIDTHS[IMAGE_WIDTHS.length - 1];
+  return url.replace(VARIANT, `-w${size}.webp`);
 }

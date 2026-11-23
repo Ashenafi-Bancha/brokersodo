@@ -4,7 +4,7 @@ import { localePath } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
 import { getAreas, getCategories, getSitemapListings } from "@/server/queries/public";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 /** All public pages, categories, category+area landing pages and published listings — in every locale. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

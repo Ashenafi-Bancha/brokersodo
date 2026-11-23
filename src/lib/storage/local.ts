@@ -7,7 +7,7 @@ import type { StorageProvider } from "./types";
 
 /**
  * Development fallback: stores images in /public/uploads.
- * Not for production on Vercel (read-only filesystem). Configure Cloudinary there.
+ * Not for production: app files are lost on each deploy. Configure S3 storage there.
  */
 const PUBLIC = path.join(process.cwd(), "public");
 const ROOT = path.join(PUBLIC, "uploads");

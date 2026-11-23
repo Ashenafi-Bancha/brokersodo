@@ -15,8 +15,9 @@ import { alternates, jsonLdScript } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
 import { pickMessages } from "@/components/scoped-intl";
 
+/** Rendered on first request, then cached, so building the app never needs the database. */
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return [];
 }
 
 export const viewport: Viewport = {

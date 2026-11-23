@@ -230,8 +230,8 @@ export const getStats = cache(async () => {
   return {
     listings: settings.statListings ?? listings,
     deals: settings.statDeals ?? deals,
-    clients: settings.statClients ?? Math.max(deals * 2, deals),
-    years: settings.statYears ?? 1,
+    clients: settings.statClients ?? 0,
+    years: settings.statYears ?? 0,
   };
 });
 
