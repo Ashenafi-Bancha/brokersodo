@@ -17,6 +17,8 @@ ENV DOCKER_BUILD=1 \
     NEXT_PUBLIC_SITE_URL=https://brokersodo.com \
     NODE_OPTIONS=--max-old-space-size=450
 RUN npx prisma generate && npx next build
+# One-file copy of the launch setup (admin, categories, areas, pages). Runs at start-up when SEED_ADMIN_* are set.
+RUN npx esbuild prisma/seed.ts --bundle --platform=node --target=node22 --format=cjs --external:@prisma/client --outfile=launch-seed.cjs
 
 FROM base AS runner
 WORKDIR /app
@@ -28,6 +30,7 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder --chown=node:node /app/launch-seed.cjs ./launch-seed.cjs
 USER node
 EXPOSE 3000
 CMD ["sh", "/app/docker-entrypoint.sh"]
