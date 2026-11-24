@@ -18,23 +18,40 @@ sharp.concurrency(1);
 const ID = /^(listings|submissions)\/[0-9a-f-]{36}$/;
 const LARGEST = IMAGE_WIDTHS[IMAGE_WIDTHS.length - 1];
 
+/**
+ * Settings use our S3_* names first, then the standard AWS names that a host may inject
+ * (AletCloud's "Link storage" injects AWS-style credentials).
+ */
+export function s3Env() {
+  const e = process.env;
+  return {
+    endpoint: e.S3_ENDPOINT || e.AWS_ENDPOINT_URL_S3 || e.AWS_ENDPOINT_URL || "",
+    region: e.S3_REGION || e.AWS_REGION || e.AWS_DEFAULT_REGION || "et-addis-1",
+    bucket: e.S3_BUCKET || e.S3_BUCKET_NAME || e.AWS_S3_BUCKET || e.BUCKET_NAME || "",
+    accessKeyId: e.S3_ACCESS_KEY_ID || e.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: e.S3_SECRET_ACCESS_KEY || e.AWS_SECRET_ACCESS_KEY || "",
+    publicUrl: e.S3_PUBLIC_URL || "",
+  };
+}
+
 let cached: S3Client | null = null;
 function client() {
+  const env = s3Env();
   cached ??= new S3Client({
-    endpoint: process.env.S3_ENDPOINT,
-    region: process.env.S3_REGION || "et-addis-1",
+    endpoint: env.endpoint,
+    region: env.region,
     forcePathStyle: true,
-    credentials: { accessKeyId: process.env.S3_ACCESS_KEY_ID!, secretAccessKey: process.env.S3_SECRET_ACCESS_KEY! },
+    credentials: { accessKeyId: env.accessKeyId, secretAccessKey: env.secretAccessKey },
     requestChecksumCalculation: "WHEN_REQUIRED",
     responseChecksumValidation: "WHEN_REQUIRED",
   });
   return cached;
 }
-const bucket = () => process.env.S3_BUCKET!;
+const bucket = () => s3Env().bucket;
 
 export function s3PublicBase() {
-  const explicit = process.env.S3_PUBLIC_URL?.replace(/\/$/, "");
-  return explicit || `${(process.env.S3_ENDPOINT ?? "").replace(/\/$/, "")}/${process.env.S3_BUCKET}`;
+  const env = s3Env();
+  return env.publicUrl.replace(/\/$/, "") || `${env.endpoint.replace(/\/$/, "")}/${env.bucket}`;
 }
 
 const variantKey = (id: string, width: number) => `${id}-w${width}.webp`;

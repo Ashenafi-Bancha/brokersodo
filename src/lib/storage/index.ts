@@ -1,7 +1,7 @@
 import "server-only";
 import sharp, { type Metadata } from "sharp";
 import { localStorage } from "./local";
-import { s3IdFromUrl, s3Storage } from "./s3";
+import { s3Env, s3IdFromUrl, s3Storage } from "./s3";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, type StorageProvider, type StoredImage } from "./types";
 
 export * from "./types";
@@ -18,7 +18,8 @@ export function getStorage(): StorageProvider {
 export class UploadError extends Error {}
 
 function s3Configured() {
-  return Boolean(process.env.S3_ENDPOINT && process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY);
+  const e = s3Env();
+  return Boolean(e.endpoint && e.bucket && e.accessKeyId && e.secretAccessKey);
 }
 
 /** Normalises a client-sent photo. Returns null unless it is a file our storage created. */
