@@ -87,14 +87,11 @@ export default async function LocaleLayout({
       "@type": "PostalAddress",
       streetAddress: settings.addressEn ?? undefined,
       addressLocality: "Wolaita Sodo",
-      addressRegion: "South Ethiopia",
       addressCountry: "ET",
     },
     geo: { "@type": "GeoCoordinates", latitude: settings.mapLat, longitude: settings.mapLng },
     areaServed: [
       { "@type": "City", name: "Wolaita Sodo" },
-      { "@type": "AdministrativeArea", name: "Wolaita Zone" },
-      { "@type": "AdministrativeArea", name: "South Ethiopia Region" },
     ],
     sameAs: [settings.facebookUrl, settings.tiktokUrl, settings.instagramUrl, settings.youtubeUrl].filter(Boolean),
   };

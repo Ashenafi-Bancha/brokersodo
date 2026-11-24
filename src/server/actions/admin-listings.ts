@@ -1,5 +1,6 @@
 "use server";
 import type { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { listingFormSchema, statusChangeSchema } from "@/lib/validators/admin";
 import { parseAttributeSchema, validateAttributes } from "@/lib/validators/attribute-schema";
@@ -252,16 +253,25 @@ export async function duplicateListingAction(id: string): Promise<ActionResult<{
 }
 
 /** Admin only: permanently delete (brokers archive instead). */
-export async function deleteListingAction(id: string): Promise<ActionResult> {
+export async function deleteListingAction(id: string): Promise<ActionResult<{ count: number }>> {
+  return deleteListingsAction([id]);
+}
+
+/** Admin only: permanently delete one or more listings and any photos no other listing uses. */
+export async function deleteListingsAction(input: unknown): Promise<ActionResult<{ count: number }>> {
   return adminAction(["ADMIN"], async (session) => {
-    const l = await db.listing.findUnique({ where: { id }, select: { refCode: true, images: { select: { publicId: true } } } });
-    if (!l) return { ok: false, error: "Listing not found" };
-    await db.listing.delete({ where: { id } });
-    for (const img of l.images) {
-      if (img.publicId && !(await db.listingImage.count({ where: { publicId: img.publicId } }))) await getStorage().remove(img.publicId);
+    const ids = z.array(z.string().min(1).max(40)).min(1).max(500).parse(input);
+    const rows = await db.listing.findMany({ where: { id: { in: ids } }, select: { id: true, refCode: true, images: { select: { publicId: true } } } });
+    if (rows.length === 0) return { ok: false, error: "Listing not found" };
+    await db.listing.deleteMany({ where: { id: { in: rows.map((r) => r.id) } } });
+    const publicIds = [...new Set(rows.flatMap((r) => r.images.map((i) => i.publicId)).filter((p): p is string => !!p))];
+    for (const pid of publicIds) {
+      // Duplicated listings can share photos: only remove files nothing points at any more.
+      if (!(await db.listingImage.count({ where: { publicId: pid } }))) await getStorage().remove(pid).catch((e) => console.error("[delete photo]", e));
     }
-    await logActivity(session, "delete", "Listing", id, `Deleted ${l.refCode}`);
+    const refs = rows.map((r) => r.refCode);
+    await logActivity(session, "delete", "Listing", rows.length === 1 ? rows[0].id : null, `Deleted ${refs.slice(0, 10).join(", ")}${refs.length > 10 ? "…" : ""}`, { ids: rows.map((r) => r.id) });
     revalidatePublic();
-    return { ok: true, message: `${l.refCode} deleted` };
+    return { ok: true, data: { count: rows.length }, message: rows.length === 1 ? `${refs[0]} deleted` : `${rows.length} listings deleted` };
   });
 }

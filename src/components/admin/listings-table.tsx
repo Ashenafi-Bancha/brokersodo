@@ -8,7 +8,7 @@ import { ColumnSelectFilter, DataTable, type ColumnDef } from "./data-table";
 import { ListingRowMenu } from "./listing-actions";
 import { StatusBadge } from "./status-badge";
 import { useConfirm, useRunAction } from "./confirm";
-import { changeListingStatusAction } from "@/server/actions/admin-listings";
+import { changeListingStatusAction, deleteListingsAction } from "@/server/actions/admin-listings";
 import { formatETB, rentSuffix } from "@/lib/format";
 import type { AdminListingRow } from "@/server/queries/admin";
 
@@ -103,6 +103,27 @@ export function ListingsTable({ rows, isAdmin, categories, brokers }: { rows: Ad
             >
               Archive
             </button>
+            {isAdmin && (
+              <button
+                className={`${cls} bg-error text-white hover:bg-red-700`}
+                disabled={pending}
+                onClick={async () => {
+                  const r = await confirm({
+                    title: `Delete ${ids.length} listing${ids.length === 1 ? "" : "s"} permanently?`,
+                    description: "Their photos and details are removed for good. This cannot be undone. Archive instead if you may need them later.",
+                    confirmLabel: `Delete ${ids.length}`,
+                    destructive: true,
+                  });
+                  if (r.ok)
+                    run(() => deleteListingsAction(ids), () => {
+                      clear();
+                      router.refresh();
+                    });
+                }}
+              >
+                Delete
+              </button>
+            )}
             <Button variant="link" size="xs" className="ml-auto text-current" onClick={clear}>
               Clear
             </Button>

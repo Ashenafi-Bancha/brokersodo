@@ -62,7 +62,6 @@ function jobPostingLd(job: PublicJob, url: string, confidential: string) {
       address: {
         "@type": "PostalAddress",
         addressLocality: job.area?.nameEn ?? "Wolaita Sodo",
-        addressRegion: "South Ethiopia",
         addressCountry: "ET",
       },
     },
