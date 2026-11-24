@@ -3,6 +3,10 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
+  BookOpen,
+  Briefcase,
+  Contact,
+  GraduationCap,
   CheckCircle2,
   Eye,
   Inbox,
@@ -66,6 +70,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       }),
     ]);
 
+  const [openJobs, pendingJobs, newApplicants, pool, liveTutors, pendingTutors, newTutorRequests] = await Promise.all([
+    db.jobPost.count({ where: { status: "PUBLISHED", OR: [{ deadline: null }, { deadline: { gte: now } }] } }),
+    db.jobPost.count({ where: { status: "PENDING" } }),
+    db.jobApplication.count({ where: { status: "NEW" } }),
+    db.jobSeeker.count({ where: { status: { in: ["NEW", "ACTIVE"] } } }),
+    db.tutor.count({ where: { status: "ACTIVE" } }),
+    db.tutor.count({ where: { status: "PENDING" } }),
+    db.tutorRequest.count({ where: { status: "NEW" } }),
+  ]);
   const catName = new Map(categories.map((c) => [c.id, c.nameEn]));
   const catData = byCategory.map((b) => ({ name: catName.get(b.categoryId) ?? "—", count: b._count._all })).sort((a, b) => b.count - a.count);
   const dayMap = new Map(inquiryDays.map((d) => [d.day, Number(d.count)]));
@@ -141,6 +154,32 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </li>
         ))}
       </ul>
+
+      <section className="rounded-card bg-surface p-5 shadow-card">
+        <h2 className="mb-4 font-bold text-fg">Jobs &amp; tutors</h2>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+          {(
+            [
+              ["Open jobs", openJobs, "/admin/jobs", Briefcase, false],
+              ["Jobs to review", pendingJobs, "/admin/jobs", Briefcase, true],
+              ["New applicants", newApplicants, "/admin/jobs", Contact, true],
+              ["Talent pool", pool, "/admin/job-seekers", Contact, false],
+              ["Live tutors", liveTutors, "/admin/tutors", GraduationCap, false],
+              ["Tutor requests", newTutorRequests + pendingTutors, "/admin/tutor-requests", BookOpen, true],
+            ] as const
+          ).map(([label, value, href, Icon, alert]) => (
+            <li key={label}>
+              <Link href={href} className="flex items-center gap-3 rounded-btn bg-bg-2 p-3 hover:bg-line">
+                <Icon className={`size-5 shrink-0 ${alert && value > 0 ? "text-primary" : "text-muted"}`} />
+                <span className="min-w-0">
+                  <span className="block text-xl font-extrabold text-fg tabular-nums">{value}</span>
+                  <span className="block truncate text-xs font-semibold text-muted">{label}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <section className="rounded-card bg-surface p-5 shadow-card xl:col-span-2">

@@ -12,7 +12,7 @@ import { CONTACT_METHODS } from "@/lib/validators/common";
 import { createContactMessageAction, createWantedAction } from "@/server/actions/public";
 import { cn } from "@/lib/utils";
 
-function Success({ title, body }: { title: string; body: string }) {
+export function Success({ title, body }: { title: string; body: string }) {
   return (
     <div role="status" className="flex flex-col items-center gap-3 rounded-card bg-[#DCFCE7] p-8 text-center dark:bg-sold/20">
       <CheckCircle2 className="size-12 text-sold" />
@@ -22,7 +22,7 @@ function Success({ title, body }: { title: string; body: string }) {
   );
 }
 
-function ServerError({ msg }: { msg: string | null }) {
+export function ServerError({ msg }: { msg: string | null }) {
   if (!msg) return null;
   return (
     <p role="alert" className="rounded-btn bg-red-50 px-3 py-2 text-sm font-medium text-error dark:bg-error/20 dark:text-red-200">

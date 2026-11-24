@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "brand": "node scripts/generate-brand.mjs",
     "db:add-samples": "tsx prisma/add-samples.ts",
-    "db:seed:launch": "tsx prisma/seed.ts --launch"
+    "db:seed:launch": "tsx prisma/seed.ts --launch",
+    "db:add-job-samples": "tsx prisma/add-job-samples.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",

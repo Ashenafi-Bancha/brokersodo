@@ -5,7 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
 import {
+  BookOpen,
+  Briefcase,
+  Contact,
   ExternalLink,
+  GraduationCap,
   FileText,
   History,
   Inbox,
@@ -44,10 +48,14 @@ const ICONS: Record<string, LucideIcon> = {
   Settings,
   Users,
   History,
+  Briefcase,
+  Contact,
+  GraduationCap,
+  BookOpen,
 };
 
 type Me = { name: string; email: string; role: "ADMIN" | "BROKER" };
-type Counts = { submissions: number; inquiries: number; wanted: number };
+type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number };
 
 function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -57,6 +65,9 @@ function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigat
     "/admin/submissions": counts.submissions,
     "/admin/inquiries": counts.inquiries,
     "/admin/wanted": counts.wanted,
+    "/admin/jobs": counts.jobs,
+    "/admin/tutors": counts.tutors,
+    "/admin/tutor-requests": counts.tutorRequests,
   };
   return (
     <nav aria-label="Admin" className="flex flex-col gap-5">

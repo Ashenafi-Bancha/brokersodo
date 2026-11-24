@@ -72,20 +72,20 @@ enum WantedStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String    @unique
   phone        String?
   passwordHash String
-  role         Role     @default(BROKER)
+  role         Role      @default(BROKER)
   avatar       String?
-  isActive     Boolean  @default(true)
+  isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  listings  Listing[]       @relation("AssignedBroker")
-  inquiries Inquiry[]       @relation("InquiryBroker")
+  listings  Listing[]     @relation("AssignedBroker")
+  inquiries Inquiry[]     @relation("InquiryBroker")
   activity  ActivityLog[]
 
   @@index([role, isActive])
@@ -132,9 +132,13 @@ model Area {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  listings    Listing[]
-  submissions PropertySubmission[]
-  wanted      WantedRequest[]
+  listings      Listing[]
+  submissions   PropertySubmission[]
+  wanted        WantedRequest[]
+  jobs          JobPost[]
+  jobSeekers    JobSeeker[]
+  tutors        Tutor[]
+  tutorRequests TutorRequest[]
 
   @@index([sortOrder])
 }
@@ -146,13 +150,13 @@ model RefCounter {
 }
 
 model Listing {
-  id            String        @id @default(cuid())
-  refCode       String        @unique
-  slug          String        @unique
+  id            String  @id @default(cuid())
+  refCode       String  @unique
+  slug          String  @unique
   titleEn       String
   titleAm       String?
   /// Sanitised HTML
-  descriptionEn String        @default("")
+  descriptionEn String  @default("")
   descriptionAm String?
   videoUrl      String?
 
@@ -201,7 +205,7 @@ model Listing {
   images      ListingImage[]
   inquiries   Inquiry[]
   submissions PropertySubmission[]
-  wanted      WantedRequest[]       @relation("WantedMatches")
+  wanted      WantedRequest[]      @relation("WantedMatches")
 
   @@index([status, publishedAt(sort: Desc)])
   @@index([categoryId, status])
@@ -398,6 +402,209 @@ model RateLimit {
   expiresAt DateTime
 
   @@index([expiresAt])
+}
+
+/**
+ * ---------------- Jobs ----------------
+ */
+
+enum JobStatus {
+  PENDING
+  PUBLISHED
+  CLOSED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  NEW
+  SHORTLISTED
+  CONTACTED
+  HIRED
+  REJECTED
+}
+
+enum SeekerStatus {
+  NEW
+  ACTIVE
+  PLACED
+  ARCHIVED
+}
+
+/// Catalogue values (sector, jobType, ...) live in src/lib/jobs-catalog.ts.
+model JobPost {
+  id               String    @id @default(cuid())
+  refCode          String    @unique
+  slug             String    @unique
+  title            String
+  employerName     String
+  /// false = confidential employer: the name is never sent to public pages
+  showEmployer     Boolean   @default(true)
+  employerVerified Boolean   @default(false)
+  sector           String
+  jobType          String
+  /// GRADUATE, SKILLED or ANY
+  audience         String    @default("ANY")
+  education        String    @default("NONE")
+  minExperience    Int       @default(0)
+  vacancies        Int       @default(1)
+  salaryMin        Int?
+  salaryMax        Int?
+  salaryPeriod     String    @default("MONTH")
+  areaId           String?
+  area             Area?     @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  description      String
+  requirements     String    @default("")
+  deadline         DateTime?
+  status           JobStatus @default(PENDING)
+  featured         Boolean   @default(false)
+
+  // ---- PRIVATE: staff only. Never select on public routes. ----
+  contactName  String
+  contactPhone String
+  staffNotes   String?
+  rejectReason String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  applications JobApplication[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([status, deadline])
+  @@index([sector, status])
+  @@index([audience, status])
+  @@index([areaId, status])
+}
+
+/// Private: visible to staff only.
+model JobApplication {
+  id         String            @id @default(cuid())
+  jobId      String
+  job        JobPost           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String
+  education  String
+  field      String?
+  experience Int               @default(0)
+  skills     String?
+  message    String?
+  status     ApplicationStatus @default(NEW)
+  notes      String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([jobId, phone])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+/// Private talent pool: skilled workers and graduates. Never shown publicly.
+model JobSeeker {
+  id             String       @id @default(cuid())
+  name           String
+  phone          String
+  /// GRADUATE or SKILLED
+  seekerType     String
+  profession     String
+  sector         String
+  education      String
+  field          String?
+  graduationYear Int?
+  experience     Int          @default(0)
+  skills         String?
+  about          String?
+  areaId         String?
+  area           Area?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  status         SeekerStatus @default(NEW)
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([sector, seekerType])
+  @@index([phone])
+}
+
+/**
+ * ---------------- Tutors ----------------
+ */
+
+enum TutorStatus {
+  PENDING
+  ACTIVE
+  HIDDEN
+  REJECTED
+}
+
+enum TutorRequestStatus {
+  NEW
+  CONTACTED
+  MATCHED
+  CLOSED
+}
+
+model Tutor {
+  id              String      @id @default(cuid())
+  refCode         String      @unique
+  slug            String      @unique
+  /// Public: first name only
+  displayName     String
+  subjects        String[]
+  levels          String[]
+  modes           String[]
+  education       String
+  field           String?
+  experienceYears Int         @default(0)
+  bio             String
+  availability    String?
+  /// Whole ETB per hour
+  hourlyRate      Int?
+  areaId          String?
+  area            Area?       @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  status          TutorStatus @default(PENDING)
+  isVerified      Boolean     @default(false)
+  featured        Boolean     @default(false)
+
+  // ---- PRIVATE: staff only. Never select on public routes. ----
+  fullName     String
+  phone        String
+  staffNotes   String?
+  rejectReason String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  requests TutorRequest[]
+
+  @@index([status, featured, publishedAt(sort: Desc)])
+  @@index([areaId, status])
+  @@index([subjects], type: Gin)
+  @@index([levels], type: Gin)
+}
+
+/// Private: a family or student asking for a tutor.
+model TutorRequest {
+  id        String             @id @default(cuid())
+  tutorId   String?
+  tutor     Tutor?             @relation(fields: [tutorId], references: [id], onDelete: SetNull)
+  name      String
+  phone     String
+  subject   String
+  level     String
+  mode      String
+  areaId    String?
+  area      Area?              @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  schedule  String?
+  budget    Int?
+  message   String?
+  status    TutorRequestStatus @default(NEW)
+  notes     String?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([tutorId])
 }
 
 /// De-duplicates listing view counts (hashed visitor + listing per day)

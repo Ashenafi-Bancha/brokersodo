@@ -1,0 +1,264 @@
+"use server";
+import { db } from "@/lib/db";
+import { listingSlug, nextRefCode } from "@/lib/ref-code";
+import { DEFAULT_JOB_DAYS, deadlineFromDate, dateFromDeadline } from "@/lib/jobs-catalog";
+import {
+  APPLICATION_STATUSES,
+  SEEKER_STATUSES,
+  TUTOR_REQUEST_STATUSES,
+  TUTOR_STATUSES,
+  JOB_STATUSES,
+  adminJobSchema,
+  adminTutorSchema,
+  inboxUpdateSchema,
+} from "@/lib/validators/jobs";
+import { adminAction, logActivity, revalidatePublic, type ActionResult } from "./_helpers";
+
+const STAFF = ["ADMIN", "BROKER"] as const;
+
+async function areaOrNull(id: string | null | undefined) {
+  if (!id) return null;
+  return (await db.area.findUnique({ where: { id }, select: { id: true } }))?.id ?? null;
+}
+
+/* ---------------- Job posts ---------------- */
+
+export async function saveJobAction(input: unknown): Promise<ActionResult<{ id: string }>> {
+  return adminAction([...STAFF], async (session) => {
+    const d = adminJobSchema.parse(input);
+    const before = d.id ? await db.jobPost.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true } }) : null;
+    if (d.id && !before) return { ok: false, error: "Job not found" };
+    const publishing = d.status === "PUBLISHED" && before?.status !== "PUBLISHED";
+    // A published job always gets a deadline so the board never fills with stale posts.
+    let deadline = d.deadline ? deadlineFromDate(d.deadline) : null;
+    if (d.status === "PUBLISHED" && !deadline) deadline = deadlineFromDate(dateFromDeadline(new Date(Date.now() + DEFAULT_JOB_DAYS * 86_400_000)));
+    const data = {
+      title: d.title,
+      employerName: d.employerName,
+      showEmployer: d.showEmployer,
+      employerVerified: d.employerVerified,
+      featured: d.featured,
+      sector: d.sector,
+      jobType: d.jobType,
+      audience: d.audience,
+      education: d.education,
+      minExperience: d.minExperience ?? 0,
+      vacancies: d.vacancies ?? 1,
+      salaryMin: d.salaryMin,
+      salaryMax: d.salaryMax,
+      salaryPeriod: d.salaryPeriod,
+      areaId: await areaOrNull(d.areaId),
+      description: d.description,
+      requirements: d.requirements,
+      deadline,
+      contactName: d.contactName,
+      contactPhone: d.contactPhone,
+      staffNotes: d.staffNotes,
+      status: d.status,
+      ...(d.status !== "REJECTED" ? { rejectReason: null } : {}),
+      ...(publishing ? { publishedAt: before?.publishedAt ?? new Date() } : {}),
+    };
+    const job = d.id
+      ? await db.jobPost.update({ where: { id: d.id }, data, select: { id: true, refCode: true, title: true } })
+      : await db.$transaction(async (tx) => {
+          const refCode = await nextRefCode(tx, "J");
+          return tx.jobPost.create({
+            data: { ...data, refCode, slug: listingSlug(d.title, refCode), publishedAt: d.status === "PUBLISHED" ? new Date() : null },
+            select: { id: true, refCode: true, title: true },
+          });
+        });
+    await logActivity(session, d.id ? (publishing ? "publish" : "update") : "create", "JobPost", job.id, `${job.refCode} ${job.title}${publishing ? " published" : ""}`);
+    revalidatePublic();
+    return { ok: true, data: { id: job.id }, message: publishing ? "Job published" : "Job saved" };
+  });
+}
+
+export async function setJobStatusAction(id: string, status: string, reason?: string): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    if (!(JOB_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "Unknown status" };
+    const before = await db.jobPost.findUnique({ where: { id }, select: { status: true, deadline: true, publishedAt: true } });
+    if (!before) return { ok: false, error: "Job not found" };
+    const s = status as (typeof JOB_STATUSES)[number];
+    const reopen = s === "PUBLISHED" && (!before.deadline || before.deadline < new Date());
+    const job = await db.jobPost.update({
+      where: { id },
+      data: {
+        status: s,
+        rejectReason: s === "REJECTED" ? String(reason ?? "").slice(0, 500) || null : null,
+        ...(s === "PUBLISHED" && !before.publishedAt ? { publishedAt: new Date() } : {}),
+        ...(reopen ? { deadline: deadlineFromDate(dateFromDeadline(new Date(Date.now() + DEFAULT_JOB_DAYS * 86_400_000))) } : {}),
+      },
+      select: { refCode: true, title: true },
+    });
+    await logActivity(session, "status", "JobPost", id, `${job.refCode} ${job.title}: ${before.status} → ${s}`);
+    revalidatePublic();
+    return { ok: true, message: s === "PUBLISHED" ? "Job published" : `Job marked ${s.toLowerCase()}` };
+  });
+}
+
+export async function deleteJobAction(id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    const j = await db.jobPost.delete({ where: { id }, select: { refCode: true, title: true } });
+    await logActivity(session, "delete", "JobPost", id, `Deleted ${j.refCode} ${j.title} and its applications`);
+    revalidatePublic();
+    return { ok: true, message: "Job deleted" };
+  });
+}
+
+/** People from the talent pool who fit a job: same sector and enough education, active first. */
+export async function matchSeekersAction(jobId: string) {
+  const res = await adminAction([...STAFF], async () => {
+    const job = await db.jobPost.findUnique({ where: { id: jobId }, select: { sector: true, audience: true, education: true, minExperience: true } });
+    if (!job) return { ok: false, error: "Not found" };
+    const { EDUCATION_LEVELS } = await import("@/lib/jobs-catalog");
+    const minEdu = Math.max(0, EDUCATION_LEVELS.indexOf(job.education as (typeof EDUCATION_LEVELS)[number]));
+    const rows = await db.jobSeeker.findMany({
+      where: {
+        status: { in: ["NEW", "ACTIVE"] },
+        sector: job.sector,
+        education: { in: EDUCATION_LEVELS.slice(minEdu) as unknown as string[] },
+        ...(job.audience !== "ANY" ? { seekerType: job.audience } : {}),
+      },
+      orderBy: [{ status: "desc" }, { experience: "desc" }, { createdAt: "desc" }],
+      take: 30,
+      select: { id: true, name: true, phone: true, profession: true, education: true, experience: true, seekerType: true },
+    });
+    return { ok: true, data: rows.sort((a, b) => Number(b.experience >= job.minExperience) - Number(a.experience >= job.minExperience)) };
+  });
+  return res.ok ? (res.data ?? []) : [];
+}
+
+/* ---------------- Applications, talent pool, tutor requests ---------------- */
+
+export async function updateApplicationAction(input: unknown): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    const d = inboxUpdateSchema.parse(input);
+    if (!(APPLICATION_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const a = await db.jobApplication.update({
+      where: { id: d.id },
+      data: { status: d.status as (typeof APPLICATION_STATUSES)[number], notes: d.notes?.trim() || null },
+      select: { name: true, job: { select: { refCode: true } } },
+    });
+    await logActivity(session, "status", "JobApplication", d.id, `${a.name} for ${a.job.refCode} → ${d.status}`);
+    return { ok: true, message: "Applicant updated" };
+  });
+}
+
+export async function updateSeekerAction(input: unknown): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    const d = inboxUpdateSchema.parse(input);
+    if (!(SEEKER_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const s = await db.jobSeeker.update({
+      where: { id: d.id },
+      data: { status: d.status as (typeof SEEKER_STATUSES)[number], notes: d.notes?.trim() || null },
+      select: { name: true },
+    });
+    await logActivity(session, "status", "JobSeeker", d.id, `Job seeker ${s.name} → ${d.status}`);
+    return { ok: true, message: "Job seeker updated" };
+  });
+}
+
+export async function updateTutorRequestAction(input: unknown): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    const d = inboxUpdateSchema.parse(input);
+    if (!(TUTOR_REQUEST_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const tutorId = d.tutorId ? ((await db.tutor.findUnique({ where: { id: d.tutorId }, select: { id: true } }))?.id ?? null) : null;
+    const r = await db.tutorRequest.update({
+      where: { id: d.id },
+      data: {
+        status: d.status as (typeof TUTOR_REQUEST_STATUSES)[number],
+        notes: d.notes?.trim() || null,
+        ...(d.tutorId !== undefined ? { tutorId } : {}),
+      },
+      select: { name: true },
+    });
+    await logActivity(session, "status", "TutorRequest", d.id, `Tutor request from ${r.name} → ${d.status}`);
+    return { ok: true, message: "Request updated" };
+  });
+}
+
+/** Personal data: only admins can delete it permanently. */
+export async function deletePersonAction(kind: "application" | "seeker" | "tutorRequest", id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    if (kind === "application") await db.jobApplication.delete({ where: { id } });
+    else if (kind === "seeker") await db.jobSeeker.delete({ where: { id } });
+    else if (kind === "tutorRequest") await db.tutorRequest.delete({ where: { id } });
+    else return { ok: false, error: "Unknown record" };
+    await logActivity(session, "delete", kind, id, `Deleted ${kind}`);
+    return { ok: true, message: "Deleted" };
+  });
+}
+
+/* ---------------- Tutors ---------------- */
+
+export async function saveTutorAction(input: unknown): Promise<ActionResult<{ id: string }>> {
+  return adminAction([...STAFF], async (session) => {
+    const d = adminTutorSchema.parse(input);
+    const before = d.id ? await db.tutor.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true } }) : null;
+    if (d.id && !before) return { ok: false, error: "Tutor not found" };
+    const going = d.status === "ACTIVE" && before?.status !== "ACTIVE";
+    const data = {
+      displayName: d.displayName,
+      fullName: d.fullName,
+      phone: d.phone,
+      subjects: d.subjects,
+      levels: d.levels,
+      modes: d.modes,
+      education: d.education,
+      field: d.field,
+      experienceYears: d.experienceYears ?? 0,
+      bio: d.bio,
+      availability: d.availability,
+      hourlyRate: d.hourlyRate,
+      areaId: await areaOrNull(d.areaId),
+      isVerified: d.isVerified,
+      featured: d.featured,
+      staffNotes: d.staffNotes,
+      status: d.status,
+      ...(d.status !== "REJECTED" ? { rejectReason: null } : {}),
+      ...(going && !before?.publishedAt ? { publishedAt: new Date() } : {}),
+    };
+    const tutor = d.id
+      ? await db.tutor.update({ where: { id: d.id }, data, select: { id: true, refCode: true, displayName: true } })
+      : await db.$transaction(async (tx) => {
+          const refCode = await nextRefCode(tx, "T");
+          return tx.tutor.create({
+            data: { ...data, refCode, slug: listingSlug(`${d.displayName} tutor`, refCode), publishedAt: d.status === "ACTIVE" ? new Date() : null },
+            select: { id: true, refCode: true, displayName: true },
+          });
+        });
+    await logActivity(session, d.id ? (going ? "publish" : "update") : "create", "Tutor", tutor.id, `${tutor.refCode} ${tutor.displayName}${going ? " listed" : ""}`);
+    revalidatePublic();
+    return { ok: true, data: { id: tutor.id }, message: going ? "Tutor is now live" : "Tutor saved" };
+  });
+}
+
+export async function setTutorStatusAction(id: string, status: string, reason?: string): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    if (!(TUTOR_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "Unknown status" };
+    const s = status as (typeof TUTOR_STATUSES)[number];
+    const before = await db.tutor.findUnique({ where: { id }, select: { publishedAt: true, status: true } });
+    if (!before) return { ok: false, error: "Tutor not found" };
+    const tu = await db.tutor.update({
+      where: { id },
+      data: {
+        status: s,
+        rejectReason: s === "REJECTED" ? String(reason ?? "").slice(0, 500) || null : null,
+        ...(s === "ACTIVE" && !before.publishedAt ? { publishedAt: new Date() } : {}),
+      },
+      select: { refCode: true, displayName: true },
+    });
+    await logActivity(session, "status", "Tutor", id, `${tu.refCode} ${tu.displayName}: ${before.status} → ${s}`);
+    revalidatePublic();
+    return { ok: true, message: s === "ACTIVE" ? "Tutor is now live" : `Tutor marked ${s.toLowerCase()}` };
+  });
+}
+
+export async function deleteTutorAction(id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    const tu = await db.tutor.delete({ where: { id }, select: { refCode: true, displayName: true } });
+    await logActivity(session, "delete", "Tutor", id, `Deleted tutor ${tu.refCode} ${tu.displayName}`);
+    revalidatePublic();
+    return { ok: true, message: "Tutor deleted" };
+  });
+}

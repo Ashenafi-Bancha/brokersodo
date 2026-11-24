@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, BadgeCheck, CalendarCheck, Eye, Handshake, Megaphone, PhoneCall, Quote, Search, Send, Star, Wallet } from "lucide-react";
+import { ArrowRight, BadgeCheck, Briefcase, CalendarCheck, Eye, GraduationCap, Handshake, Megaphone, PhoneCall, Quote, Search, Send, Star, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Container, SectionHeading } from "@/components/ui/misc";
@@ -11,6 +11,8 @@ import { Carousel } from "@/components/home/carousel";
 import { Counter } from "@/components/home/stats-band";
 import { FaqList } from "@/components/home/faq-list";
 import { ListingCard, ListingGrid } from "@/components/listings/listing-card";
+import { JobCard, TutorCard } from "@/components/jobs/cards";
+import { getFeaturedTutors, getJobCounts, getLatestJobs, getTutorCount } from "@/server/queries/jobs";
 import {
   getAreas,
   getCategories,
@@ -37,9 +39,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, th, settings, categories, areas, featured, latest, rentals, vehicles, sold, stats, testimonials, faqs] = await Promise.all([
+  const [t, th, tj, tt, settings, categories, areas, featured, latest, rentals, vehicles, sold, stats, testimonials, faqs, jobs, jobCounts, tutors, tutorCount] = await Promise.all([
     getTranslations("home"),
     getTranslations("hero"),
+    getTranslations("jobs"),
+    getTranslations("tutors"),
     getSiteSettings(),
     getCategories(),
     getAreas(),
@@ -51,6 +55,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getStats(),
     getTestimonials(),
     getFaqs(4),
+    getLatestJobs(4),
+    getJobCounts(),
+    getFeaturedTutors(4),
+    getTutorCount(),
   ]);
   const topCats = categories.filter((c) => !c.parentId);
   const heroTitle = localized(settings, "heroTitle", locale);
@@ -83,7 +91,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 />
               </ScopedIntl>
             </div>
-            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-fg-2">
+            <p className="mt-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-fg-2">
+              <span>{th("alsoOn")}</span>
+              <Link prefetch={false} href="/jobs" className="inline-flex min-h-9 items-center gap-1.5 rounded-pill bg-navy-900 px-3 text-white hover:bg-navy-700 dark:bg-white dark:text-navy-900">
+                <Briefcase className="size-4" aria-hidden /> {th("jobsLink")}
+              </Link>
+              <Link prefetch={false} href="/tutors" className="inline-flex min-h-9 items-center gap-1.5 rounded-pill bg-yellow-500 px-3 text-navy-900 hover:bg-yellow-400">
+                <GraduationCap className="size-4" aria-hidden /> {th("tutorsLink")}
+              </Link>
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-fg-2">
               {(["trust1", "trust2", "trust3"] as const).map((k) => (
                 <li key={k} className="inline-flex items-center gap-1.5">
                   <BadgeCheck className="size-4 text-sold" aria-hidden /> {th(k)}
@@ -132,6 +149,71 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ))}
         </ul>
       </Container>
+
+      {/* 2b. Jobs & tutors */}
+      <section className="border-y border-line bg-bg-2 py-14 sm:py-20">
+        <Container className="grid gap-10 lg:grid-cols-2">
+          <div>
+            <SectionHeading title={tj("homeTitle")} subtitle={tj("homeSubtitle")} action={<ViewAll href="/jobs" label={tj("viewAll")} />} />
+            {jobs.length > 0 ? (
+              <ul className="grid gap-3">
+                {jobs.map((j) => (
+                  <li key={j.id}>
+                    <JobCard job={j} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyBand icon={<Briefcase className="size-7" />} title={tj("emptyTitle")} body={tj("emptyBody")} />
+            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <Link prefetch={false} href="/jobs/post">
+                  {tj("postJob")}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link prefetch={false} href="/jobs/talent-pool">
+                  {tj("joinPool")}
+                </Link>
+              </Button>
+              {jobCounts.graduate > 0 && (
+                <Button asChild size="sm" variant="ghost">
+                  <Link prefetch={false} href="/jobs?for=GRADUATE">
+                    {tj("forGraduates")} ({jobCounts.graduate})
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+          <div>
+            <SectionHeading title={tt("homeTitle")} subtitle={tt("homeSubtitle")} action={tutorCount > 0 ? <ViewAll href="/tutors" label={tt("viewAll")} /> : undefined} />
+            {tutors.length > 0 ? (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {tutors.map((tu) => (
+                  <li key={tu.id}>
+                    <TutorCard tutor={tu} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyBand icon={<GraduationCap className="size-7" />} title={tt("emptyTitle")} body={tt("emptyBody")} />
+            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <Link prefetch={false} href="/tutors/request">
+                  {tt("requestTutor")}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link prefetch={false} href="/tutors/join">
+                  {tt("becomeTutor")}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </section>
 
       <div className="cv-auto">
         {/* 3. Featured */}
@@ -324,6 +406,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
       </div>
     </>
+  );
+}
+
+function EmptyBand({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
+  return (
+    <div className="flex items-start gap-4 rounded-card bg-surface p-5 shadow-card">
+      <span className="grid size-12 shrink-0 place-items-center rounded-btn bg-yellow-100 text-navy-900 dark:bg-navy-700 dark:text-white">{icon}</span>
+      <div>
+        <p className="font-bold text-fg">{title}</p>
+        <p className="mt-1 text-sm text-fg-2">{body}</p>
+      </div>
+    </div>
   );
 }
 

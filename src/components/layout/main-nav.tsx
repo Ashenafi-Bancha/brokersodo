@@ -56,10 +56,10 @@ export function MainNav({ categories }: { categories: NavCategory[] }) {
       <CategoryMegaMenu categories={categories} />
       <DealLink deal="sale" label={t("buy")} />
       <DealLink deal="rent" label={t("rent")} />
+      {page("/jobs", t("jobs"))}
+      {page("/tutors", t("tutors"))}
       {page("/wanted", t("wanted"))}
-      {page("/how-it-works", t("howItWorks"))}
       {page("/about", t("about"))}
-      {page("/faq", t("faq"))}
       {page("/contact", t("contact"))}
     </nav>
   );

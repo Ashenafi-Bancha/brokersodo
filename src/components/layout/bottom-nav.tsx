@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { Heart, Home, MessageCircle, Plus, Search } from "lucide-react";
+import { Briefcase, GraduationCap, Home, Plus, Search } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -33,17 +33,17 @@ export function BottomNav() {
         </span>
         {t("sell")}
       </Link>
-      <Link href="/saved" aria-current={is("/saved") ? "page" : undefined} className={cn(item, is("/saved") ? "text-primary" : "text-muted")}>
-        <Heart className="size-[22px]" />
-        {t("saved")}
+      <Link href="/jobs" aria-current={is("/jobs") ? "page" : undefined} className={cn(item, is("/jobs") ? "text-primary" : "text-muted")}>
+        <Briefcase className="size-[22px]" />
+        {t("jobs")}
       </Link>
       <Link
-        href="/contact"
-        aria-current={is("/contact") ? "page" : undefined}
-        className={cn(item, is("/contact") ? "text-primary" : "text-muted")}
+        href="/tutors"
+        aria-current={is("/tutors") ? "page" : undefined}
+        className={cn(item, is("/tutors") ? "text-primary" : "text-muted")}
       >
-        <MessageCircle className="size-[22px]" />
-        {t("contact")}
+        <GraduationCap className="size-[22px]" />
+        {t("tutors")}
       </Link>
     </nav>
   );

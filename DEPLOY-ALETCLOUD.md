@@ -74,17 +74,41 @@ Close that terminal afterwards so the values are cleared. If the database only a
 2. Add the `_alet-challenge` TXT record and the A record that AletCloud shows.
 3. Wait for HTTPS to become active.
 
-## 8. Check before sending the link
+## 8. Test everything before sending the link
 
-- [ ] Home page loads on a phone at `https://brokersodo.com`
-- [ ] Admin login works at `/admin`
-- [ ] A test submission with a photo reaches the admin panel
-- [ ] Converting it to a listing shows the watermarked photo publicly
-- [ ] Deleting the test listing removes it
-- [ ] Bucket root URL does not list files
-- [ ] Phone, Telegram and TikTok links are correct
-- [ ] About, Terms and Privacy text has been reviewed by the client
-- [ ] App restart keeps the listings and photos
+Use your own phone number in every test. Start each test name with `TEST` so it is easy to find and delete afterwards.
+
+**Admin login**
+
+- [ ] Open `https://brokersodo.com/admin`. You are sent to the login page.
+- [ ] A wrong password shows an error. After 8 tries in 15 minutes, that email is locked out for the rest of the 15 minutes.
+- [ ] The right email and password open the dashboard.
+- [ ] In **Users**, add an account for each broker with their own email. Never share the admin password.
+
+**Contact and inquiry forms** (each one must appear in the admin panel within a few seconds)
+
+- [ ] `/contact` form → **Inquiries**, source "contact"
+- [ ] "Ask about this" on any listing → **Inquiries**, with the listing's reference code
+- [ ] `/wanted` form → **Wanted**
+- [ ] `/sell` with a photo → **Submissions**. Convert it to a listing and check that the photo shows on the website with the watermark.
+- [ ] The call, Telegram and WhatsApp buttons on the website open the client's real numbers.
+
+**Jobs and tutors**
+
+- [ ] `/jobs/post` → **Jobs** shows it as Pending. Click Publish and check that it appears on `/jobs`.
+- [ ] Apply to that job → the applicant appears inside the job in **Jobs**.
+- [ ] `/jobs/talent-pool` → **Talent pool**
+- [ ] `/tutors/join` → **Tutors** as Pending. Click Make live and check that it appears on `/tutors`.
+- [ ] `/tutors/request` → **Tutor requests**
+
+**Clean up and final checks**
+
+- [ ] Delete every `TEST` record from the admin panel.
+- [ ] Opening the bucket root URL does not list files.
+- [ ] Restart the app in AletCloud. Listings, photos and jobs are still there.
+- [ ] The client has reviewed the About, Terms and Privacy text. The Privacy page must mention that job seekers' and tutors' details are kept and shared with employers and families.
+
+The site does not send email. New messages are seen in the admin panel, and the sidebar shows a red count for anything new.
 
 ## Updating the site
 

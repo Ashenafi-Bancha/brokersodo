@@ -77,6 +77,10 @@ export async function SiteFooter() {
             {[
               ["/listings", tn("allListings")],
               ["/sell", tn("sellWithUs")],
+              ["/jobs", tn("jobs")],
+              ["/jobs/post", tn("postJob")],
+              ["/tutors", tn("findTutor")],
+              ["/tutors/join", tn("becomeTutor")],
               ["/wanted", tn("wanted")],
               ["/saved", tn("saved")],
               ["/how-it-works", tn("howItWorks")],
@@ -140,7 +144,7 @@ export async function SiteFooter() {
       <div className="relative border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-6 pb-28 text-xs text-muted sm:flex-row sm:px-6 md:pb-6 lg:px-8">
           <p>{t("rights", { year: new Date().getFullYear() })}</p>
-          <p className="font-brand text-primary">BUY. SELL. RENT. — SODO DEALS</p>
+          <p className="font-brand text-primary">BUY. SELL. RENT. JOBS. TUTORS.</p>
         </div>
       </div>
     </footer>

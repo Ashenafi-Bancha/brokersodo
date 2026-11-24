@@ -19,6 +19,11 @@ const MAP: Record<string, { variant: Parameters<typeof Badge>[0]["variant"]; lab
   OPEN: { variant: "danger", label: "Open" },
   MATCHED: { variant: "published", label: "Matched" },
   CLOSED: { variant: "archived", label: "Closed" },
+  SHORTLISTED: { variant: "featured", label: "Shortlisted" },
+  HIRED: { variant: "published", label: "Hired" },
+  ACTIVE: { variant: "published", label: "Active" },
+  PLACED: { variant: "info", label: "Placed" },
+  HIDDEN: { variant: "archived", label: "Hidden" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

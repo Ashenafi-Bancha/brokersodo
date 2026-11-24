@@ -1,7 +1,7 @@
 {
   "meta": {
     "siteTitle": "BrokerSodo — Buy, Sell & Rent in Wolaita and South Ethiopia",
-    "siteDescription": "Phones, cars, Bajaj, houses, land, rentals and machinery in Wolaita Sodo, across Wolaita and South Ethiopia — checked by local brokers.",
+    "siteDescription": "Buy, sell and rent phones, cars, Bajaj, houses, land and machinery, find jobs and find tutors in Wolaita Sodo, across Wolaita and South Ethiopia. Checked by local brokers.",
     "tagline": "Sodo's Deal Spotters"
   },
   "nav": {
@@ -30,7 +30,14 @@
     "privacy": "Privacy",
     "viewAll": "View all",
     "skipToContent": "Skip to content",
-    "mainNav": "Main navigation"
+    "mainNav": "Main navigation",
+    "jobs": "Jobs",
+    "tutors": "Tutors",
+    "postJob": "Post a job",
+    "findTutor": "Find a tutor",
+    "becomeTutor": "Become a tutor",
+    "talentPool": "Join talent pool",
+    "more": "More"
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -57,7 +64,10 @@
     "tileSmall": "Small items",
     "tileVehicles": "Cars & Bajaj",
     "tileHomes": "Houses & rentals",
-    "tileLand": "Land & plots"
+    "tileLand": "Land & plots",
+    "alsoOn": "Also on BrokerSodo:",
+    "jobsLink": "Jobs for graduates and skilled workers",
+    "tutorsLink": "Find a tutor"
   },
   "home": {
     "categoriesTitle": "Browse by category",
@@ -76,16 +86,40 @@
     "forBuyers": "For buyers",
     "forSellers": "For sellers",
     "buyerSteps": {
-      "1": { "title": "Find it", "body": "Browse verified listings or tell us what you want." },
-      "2": { "title": "Call us", "body": "Quote the ref code. We answer every question." },
-      "3": { "title": "View it", "body": "We arrange a viewing or inspection with you." },
-      "4": { "title": "Close safely", "body": "We guide the deal and paperwork to the end." }
+      "1": {
+        "title": "Find it",
+        "body": "Browse verified listings or tell us what you want."
+      },
+      "2": {
+        "title": "Call us",
+        "body": "Quote the ref code. We answer every question."
+      },
+      "3": {
+        "title": "View it",
+        "body": "We arrange a viewing or inspection with you."
+      },
+      "4": {
+        "title": "Close safely",
+        "body": "We guide the deal and paperwork to the end."
+      }
     },
     "sellerSteps": {
-      "1": { "title": "Submit", "body": "Send us your property — photos and price." },
-      "2": { "title": "We verify", "body": "A broker checks it and prepares the listing." },
-      "3": { "title": "We market", "body": "Your listing goes live. Your number stays private." },
-      "4": { "title": "You get paid", "body": "We bring serious buyers and help you close." }
+      "1": {
+        "title": "Submit",
+        "body": "Send us your property — photos and price."
+      },
+      "2": {
+        "title": "We verify",
+        "body": "A broker checks it and prepares the listing."
+      },
+      "3": {
+        "title": "We market",
+        "body": "Your listing goes live. Your number stays private."
+      },
+      "4": {
+        "title": "You get paid",
+        "body": "We bring serious buyers and help you close."
+      }
     },
     "statsTitle": "Trusted across Wolaita and South Ethiopia",
     "stats": {
@@ -249,7 +283,17 @@
       "photos_max": "Up to 10 photos",
       "generic": "Something went wrong. Please try again.",
       "rateLimited": "Too many requests. Please wait a few minutes and try again.",
-      "invalid": "Please check the highlighted fields."
+      "invalid": "Please check the highlighted fields.",
+      "required": "Please choose an option",
+      "number_invalid": "Enter a valid number",
+      "consent_required": "Please tick this box to continue",
+      "choose_one": "Choose at least one",
+      "deadline_invalid": "Choose a date within the next 6 months",
+      "employer_min": "Enter the employer name",
+      "employer_max": "Name is too long",
+      "profession_min": "Enter your profession or trade",
+      "profession_max": "Too long",
+      "jobClosed": "This job is no longer taking applications."
     }
   },
   "inquiry": {
@@ -343,7 +387,8 @@
     "contactUs": "Contact us",
     "hours": "Hours",
     "follow": "Follow us",
-    "rights": "© {year} BrokerSodo. All rights reserved."
+    "rights": "© {year} BrokerSodo. All rights reserved.",
+    "jobsTutors": "Jobs & tutors"
   },
   "fab": {
     "open": "Contact BrokerSodo",
@@ -367,9 +412,18 @@
     "subtitle": "A broker-managed marketplace: every listing is checked and every call comes to us.",
     "whyTitle": "Why deal through a broker?",
     "why": {
-      "1": { "title": "Verified listings", "body": "Our team checks each property and the owner before it goes live." },
-      "2": { "title": "Your privacy", "body": "Owners' numbers are never published. Buyers talk to BrokerSodo." },
-      "3": { "title": "Local know-how", "body": "We know the prices, areas and paperwork across Wolaita and South Ethiopia." }
+      "1": {
+        "title": "Verified listings",
+        "body": "Our team checks each property and the owner before it goes live."
+      },
+      "2": {
+        "title": "Your privacy",
+        "body": "Owners' numbers are never published. Buyers talk to BrokerSodo."
+      },
+      "3": {
+        "title": "Local know-how",
+        "body": "We know the prices, areas and paperwork across Wolaita and South Ethiopia."
+      }
     }
   },
   "about": {
@@ -385,6 +439,334 @@
     "search": "Search",
     "sell": "Sell",
     "saved": "Saved",
-    "contact": "Contact"
+    "contact": "Contact",
+    "jobs": "Jobs",
+    "tutors": "Tutors"
+  },
+  "catalog": {
+    "sector": {
+      "EDUCATION": "Education & teaching",
+      "HEALTH": "Health & pharmacy",
+      "FINANCE": "Accounting & finance",
+      "SALES": "Sales & marketing",
+      "OFFICE": "Office & admin",
+      "IT": "IT & computers",
+      "ENGINEERING": "Engineering",
+      "CONSTRUCTION": "Construction",
+      "HOTEL": "Hotel, cafe & restaurant",
+      "DRIVING": "Driving & delivery",
+      "AGRICULTURE": "Agriculture",
+      "NGO": "NGO & development",
+      "TRADES": "Skilled trades",
+      "SECURITY": "Security & cleaning",
+      "OTHER": "Other"
+    },
+    "jobType": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "CONTRACT": "Contract",
+      "TEMPORARY": "Temporary",
+      "INTERNSHIP": "Internship",
+      "DAILY": "Daily work"
+    },
+    "audience": {
+      "ANY": "Everyone",
+      "GRADUATE": "Fresh graduates",
+      "SKILLED": "Skilled workers"
+    },
+    "education": {
+      "NONE": "No requirement",
+      "GRADE_10": "Grade 10",
+      "GRADE_12": "Grade 12",
+      "TVET": "TVET certificate",
+      "DIPLOMA": "Diploma",
+      "DEGREE": "Bachelor's degree",
+      "MASTERS": "Master's or higher"
+    },
+    "salaryPeriod": {
+      "MONTH": "/ month",
+      "DAY": "/ day",
+      "HOUR": "/ hour"
+    },
+    "salaryPeriodName": {
+      "MONTH": "Month",
+      "DAY": "Day",
+      "HOUR": "Hour"
+    },
+    "subject": {
+      "MATHS": "Maths",
+      "ENGLISH": "English",
+      "AMHARIC": "Amharic",
+      "PHYSICS": "Physics",
+      "CHEMISTRY": "Chemistry",
+      "BIOLOGY": "Biology",
+      "SOCIAL": "Social studies",
+      "ICT": "ICT & computers",
+      "ACCOUNTING": "Accounting",
+      "WOLAITTATTO": "Wolaittatto",
+      "EXAM_PREP": "National exam prep",
+      "ALL_SUBJECTS": "All subjects"
+    },
+    "level": {
+      "KG": "KG",
+      "PRIMARY": "Grades 1-6",
+      "MIDDLE": "Grades 7-8",
+      "SECONDARY": "Grades 9-10",
+      "PREPARATORY": "Grades 11-12",
+      "UNIVERSITY": "University"
+    },
+    "mode": {
+      "HOME": "At home",
+      "ONLINE": "Online",
+      "CENTER": "At a centre"
+    }
+  },
+  "jobs": {
+    "title": "Jobs in Wolaita Sodo",
+    "subtitle": "Jobs for skilled workers and fresh graduates in Wolaita Sodo, across Wolaita and South Ethiopia. Our team checks every post before it goes live.",
+    "searchLabel": "Job title, skill or employer",
+    "searchPlaceholder": "e.g. accountant, driver, nurse",
+    "search": "Search jobs",
+    "filterSector": "Sector",
+    "anySector": "All sectors",
+    "filterType": "Job type",
+    "anyType": "Any type",
+    "filterArea": "Location",
+    "anyArea": "Any location",
+    "filterEducation": "My education",
+    "anyEducation": "Any education",
+    "forAll": "All jobs",
+    "forGraduates": "Fresh graduates",
+    "forSkilled": "Skilled workers",
+    "clear": "Clear filters",
+    "resultCount": "{count, plural, =0 {No open jobs} one {# open job} other {# open jobs}}",
+    "noResultsTitle": "No jobs match yet",
+    "noResultsBody": "Try fewer filters, or join our talent pool and we will call you when a matching job comes in.",
+    "emptyTitle": "New jobs are on the way",
+    "emptyBody": "Employers are adding jobs now. Join the talent pool so we can call you first.",
+    "postJob": "Post a job",
+    "joinPool": "Join the talent pool",
+    "confidential": "Confidential employer",
+    "verifiedEmployer": "Verified employer",
+    "featured": "Featured",
+    "applyBy": "Apply by {date}",
+    "closesToday": "Closes today",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "openUntilFilled": "Open until filled",
+    "closed": "This job is closed",
+    "closedBody": "It is no longer taking applications. Here are similar jobs that are still open.",
+    "salaryOnRequest": "Salary discussed at interview",
+    "salaryUpTo": "Up to {amount}",
+    "salaryFrom": "From {amount}",
+    "vacancies": "{count, plural, one {# position} other {# positions}}",
+    "experience": "{count, plural, =0 {No experience needed} one {# year experience} other {# years experience}}",
+    "aboutRole": "About the role",
+    "requirements": "Requirements",
+    "overview": "Job overview",
+    "posted": "Posted {when}",
+    "ref": "Ref.",
+    "sector": "Sector",
+    "type": "Job type",
+    "location": "Location",
+    "educationLabel": "Minimum education",
+    "experienceLabel": "Experience",
+    "vacanciesLabel": "Positions",
+    "deadlineLabel": "Deadline",
+    "audienceLabel": "Suitable for",
+    "similar": "Similar jobs",
+    "backToJobs": "All jobs",
+    "viewJob": "View job",
+    "applyTitle": "Apply for this job",
+    "applyIntro": "No CV needed. Send your details and our team passes suitable people to the employer.",
+    "education": "Your highest education",
+    "field": "Field of study",
+    "fieldPlaceholder": "e.g. Accounting, Nursing, Electrical",
+    "experienceYears": "Years of experience",
+    "skills": "Key skills",
+    "skillsPlaceholder": "e.g. Excel, driving licence, customer service",
+    "message": "Short message",
+    "messagePlaceholder": "Why you are a good fit",
+    "consentApply": "I agree that BrokerSodo may share my details with this employer.",
+    "submitApply": "Send application",
+    "appliedTitle": "Application sent",
+    "appliedBody": "Thank you. If the employer shortlists you, we will call you on the number you gave.",
+    "safetyTitle": "Stay safe",
+    "safety1": "Applying through BrokerSodo is free. Never pay anyone to get a job.",
+    "safety2": "Meet employers at their workplace or in a public place.",
+    "safety3": "If anyone asks you for money, call us and we will remove the post.",
+    "howTitle": "How it works",
+    "steps": {
+      "1": {
+        "title": "Find a job",
+        "body": "Search by sector, location and education."
+      },
+      "2": {
+        "title": "Apply in a minute",
+        "body": "No CV upload. Just your phone and a few details."
+      },
+      "3": {
+        "title": "We screen",
+        "body": "We check applications and share the best ones with the employer."
+      },
+      "4": {
+        "title": "Get the call",
+        "body": "Shortlisted people hear from us by phone."
+      }
+    },
+    "graduatesCard": "For fresh graduates",
+    "graduatesBody": "Internships, first jobs and graduate trainee posts.",
+    "skilledCard": "For skilled workers",
+    "skilledBody": "Drivers, technicians, builders, sales staff and more.",
+    "employersCard": "For employers",
+    "employersBody": "Post a job. We check it, publish it and help you find the right people.",
+    "sectionsTitle": "Browse by sector",
+    "homeTitle": "Jobs in Sodo",
+    "homeSubtitle": "For skilled workers and fresh graduates. Every post checked.",
+    "viewAll": "All jobs",
+    "postTitle": "Post a job",
+    "postSubtitle": "Tell us about the job. We call you to confirm, then publish it for job seekers in Wolaita and South Ethiopia.",
+    "sectionRole": "The job",
+    "sectionPay": "Pay and deadline",
+    "sectionContact": "Your contact",
+    "employerName": "Company or employer name",
+    "showEmployer": "Show the company name on the website",
+    "showEmployerHint": "Untick to hire confidentially. Applicants then see \"Confidential employer\".",
+    "jobTitle": "Job title",
+    "jobTitlePlaceholder": "e.g. Accountant, Driver, Sales agent",
+    "audience": "Who is this job for?",
+    "vacanciesField": "Number of positions",
+    "minExperience": "Minimum years of experience",
+    "salaryMin": "Salary from (ETB)",
+    "salaryMax": "Salary up to (ETB)",
+    "salaryPeriod": "Paid per",
+    "salaryHint": "Optional, but jobs with a salary get more applicants.",
+    "description": "Job description",
+    "descriptionPlaceholder": "Duties, working hours, where the job is, benefits",
+    "requirementsField": "Requirements",
+    "requirementsPlaceholder": "Skills, licences or documents needed",
+    "deadlineField": "Application deadline",
+    "deadlineHint": "Leave empty to keep it open for 30 days.",
+    "contactName": "Your name",
+    "contactPhone": "Your phone",
+    "contactHint": "Not shown on the website. We call you to confirm the job.",
+    "consentPost": "I confirm this is a real job and applicants will not be asked to pay.",
+    "submitPost": "Send for review",
+    "postedTitle": "Job received",
+    "postedBody": "Reference {ref}. We will call you to confirm the details, then publish it.",
+    "seekerTitle": "Join the talent pool",
+    "seekerSubtitle": "Fresh graduate or skilled worker? Leave your details once. When an employer needs someone like you, we call you.",
+    "iAm": "I am a",
+    "profession": "Profession or trade",
+    "professionPlaceholder": "e.g. Accountant, Electrician, Driver",
+    "seekerSector": "Sector you want to work in",
+    "graduationYear": "Graduation year",
+    "about": "About you",
+    "aboutPlaceholder": "Experience, certificates and the work you want",
+    "area": "Where you live",
+    "consentSeeker": "I agree that BrokerSodo may keep my details and share them with employers for matching jobs.",
+    "submitSeeker": "Join the talent pool",
+    "seekerDoneTitle": "You're in the talent pool",
+    "seekerDoneBody": "We will call you when a matching job comes in.",
+    "privateNote": "Your details stay private. They are never published on the website."
+  },
+  "tutors": {
+    "title": "Find a tutor in Wolaita Sodo",
+    "subtitle": "Checked home and online tutors from KG to university: maths, English, science, languages and national exam preparation.",
+    "filterSubject": "Subject",
+    "anySubject": "Any subject",
+    "filterLevel": "Grade level",
+    "anyLevel": "Any level",
+    "filterMode": "Lesson type",
+    "anyMode": "Any type",
+    "filterArea": "Area",
+    "anyArea": "Any area",
+    "search": "Find tutors",
+    "clear": "Clear filters",
+    "resultCount": "{count, plural, =0 {No tutors found} one {# tutor} other {# tutors}}",
+    "noResultsTitle": "No tutor matches yet",
+    "noResultsBody": "Tell us what the student needs and we will find a tutor for you.",
+    "emptyTitle": "Tutors are joining now",
+    "emptyBody": "Send a request and we will find a tutor for you.",
+    "requestTutor": "Request a tutor",
+    "becomeTutor": "Become a tutor",
+    "verified": "Verified tutor",
+    "featured": "Featured",
+    "perHour": "{price} / hour",
+    "rateOnRequest": "Rate on request",
+    "experience": "{count, plural, =0 {New tutor} one {# year teaching} other {# years teaching}}",
+    "subjects": "Subjects",
+    "levels": "Levels",
+    "modes": "Lessons",
+    "educationLabel": "Education",
+    "availability": "Availability",
+    "location": "Area",
+    "about": "About {name}",
+    "requestThis": "Request {name}",
+    "requestIntro": "Leave your number. We confirm the details and arrange the first lesson.",
+    "backToTutors": "All tutors",
+    "viewProfile": "View profile",
+    "requestTitle": "Request a tutor",
+    "requestSubtitle": "Tell us what the student needs. We find a checked tutor near you, or online, and call you.",
+    "parentName": "Your name (parent or student)",
+    "subject": "Subject",
+    "level": "Grade level",
+    "mode": "Lesson type",
+    "area": "Area",
+    "schedule": "Preferred days and times",
+    "schedulePlaceholder": "e.g. Weekdays after 5 pm",
+    "budget": "Budget per hour (ETB)",
+    "message": "Anything else?",
+    "messagePlaceholder": "The student's grade, goals or exam date",
+    "submitRequest": "Send request",
+    "requestDoneTitle": "Request sent",
+    "requestDoneBody": "We will call you to find the right tutor.",
+    "joinTitle": "Become a tutor",
+    "joinSubtitle": "Teachers, university students and graduates: list your subjects and get students near you. We check every tutor before listing them.",
+    "fullName": "Full name",
+    "fullNameHint": "Only your first name is shown on the website.",
+    "phoneHint": "Never shown on the website.",
+    "subjectsPick": "Subjects you teach",
+    "levelsPick": "Levels you teach",
+    "modesPick": "How you teach",
+    "chooseHint": "Choose all that apply",
+    "education": "Highest education",
+    "field": "Field of study",
+    "fieldPlaceholder": "e.g. Mathematics, English, Biology",
+    "experienceYears": "Years of teaching",
+    "bio": "About your teaching",
+    "bioPlaceholder": "Your experience, your students' results and how you teach",
+    "availabilityField": "Availability",
+    "availabilityPlaceholder": "e.g. Weekends and evenings",
+    "hourlyRate": "Rate per hour (ETB)",
+    "consentTutor": "I agree that BrokerSodo checks my details and publishes my profile with my first name.",
+    "submitJoin": "Send my profile",
+    "joinDoneTitle": "Profile received",
+    "joinDoneBody": "We will call you to check your details before your profile goes live.",
+    "safetyTitle": "Safety for families",
+    "safety1": "We check each tutor's identity and education before listing them.",
+    "safety2": "For home lessons, an adult should be at home, at least for the first lessons.",
+    "safety3": "Agree the rate before lessons start. Tell us straight away if anything feels wrong.",
+    "howTitle": "How it works",
+    "steps": {
+      "1": {
+        "title": "Choose or ask",
+        "body": "Pick a tutor, or tell us what the student needs."
+      },
+      "2": {
+        "title": "We match",
+        "body": "We confirm subject, level, place and rate."
+      },
+      "3": {
+        "title": "First lesson",
+        "body": "Meet the tutor and see if it's a good fit."
+      },
+      "4": {
+        "title": "Keep learning",
+        "body": "We stay in touch and find another tutor if needed."
+      }
+    },
+    "homeTitle": "Find a tutor",
+    "homeSubtitle": "Checked tutors for every grade, at home or online.",
+    "viewAll": "All tutors"
   }
 }
