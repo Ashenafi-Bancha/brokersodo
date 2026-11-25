@@ -85,11 +85,9 @@ export default async function LocaleLayout({
     email: settings.email ?? undefined,
     address: {
       "@type": "PostalAddress",
-      streetAddress: settings.addressEn ?? undefined,
       addressLocality: "Wolaita Sodo",
       addressCountry: "ET",
     },
-    geo: { "@type": "GeoCoordinates", latitude: settings.mapLat, longitude: settings.mapLng },
     areaServed: [
       { "@type": "City", name: "Wolaita Sodo" },
     ],

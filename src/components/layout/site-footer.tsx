@@ -1,5 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { getCategories, getSiteSettings } from "@/server/queries/public";
 import { telLink, telegramLink, whatsappLink } from "@/lib/contact";
@@ -7,7 +7,6 @@ import { formatPhoneDisplay } from "@/lib/format";
 import { localized } from "@/lib/utils";
 import { Logo } from "./brand";
 import { FacebookIcon, InstagramIcon, TelegramIcon, TikTokIcon, WhatsAppIcon, YouTubeIcon } from "./icons";
-import { StaticMap } from "@/components/listings/map-lazy";
 
 export async function SiteFooter() {
   const [t, tn, locale, settings, categories] = await Promise.all([
@@ -24,7 +23,6 @@ export async function SiteFooter() {
     { href: settings.youtubeUrl, label: "YouTube", Icon: YouTubeIcon },
     { href: settings.telegramChannel ? telegramLink(settings.telegramChannel) : null, label: "Telegram", Icon: TelegramIcon },
   ].filter((s): s is { href: string; label: string; Icon: typeof FacebookIcon } => Boolean(s.href));
-  const address = localized(settings, "address", locale);
   const hours = localized(settings, "hours", locale);
 
   return (
@@ -124,11 +122,6 @@ export async function SiteFooter() {
                 </a>
               </li>
             )}
-            {address && (
-              <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-primary" /> {address}
-              </li>
-            )}
             {hours && (
               <li className="flex items-start gap-2">
                 <Clock className="mt-0.5 size-4 shrink-0 text-primary" />
@@ -136,9 +129,6 @@ export async function SiteFooter() {
               </li>
             )}
           </ul>
-          <div className="h-36 overflow-hidden rounded-card">
-            <StaticMap lat={settings.mapLat} lng={settings.mapLng} zoom={14} marker label={settings.businessName} />
-          </div>
         </div>
       </div>
       <div className="relative border-t border-line">

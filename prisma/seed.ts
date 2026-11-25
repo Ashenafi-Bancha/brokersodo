@@ -172,7 +172,7 @@ function vehicles(): Draft[] {
       plateRegion: pick(["sidama", "swe", "aa"]),
       libre: rnd() > 0.15,
     },
-    desc: `<p>Well-kept ${name}, ${year} model. Regularly serviced, clean interior and strong engine.</p><ul><li>Service history available</li><li>New tyres</li><li>Ready for inspection at the BrokerSodo office</li></ul>`,
+    desc: `<p>Well-kept ${name}, ${year} model. Regularly serviced, clean interior and strong engine.</p><ul><li>Service history available</li><li>New tyres</li><li>Ready for inspection in Wolaita Sodo</li></ul>`,
   }));
 }
 
@@ -317,7 +317,7 @@ function other(): Draft[] {
 
 const FAQS: Prisma.FaqCreateManyInput[] = [
       { sortOrder: 0, questionEn: "Can I contact the owner directly?", questionAm: "ባለቤቱን በቀጥታ ማግኘት እችላለሁ?", answerEn: "No. Every listing is managed by BrokerSodo. Call or message us and quote the reference code (for example BS-V-0142) — a broker will answer your questions and arrange a viewing.", answerAm: "አይችሉም። እያንዳንዱ ዝርዝር በብሮከርሶዶ ይመራል። ይደውሉልን እና የማጣቀሻ ቁጥሩን ይጥቀሱ።" },
-      { sortOrder: 1, questionEn: "How do I sell or rent out my property?", answerEn: "Use the “Sell with us” form or visit our office. We verify the property, take photos if needed, and publish the listing. Your phone number is never shown publicly." },
+      { sortOrder: 1, questionEn: "How do I sell or rent out my property?", answerEn: "Use the “Sell with us” form, or call or message us. We verify the property, take photos if needed, and publish the listing. Your phone number is never shown publicly." },
       { sortOrder: 2, questionEn: "What does “Verified” mean?", answerEn: "A BrokerSodo broker has checked the owner's identity and the key documents (for example the libre for vehicles or the title deed for land)." },
       { sortOrder: 3, questionEn: "Do you charge buyers?", answerEn: "Our commission depends on the deal type. Ask your broker — we always agree on it in writing before a viewing." },
       { sortOrder: 4, questionEn: "Can you find something that isn't listed?", answerEn: "Yes. Post a Wanted request with your budget and area, and our brokers will look for a match." },

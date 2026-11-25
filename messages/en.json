@@ -172,7 +172,7 @@
       "1": "Always deal through BrokerSodo — quote the ref code.",
       "2": "Never send money before you have seen the item.",
       "3": "Check documents (libre, title deed) with your broker.",
-      "4": "Meet at our office or a public place."
+      "4": "Meet in a busy public place."
     },
     "condition": {
       "label": "Condition",
@@ -369,16 +369,13 @@
   },
   "contact": {
     "title": "Contact BrokerSodo",
-    "subtitle": "Call, message or visit our office. We're here to help.",
+    "subtitle": "Call or message us on phone, Telegram or WhatsApp. We're here to help.",
     "phone": "Phone",
     "telegram": "Telegram",
     "whatsapp": "WhatsApp",
     "email": "Email",
-    "address": "Office",
     "hours": "Working hours",
-    "formTitle": "Send us a message",
-    "mapTitle": "Find our office",
-    "openMap": "Open in maps"
+    "formTitle": "Send us a message"
   },
   "footer": {
     "about": "About BrokerSodo",
