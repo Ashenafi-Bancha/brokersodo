@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Tutors" };
 
 export default async function AdminTutorsPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const [tutors, areas] = await Promise.all([
     db.tutor.findMany({
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -22,6 +22,7 @@ export default async function AdminTutorsPage() {
     <>
       <AdminPageHeader title="Tutors" description={`${pending} waiting for review. Check ID and certificates, tick Verified, then make them live.`} crumbs={[{ label: "Tutors" }]} />
       <TutorsView
+        isAdmin={session.user.role === "ADMIN"}
         labels={CATALOG_EN}
         areas={areas.map((a) => ({ id: a.id, name: a.nameEn }))}
         rows={tutors.map((t) => ({

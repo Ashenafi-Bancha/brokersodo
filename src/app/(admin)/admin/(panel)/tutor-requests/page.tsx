@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Tutor requests" };
 
 export default async function TutorRequestsPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const [rows, tutors] = await Promise.all([
     db.tutorRequest.findMany({
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -29,6 +29,7 @@ export default async function TutorRequestsPage() {
         crumbs={[{ label: "Tutor requests" }]}
       />
       <TutorRequestsView
+        isAdmin={session.user.role === "ADMIN"}
         labels={CATALOG_EN}
         tutors={tutors.map((t) => ({ id: t.id, refCode: t.refCode, name: t.fullName, subjects: t.subjects, levels: t.levels, modes: t.modes, areaId: t.areaId, hourlyRate: t.hourlyRate }))}
         rows={rows.map((r) => ({

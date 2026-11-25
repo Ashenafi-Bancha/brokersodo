@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Submissions" };
 
 export default async function SubmissionsPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const subs = await db.propertySubmission.findMany({
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
     take: 1000,
@@ -17,6 +17,7 @@ export default async function SubmissionsPage() {
     <>
       <AdminPageHeader title="Submissions" description="Properties sent in through “Sell with us”. Verify, then convert to a listing or reject." crumbs={[{ label: "Submissions" }]} />
       <SubmissionsTable
+        isAdmin={session.user.role === "ADMIN"}
         rows={subs.map((s) => {
           const photos = (Array.isArray(s.photos) ? s.photos : []) as { url: string }[];
           return {

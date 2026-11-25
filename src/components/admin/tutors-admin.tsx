@@ -1,7 +1,15 @@
 "use client";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { BadgeCheck, ExternalLink, Loader2, Phone, Plus, Star, Trash2 } from "lucide-react";
+import {
+  BadgeCheck,
+  ExternalLink,
+  Loader2,
+  Phone,
+  Plus,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/form-controls";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,15 +17,35 @@ import { ChipGroup } from "@/components/forms/form-kit";
 import { DataTable, ColumnSelectFilter, type ColumnDef } from "./data-table";
 import { StatusBadge } from "./status-badge";
 import { useConfirm, useRunAction } from "./confirm";
-import { ContactButtons, L, LabelsProvider, Toggle, useLabel, type Labels } from "./jobs-admin";
-import { deletePersonAction, deleteTutorAction, saveTutorAction, setTutorStatusAction, updateTutorRequestAction } from "@/server/actions/admin-jobs";
-import { EDUCATION_LEVELS, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { RowActions } from "./row-actions";
+import {
+  ContactButtons,
+  L,
+  LabelsProvider,
+  Toggle,
+  useLabel,
+  type Labels,
+} from "./jobs-admin";
+import {
+  deletePersonAction,
+  deleteTutorAction,
+  saveTutorAction,
+  setTutorStatusAction,
+  updateTutorRequestAction,
+} from "@/server/actions/admin-jobs";
+import {
+  EDUCATION_LEVELS,
+  TUTOR_LEVELS,
+  TUTOR_MODES,
+  TUTOR_SUBJECTS,
+} from "@/lib/jobs-catalog";
 import { TUTOR_REQUEST_STATUSES, TUTOR_STATUSES } from "@/lib/validators/jobs";
 import { formatETB, formatPhoneDisplay, relativeTime } from "@/lib/format";
 import { telLink } from "@/lib/contact";
 
 type Area = { id: string; name: string };
-const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ");
+const titleCase = (s: string) =>
+  s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ");
 
 export type TutorRow = {
   id: string;
@@ -73,9 +101,22 @@ const emptyTutor = (): TutorRow => ({
   requestCount: 0,
 });
 
-export function TutorsView({ rows, areas, labels }: { rows: TutorRow[]; areas: Area[]; labels: Labels }) {
+export function TutorsView({
+  rows,
+  areas,
+  labels,
+  isAdmin,
+}: {
+  rows: TutorRow[];
+  areas: Area[];
+  labels: Labels;
+  isAdmin: boolean;
+}) {
   const [openId, setOpenId] = React.useState<string | null>(null);
-  const open = openId === "new" ? emptyTutor() : (rows.find((r) => r.id === openId) ?? null);
+  const open =
+    openId === "new"
+      ? emptyTutor()
+      : (rows.find((r) => r.id === openId) ?? null);
   const columns = React.useMemo<ColumnDef<TutorRow, unknown>[]>(
     () => [
       {
@@ -83,14 +124,29 @@ export function TutorsView({ rows, areas, labels }: { rows: TutorRow[]; areas: A
         header: "Tutor",
         enableHiding: false,
         cell: ({ row: { original: r } }) => (
-          <button type="button" onClick={() => setOpenId(r.id)} className="cursor-pointer text-left">
+          <button
+            type="button"
+            onClick={() => setOpenId(r.id)}
+            className="cursor-pointer text-left"
+          >
             <span className="flex items-center gap-1.5 font-semibold text-fg hover:underline">
               {r.fullName}
-              {r.isVerified && <BadgeCheck className="size-4 text-sold" aria-label="Verified" />}
-              {r.featured && <Star className="size-4 fill-yellow-500 text-yellow-500" aria-label="Featured" />}
+              {r.isVerified && (
+                <BadgeCheck
+                  className="size-4 text-sold"
+                  aria-label="Verified"
+                />
+              )}
+              {r.featured && (
+                <Star
+                  className="size-4 fill-yellow-500 text-yellow-500"
+                  aria-label="Featured"
+                />
+              )}
             </span>
             <span className="text-xs text-muted">
-              <span className="font-mono text-primary">{r.refCode}</span> · shown as “{r.displayName}”
+              <span className="font-mono text-primary">{r.refCode}</span> ·
+              shown as “{r.displayName}”
             </span>
           </button>
         ),
@@ -99,15 +155,62 @@ export function TutorsView({ rows, areas, labels }: { rows: TutorRow[]; areas: A
         id: "subjects",
         header: "Subjects",
         accessorFn: (r) => r.subjects.join(" "),
-        filterFn: (row, _id, v) => !v || row.original.subjects.includes(String(v)),
-        cell: ({ row: { original: r } }) => <span className="line-clamp-2 max-w-xs text-sm">{r.subjects.map((s) => labels.subject?.[s] ?? s).join(", ")}</span>,
+        filterFn: (row, _id, v) =>
+          !v || row.original.subjects.includes(String(v)),
+        cell: ({ row: { original: r } }) => (
+          <span className="line-clamp-2 max-w-xs text-sm">
+            {r.subjects.map((s) => labels.subject?.[s] ?? s).join(", ")}
+          </span>
+        ),
       },
-      { id: "levels", header: "Levels", accessorFn: (r) => r.levels.join(" "), cell: ({ row: { original: r } }) => <span className="text-sm text-fg-2">{r.levels.map((s) => labels.level?.[s] ?? s).join(", ")}</span> },
-      { accessorKey: "status", header: "Status", filterFn: (row, id, v) => !v || row.getValue(id) === v, cell: ({ getValue }) => <StatusBadge status={String(getValue())} /> },
-      { accessorKey: "requestCount", header: "Requests", cell: ({ getValue }) => <span className="tabular-nums">{String(getValue())}</span> },
-      { accessorKey: "createdAt", header: "Joined", cell: ({ getValue }) => <span className="whitespace-nowrap text-muted">{relativeTime(String(getValue()))}</span> },
+      {
+        id: "levels",
+        header: "Levels",
+        accessorFn: (r) => r.levels.join(" "),
+        cell: ({ row: { original: r } }) => (
+          <span className="text-sm text-fg-2">
+            {r.levels.map((s) => labels.level?.[s] ?? s).join(", ")}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        filterFn: (row, id, v) => !v || row.getValue(id) === v,
+        cell: ({ getValue }) => <StatusBadge status={String(getValue())} />,
+      },
+      {
+        accessorKey: "requestCount",
+        header: "Requests",
+        cell: ({ getValue }) => (
+          <span className="tabular-nums">{String(getValue())}</span>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Joined",
+        cell: ({ getValue }) => (
+          <span className="whitespace-nowrap text-muted">
+            {relativeTime(String(getValue()))}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "",
+        enableHiding: false,
+        enableSorting: false,
+        cell: ({ row: { original: r } }) => (
+          <RowActions
+            label={`${r.refCode} ${r.fullName}`}
+            onEdit={() => setOpenId(r.id)}
+            onDelete={isAdmin ? () => deleteTutorAction(r.id) : undefined}
+            deleteText="This permanently removes the tutor's details. It cannot be undone."
+          />
+        ),
+      },
     ],
-    [labels],
+    [labels, isAdmin],
   );
   return (
     <LabelsProvider labels={labels}>
@@ -125,15 +228,45 @@ export function TutorsView({ rows, areas, labels }: { rows: TutorRow[]; areas: A
         emptyText="No tutors yet. Tutors apply at /tutors/join, or add one with “New tutor”."
         toolbar={(t) => (
           <>
-            <ColumnSelectFilter table={t} column="status" label="Status" options={TUTOR_STATUSES.map((s) => ({ value: s, label: titleCase(s) }))} />
-            <ColumnSelectFilter table={t} column="subjects" label="Subject" options={TUTOR_SUBJECTS.map((s) => ({ value: s, label: labels.subject?.[s] ?? s }))} />
+            <ColumnSelectFilter
+              table={t}
+              column="status"
+              label="Status"
+              options={TUTOR_STATUSES.map((s) => ({
+                value: s,
+                label: titleCase(s),
+              }))}
+            />
+            <ColumnSelectFilter
+              table={t}
+              column="subjects"
+              label="Subject"
+              options={TUTOR_SUBJECTS.map((s) => ({
+                value: s,
+                label: labels.subject?.[s] ?? s,
+              }))}
+            />
           </>
         )}
       />
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         {open && (
-          <DialogContent title={open.id ? `${open.refCode} · ${open.fullName}` : "New tutor"} description={open.id ? `Applied ${relativeTime(open.createdAt)}. Check ID and education before making them live.` : "Add a tutor you have already checked."} className="max-w-3xl">
-            <TutorEditor key={open.id || "new"} tutor={open} areas={areas} onDone={() => setOpenId(null)} />
+          <DialogContent
+            title={open.id ? `${open.refCode} · ${open.fullName}` : "New tutor"}
+            description={
+              open.id
+                ? `Applied ${relativeTime(open.createdAt)}. Check ID and education before making them live.`
+                : "Add a tutor you have already checked."
+            }
+            className="max-w-3xl"
+          >
+            <TutorEditor
+              key={open.id || "new"}
+              tutor={open}
+              areas={areas}
+              isAdmin={isAdmin}
+              onDone={() => setOpenId(null)}
+            />
           </DialogContent>
         )}
       </Dialog>
@@ -141,18 +274,40 @@ export function TutorsView({ rows, areas, labels }: { rows: TutorRow[]; areas: A
   );
 }
 
-function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[]; onDone: () => void }) {
+function TutorEditor({
+  tutor,
+  areas,
+  onDone,
+  isAdmin,
+}: {
+  tutor: TutorRow;
+  areas: Area[];
+  onDone: () => void;
+  isAdmin: boolean;
+}) {
   const router = useRouter();
   const label = useLabel();
   const confirm = useConfirm();
   const { run, pending } = useRunAction();
   const [v, setV] = React.useState(tutor);
-  const set = <K extends keyof TutorRow>(k: K, val: TutorRow[K]) => setV((p) => ({ ...p, [k]: val }));
-  const opts = (group: string, list: readonly string[]) => list.map((x) => ({ value: x, label: label(group, x) }));
-  const quick = (status: string, reason?: string) => run(() => setTutorStatusAction(tutor.id, status, reason), () => router.refresh());
+  const set = <K extends keyof TutorRow>(k: K, val: TutorRow[K]) =>
+    setV((p) => ({ ...p, [k]: val }));
+  const opts = (group: string, list: readonly string[]) =>
+    list.map((x) => ({ value: x, label: label(group, x) }));
+  const quick = (status: string, reason?: string) =>
+    run(
+      () => setTutorStatusAction(tutor.id, status, reason),
+      () => router.refresh(),
+    );
   const save = () =>
     run(
-      () => saveTutorAction({ ...v, id: v.id || null, experienceYears: String(v.experienceYears), hourlyRate: v.hourlyRate ?? "" }),
+      () =>
+        saveTutorAction({
+          ...v,
+          id: v.id || null,
+          experienceYears: String(v.experienceYears),
+          hourlyRate: v.hourlyRate ?? "",
+        }),
       () => {
         onDone();
         router.refresh();
@@ -172,16 +327,29 @@ function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[];
           {tutor.status === "ACTIVE" ? (
             <>
               <Button asChild variant="ghost" size="sm">
-                <a href={`/tutors/${tutor.slug}`} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={`/tutors/${tutor.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <ExternalLink /> View
                 </a>
               </Button>
-              <Button size="sm" variant="secondary" disabled={pending} onClick={() => quick("HIDDEN")}>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={pending}
+                onClick={() => quick("HIDDEN")}
+              >
                 Hide
               </Button>
             </>
           ) : (
-            <Button size="sm" disabled={pending} onClick={() => quick("ACTIVE")}>
+            <Button
+              size="sm"
+              disabled={pending}
+              onClick={() => quick("ACTIVE")}
+            >
               Make live
             </Button>
           )}
@@ -191,49 +359,101 @@ function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[];
               variant="outline"
               disabled={pending}
               onClick={async () => {
-                const r = await confirm({ title: "Reject this tutor?", confirmLabel: "Reject", destructive: true, input: { type: "textarea", label: "Reason (for your records)" } });
+                const r = await confirm({
+                  title: "Reject this tutor?",
+                  confirmLabel: "Reject",
+                  destructive: true,
+                  input: {
+                    type: "textarea",
+                    label: "Reason (for your records)",
+                  },
+                });
                 if (r.ok) quick("REJECTED", r.value);
               }}
             >
               Reject
             </Button>
           )}
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label="Delete tutor"
-            onClick={async () => {
-              if ((await confirm({ title: `Delete ${tutor.fullName}?`, description: "This permanently removes the tutor's details. It cannot be undone.", confirmLabel: "Delete", destructive: true })).ok)
-                run(
-                  () => deleteTutorAction(tutor.id),
-                  () => {
-                    onDone();
-                    router.refresh();
-                  },
-                );
-            }}
-          >
-            <Trash2 />
-          </Button>
+          {isAdmin && (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              className="text-error"
+              aria-label="Delete tutor"
+              onClick={async () => {
+                if (
+                  (
+                    await confirm({
+                      title: `Delete ${tutor.fullName}?`,
+                      description:
+                        "This permanently removes the tutor's details. It cannot be undone.",
+                      confirmLabel: "Delete",
+                      destructive: true,
+                    })
+                  ).ok
+                )
+                  run(
+                    () => deleteTutorAction(tutor.id),
+                    () => {
+                      onDone();
+                      router.refresh();
+                    },
+                  );
+              }}
+            >
+              <Trash2 />
+            </Button>
+          )}
         </div>
       )}
       <div className="grid gap-3 sm:grid-cols-3">
         <L label="Full name (private)">
-          <Input value={v.fullName} onChange={(e) => set("fullName", e.target.value)} />
+          <Input
+            value={v.fullName}
+            onChange={(e) => set("fullName", e.target.value)}
+          />
         </L>
         <L label="Public name">
-          <Input value={v.displayName} onChange={(e) => set("displayName", e.target.value)} />
+          <Input
+            value={v.displayName}
+            onChange={(e) => set("displayName", e.target.value)}
+          />
         </L>
         <L label="Phone (private)">
-          <Input type="tel" value={v.phone} onChange={(e) => set("phone", e.target.value)} />
+          <Input
+            type="tel"
+            value={v.phone}
+            onChange={(e) => set("phone", e.target.value)}
+          />
         </L>
       </div>
-      <ChipGroup legend="Subjects" multiple options={opts("subject", TUTOR_SUBJECTS)} value={v.subjects} onChange={(x) => set("subjects", x as string[])} />
-      <ChipGroup legend="Levels" multiple options={opts("level", TUTOR_LEVELS)} value={v.levels} onChange={(x) => set("levels", x as string[])} />
-      <ChipGroup legend="Lessons" multiple options={opts("mode", TUTOR_MODES)} value={v.modes} onChange={(x) => set("modes", x as string[])} />
+      <ChipGroup
+        legend="Subjects"
+        multiple
+        options={opts("subject", TUTOR_SUBJECTS)}
+        value={v.subjects}
+        onChange={(x) => set("subjects", x as string[])}
+      />
+      <ChipGroup
+        legend="Levels"
+        multiple
+        options={opts("level", TUTOR_LEVELS)}
+        value={v.levels}
+        onChange={(x) => set("levels", x as string[])}
+      />
+      <ChipGroup
+        legend="Lessons"
+        multiple
+        options={opts("mode", TUTOR_MODES)}
+        value={v.modes}
+        onChange={(x) => set("modes", x as string[])}
+      />
       <div className="grid gap-3 sm:grid-cols-3">
         <L label="Education">
-          <Select value={v.education} onChange={(e) => set("education", e.target.value)}>
+          <Select
+            value={v.education}
+            onChange={(e) => set("education", e.target.value)}
+          >
             {EDUCATION_LEVELS.map((x) => (
               <option key={x} value={x}>
                 {label("education", x)}
@@ -242,16 +462,39 @@ function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[];
           </Select>
         </L>
         <L label="Field of study">
-          <Input value={v.field ?? ""} onChange={(e) => set("field", e.target.value || null)} />
+          <Input
+            value={v.field ?? ""}
+            onChange={(e) => set("field", e.target.value || null)}
+          />
         </L>
         <L label="Years teaching">
-          <Input inputMode="numeric" value={String(v.experienceYears)} onChange={(e) => set("experienceYears", Number(e.target.value) || 0)} />
+          <Input
+            inputMode="numeric"
+            value={String(v.experienceYears)}
+            onChange={(e) =>
+              set("experienceYears", Number(e.target.value) || 0)
+            }
+          />
         </L>
         <L label="Rate per hour (ETB)">
-          <Input inputMode="numeric" value={v.hourlyRate ?? ""} onChange={(e) => set("hourlyRate", e.target.value ? Number(e.target.value.replace(/,/g, "")) : null)} />
+          <Input
+            inputMode="numeric"
+            value={v.hourlyRate ?? ""}
+            onChange={(e) =>
+              set(
+                "hourlyRate",
+                e.target.value
+                  ? Number(e.target.value.replace(/,/g, ""))
+                  : null,
+              )
+            }
+          />
         </L>
         <L label="Area">
-          <Select value={v.areaId ?? ""} onChange={(e) => set("areaId", e.target.value || null)}>
+          <Select
+            value={v.areaId ?? ""}
+            onChange={(e) => set("areaId", e.target.value || null)}
+          >
             <option value="">—</option>
             {areas.map((a) => (
               <option key={a.id} value={a.id}>
@@ -261,22 +504,49 @@ function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[];
           </Select>
         </L>
         <L label="Availability">
-          <Input value={v.availability ?? ""} onChange={(e) => set("availability", e.target.value || null)} />
+          <Input
+            value={v.availability ?? ""}
+            onChange={(e) => set("availability", e.target.value || null)}
+          />
         </L>
       </div>
       <L label="About (public)">
-        <Textarea rows={4} value={v.bio} onChange={(e) => set("bio", e.target.value)} />
+        <Textarea
+          rows={4}
+          value={v.bio}
+          onChange={(e) => set("bio", e.target.value)}
+        />
       </L>
       <div className="grid gap-3 rounded-btn bg-bg-2 p-3 sm:grid-cols-2">
-        <Toggle label="Verified" hint="You checked their ID and certificates" checked={v.isVerified} onChange={(c) => set("isVerified", c)} />
-        <Toggle label="Featured" hint="Shown first" checked={v.featured} onChange={(c) => set("featured", c)} />
+        <Toggle
+          label="Verified"
+          hint="You checked their ID and certificates"
+          checked={v.isVerified}
+          onChange={(c) => set("isVerified", c)}
+        />
+        <Toggle
+          label="Featured"
+          hint="Shown first"
+          checked={v.featured}
+          onChange={(c) => set("featured", c)}
+        />
       </div>
       <L label="Staff notes (private)">
-        <Textarea rows={2} value={v.staffNotes ?? ""} onChange={(e) => set("staffNotes", e.target.value)} />
+        <Textarea
+          rows={2}
+          value={v.staffNotes ?? ""}
+          onChange={(e) => set("staffNotes", e.target.value)}
+        />
       </L>
       <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line pt-4">
         <L label="Status" className="mr-auto flex-row items-center gap-2">
-          <Select value={v.status} onChange={(e) => set("status", e.target.value as TutorRow["status"])} className="min-h-10">
+          <Select
+            value={v.status}
+            onChange={(e) =>
+              set("status", e.target.value as TutorRow["status"])
+            }
+            className="min-h-10"
+          >
             {TUTOR_STATUSES.map((s) => (
               <option key={s} value={s}>
                 {titleCase(s)}
@@ -288,7 +558,8 @@ function TutorEditor({ tutor, areas, onDone }: { tutor: TutorRow; areas: Area[];
           Cancel
         </Button>
         <Button disabled={pending} onClick={save}>
-          {pending && <Loader2 className="animate-spin" />} {v.id ? "Save" : "Create tutor"}
+          {pending && <Loader2 className="animate-spin" />}{" "}
+          {v.id ? "Save" : "Create tutor"}
         </Button>
       </div>
     </div>
@@ -316,9 +587,28 @@ export type TutorRequestRow = {
   createdAt: string;
 };
 
-export type TutorOption = { id: string; refCode: string; name: string; subjects: string[]; levels: string[]; modes: string[]; areaId: string | null; hourlyRate: number | null };
+export type TutorOption = {
+  id: string;
+  refCode: string;
+  name: string;
+  subjects: string[];
+  levels: string[];
+  modes: string[];
+  areaId: string | null;
+  hourlyRate: number | null;
+};
 
-export function TutorRequestsView({ rows, tutors, labels }: { rows: TutorRequestRow[]; tutors: TutorOption[]; labels: Labels }) {
+export function TutorRequestsView({
+  rows,
+  tutors,
+  labels,
+  isAdmin,
+}: {
+  rows: TutorRequestRow[];
+  tutors: TutorOption[];
+  labels: Labels;
+  isAdmin: boolean;
+}) {
   const [openId, setOpenId] = React.useState<string | null>(null);
   const open = rows.find((r) => r.id === openId) ?? null;
   const L2 = (g: string, v: string) => labels[g]?.[v] ?? v;
@@ -329,7 +619,11 @@ export function TutorRequestsView({ rows, tutors, labels }: { rows: TutorRequest
         header: "Request",
         enableHiding: false,
         cell: ({ row: { original: r } }) => (
-          <button type="button" onClick={() => setOpenId(r.id)} className="cursor-pointer text-left">
+          <button
+            type="button"
+            onClick={() => setOpenId(r.id)}
+            className="cursor-pointer text-left"
+          >
             <span className="font-semibold text-fg hover:underline">
               {L2("subject", r.subject)} · {L2("level", r.level)}
             </span>
@@ -340,14 +634,54 @@ export function TutorRequestsView({ rows, tutors, labels }: { rows: TutorRequest
           </button>
         ),
       },
-      { accessorKey: "mode", header: "Lesson", cell: ({ getValue }) => L2("mode", String(getValue())) },
+      {
+        accessorKey: "mode",
+        header: "Lesson",
+        cell: ({ getValue }) => L2("mode", String(getValue())),
+      },
       { accessorKey: "area", header: "Area" },
-      { accessorKey: "budget", header: "Budget", cell: ({ getValue }) => (getValue() ? formatETB(Number(getValue())) : "—") },
-      { accessorKey: "status", header: "Status", filterFn: (row, id, v) => !v || row.getValue(id) === v, cell: ({ getValue }) => <StatusBadge status={String(getValue())} /> },
-      { accessorKey: "createdAt", header: "Received", cell: ({ getValue }) => <span className="whitespace-nowrap text-muted">{relativeTime(String(getValue()))}</span> },
+      {
+        accessorKey: "budget",
+        header: "Budget",
+        cell: ({ getValue }) =>
+          getValue() ? formatETB(Number(getValue())) : "—",
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        filterFn: (row, id, v) => !v || row.getValue(id) === v,
+        cell: ({ getValue }) => <StatusBadge status={String(getValue())} />,
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Received",
+        cell: ({ getValue }) => (
+          <span className="whitespace-nowrap text-muted">
+            {relativeTime(String(getValue()))}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: "",
+        enableHiding: false,
+        enableSorting: false,
+        cell: ({ row: { original: r } }) => (
+          <RowActions
+            label={`request from ${r.name}`}
+            onEdit={() => setOpenId(r.id)}
+            onDelete={
+              isAdmin
+                ? () => deletePersonAction("tutorRequest", r.id)
+                : undefined
+            }
+            deleteText="This permanently removes the family's details. It cannot be undone."
+          />
+        ),
+      },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [labels],
+    [labels, isAdmin],
   );
   return (
     <LabelsProvider labels={labels}>
@@ -358,12 +692,32 @@ export function TutorRequestsView({ rows, tutors, labels }: { rows: TutorRequest
         storageKey="tutor-requests"
         searchPlaceholder="Search requests…"
         emptyText="No tutor requests yet."
-        toolbar={(t) => <ColumnSelectFilter table={t} column="status" label="Status" options={TUTOR_REQUEST_STATUSES.map((s) => ({ value: s, label: titleCase(s) }))} />}
+        toolbar={(t) => (
+          <ColumnSelectFilter
+            table={t}
+            column="status"
+            label="Status"
+            options={TUTOR_REQUEST_STATUSES.map((s) => ({
+              value: s,
+              label: titleCase(s),
+            }))}
+          />
+        )}
       />
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         {open && (
-          <DialogContent title={`Tutor request: ${open.name}`} description={`${L2("subject", open.subject)} · ${L2("level", open.level)} · ${L2("mode", open.mode)}`} className="max-w-2xl">
-            <RequestDetail key={open.id} r={open} tutors={tutors} onDone={() => setOpenId(null)} />
+          <DialogContent
+            title={`Tutor request: ${open.name}`}
+            description={`${L2("subject", open.subject)} · ${L2("level", open.level)} · ${L2("mode", open.mode)}`}
+            className="max-w-2xl"
+          >
+            <RequestDetail
+              key={open.id}
+              r={open}
+              tutors={tutors}
+              isAdmin={isAdmin}
+              onDone={() => setOpenId(null)}
+            />
           </DialogContent>
         )}
       </Dialog>
@@ -371,7 +725,17 @@ export function TutorRequestsView({ rows, tutors, labels }: { rows: TutorRequest
   );
 }
 
-function RequestDetail({ r, tutors, onDone }: { r: TutorRequestRow; tutors: TutorOption[]; onDone: () => void }) {
+function RequestDetail({
+  r,
+  tutors,
+  onDone,
+  isAdmin,
+}: {
+  r: TutorRequestRow;
+  tutors: TutorOption[];
+  onDone: () => void;
+  isAdmin: boolean;
+}) {
   const router = useRouter();
   const label = useLabel();
   const confirm = useConfirm();
@@ -382,14 +746,25 @@ function RequestDetail({ r, tutors, onDone }: { r: TutorRequestRow; tutors: Tuto
   // Best matches first: teaches the subject and level, same lesson type, same area.
   const ranked = React.useMemo(() => {
     const score = (t: TutorOption) =>
-      (t.subjects.includes(r.subject) || t.subjects.includes("ALL_SUBJECTS") ? 4 : 0) + (t.levels.includes(r.level) ? 3 : 0) + (t.modes.includes(r.mode) ? 2 : 0) + (r.areaId && t.areaId === r.areaId ? 1 : 0);
-    return tutors.map((t) => ({ ...t, score: score(t) })).sort((a, b) => b.score - a.score);
+      (t.subjects.includes(r.subject) || t.subjects.includes("ALL_SUBJECTS")
+        ? 4
+        : 0) +
+      (t.levels.includes(r.level) ? 3 : 0) +
+      (t.modes.includes(r.mode) ? 2 : 0) +
+      (r.areaId && t.areaId === r.areaId ? 1 : 0);
+    return tutors
+      .map((t) => ({ ...t, score: score(t) }))
+      .sort((a, b) => b.score - a.score);
   }, [tutors, r]);
   const good = ranked.filter((t) => t.score >= 7);
   const picked = tutors.find((t) => t.id === tutorId);
   return (
     <div className="space-y-4">
-      <ContactButtons name={r.name} phone={r.phone} about="your tutor request" />
+      <ContactButtons
+        name={r.name}
+        phone={r.phone}
+        about="your tutor request"
+      />
       <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
         {[
           ["Area", r.area || "—"],
@@ -402,24 +777,45 @@ function RequestDetail({ r, tutors, onDone }: { r: TutorRequestRow; tutors: Tuto
           </div>
         ))}
       </dl>
-      {r.message && <p className="rounded-btn bg-bg-2 p-3 text-sm whitespace-pre-line text-fg-2">{r.message}</p>}
+      {r.message && (
+        <p className="rounded-btn bg-bg-2 p-3 text-sm whitespace-pre-line text-fg-2">
+          {r.message}
+        </p>
+      )}
       <div>
-        <p className="mb-1 text-sm font-bold text-fg">Matching tutors ({good.length} strong)</p>
-        <Select value={tutorId} onChange={(e) => setTutorId(e.target.value)} aria-label="Assign tutor">
+        <p className="mb-1 text-sm font-bold text-fg">
+          Matching tutors ({good.length} strong)
+        </p>
+        <Select
+          value={tutorId}
+          onChange={(e) => setTutorId(e.target.value)}
+          aria-label="Assign tutor"
+        >
           <option value="">— Not assigned —</option>
           {ranked.map((t) => (
             <option key={t.id} value={t.id}>
               {t.score >= 7 ? "★ " : ""}
-              {t.name} ({t.refCode}) · {t.subjects.map((s) => label("subject", s)).join(", ")}
+              {t.name} ({t.refCode}) ·{" "}
+              {t.subjects.map((s) => label("subject", s)).join(", ")}
               {t.hourlyRate ? ` · ${formatETB(t.hourlyRate)}/h` : ""}
             </option>
           ))}
         </Select>
-        {picked && <p className="mt-1 text-xs text-muted">Call the tutor to confirm, then call the family. Set status to Matched when they agree.</p>}
+        {picked && (
+          <p className="mt-1 text-xs text-muted">
+            Call the tutor to confirm, then call the family. Set status to
+            Matched when they agree.
+          </p>
+        )}
       </div>
       <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
         <L label="Status">
-          <Select value={status} onChange={(e) => setStatus(e.target.value as TutorRequestRow["status"])}>
+          <Select
+            value={status}
+            onChange={(e) =>
+              setStatus(e.target.value as TutorRequestRow["status"])
+            }
+          >
             {TUTOR_REQUEST_STATUSES.map((x) => (
               <option key={x} value={x}>
                 {titleCase(x)}
@@ -428,26 +824,42 @@ function RequestDetail({ r, tutors, onDone }: { r: TutorRequestRow; tutors: Tuto
           </Select>
         </L>
         <L label="Notes">
-          <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <Textarea
+            rows={2}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </L>
       </div>
       <div className="flex justify-end gap-2">
-        <Button
-          variant="ghost"
-          className="mr-auto text-error"
-          onClick={async () => {
-            if ((await confirm({ title: "Delete this request?", description: "This permanently removes the family's details. It cannot be undone.", confirmLabel: "Delete", destructive: true })).ok)
-              run(
-                () => deletePersonAction("tutorRequest", r.id),
-                () => {
-                  onDone();
-                  router.refresh();
-                },
-              );
-          }}
-        >
-          <Trash2 /> Delete
-        </Button>
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            className="mr-auto text-error"
+            onClick={async () => {
+              if (
+                (
+                  await confirm({
+                    title: "Delete this request?",
+                    description:
+                      "This permanently removes the family's details. It cannot be undone.",
+                    confirmLabel: "Delete",
+                    destructive: true,
+                  })
+                ).ok
+              )
+                run(
+                  () => deletePersonAction("tutorRequest", r.id),
+                  () => {
+                    onDone();
+                    router.refresh();
+                  },
+                );
+            }}
+          >
+            <Trash2 /> Delete
+          </Button>
+        )}
         <Button variant="ghost" onClick={onDone}>
           Cancel
         </Button>
@@ -455,7 +867,13 @@ function RequestDetail({ r, tutors, onDone }: { r: TutorRequestRow; tutors: Tuto
           disabled={pending}
           onClick={() =>
             run(
-              () => updateTutorRequestAction({ id: r.id, status: tutorId && status === "NEW" ? "CONTACTED" : status, notes, tutorId: tutorId || null }),
+              () =>
+                updateTutorRequestAction({
+                  id: r.id,
+                  status: tutorId && status === "NEW" ? "CONTACTED" : status,
+                  notes,
+                  tutorId: tutorId || null,
+                }),
               () => {
                 onDone();
                 router.refresh();

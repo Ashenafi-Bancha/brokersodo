@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Wanted requests" };
 
 export default async function WantedPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const rows = await db.wantedRequest.findMany({
     orderBy: [{ status: "desc" }, { createdAt: "desc" }],
     take: 1000,
@@ -21,6 +21,7 @@ export default async function WantedPage() {
     <>
       <AdminPageHeader title="Wanted requests" description="Buyers telling us what they need. Find a match, link it and call them." crumbs={[{ label: "Wanted" }]} />
       <WantedView
+        isAdmin={session.user.role === "ADMIN"}
         rows={rows.map((r) => ({
           id: r.id,
           name: r.name,

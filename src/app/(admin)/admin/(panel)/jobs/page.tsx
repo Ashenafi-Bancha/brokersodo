@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Jobs" };
 
 export default async function AdminJobsPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const [jobs, areas] = await Promise.all([
     db.jobPost.findMany({
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -27,6 +27,7 @@ export default async function AdminJobsPage() {
         crumbs={[{ label: "Jobs" }]}
       />
       <JobsView
+        isAdmin={session.user.role === "ADMIN"}
         labels={CATALOG_EN}
         areas={areas.map((a) => ({ id: a.id, name: a.nameEn }))}
         rows={jobs.map((j) => ({

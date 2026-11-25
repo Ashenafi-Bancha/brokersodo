@@ -12,7 +12,7 @@ import { formatAttributeValue, parseAttributeSchema } from "@/lib/validators/att
 export const metadata: Metadata = { title: "Submission" };
 
 export default async function SubmissionPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const { id } = await params;
   const s = await db.propertySubmission.findUnique({
     where: { id },
@@ -78,7 +78,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
               <Lock className="size-4" /> Submitter — private
             </p>
             <p className="text-lg font-bold text-fg">{s.name}</p>
-            <SubmissionActions id={s.id} status={s.status} name={s.name} phone={s.phone} notes={s.staffNotes} linkedListingId={s.linkedListingId} />
+            <SubmissionActions id={s.id} title={s.title} isAdmin={session.user.role === "ADMIN"} status={s.status} name={s.name} phone={s.phone} notes={s.staffNotes} linkedListingId={s.linkedListingId} />
           </div>
         </aside>
       </div>

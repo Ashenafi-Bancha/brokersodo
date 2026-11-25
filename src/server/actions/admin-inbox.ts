@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/lib/db";
+import { getStorage } from "@/lib/storage";
 import { inquiryUpdateSchema, rejectSubmissionSchema, wantedUpdateSchema } from "@/lib/validators/admin";
 import { adminAction, logActivity, type ActionResult } from "./_helpers";
 
@@ -57,6 +58,26 @@ export async function reopenSubmissionAction(id: string): Promise<ActionResult> 
   });
 }
 
+/** Admin only: permanently delete a submission and any of its photos no listing uses. */
+export async function deleteSubmissionAction(id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    const s = await db.propertySubmission.findUnique({ where: { id }, select: { title: true, photos: true } });
+    if (!s) return { ok: false, error: "Submission not found" };
+    await db.propertySubmission.delete({ where: { id } });
+    const photos = Array.isArray(s.photos) ? (s.photos as { publicId?: string | null }[]) : [];
+    for (const p of photos) {
+      // A converted listing may still use the same file; keep it in that case.
+      if (p?.publicId && !(await db.listingImage.count({ where: { publicId: p.publicId } }))) {
+        await getStorage()
+          .remove(p.publicId)
+          .catch((e) => console.error("[delete submission photo]", e));
+      }
+    }
+    await logActivity(session, "delete", "PropertySubmission", id, `Deleted submission “${s.title}”`);
+    return { ok: true, message: "Submission deleted" };
+  });
+}
+
 export async function saveSubmissionNotesAction(id: string, notes: string): Promise<ActionResult> {
   return adminAction([...STAFF], async () => {
     await db.propertySubmission.update({ where: { id }, data: { staffNotes: String(notes).slice(0, 5000) || null } });
@@ -79,6 +100,15 @@ export async function updateWantedAction(input: unknown): Promise<ActionResult> 
     });
     await logActivity(session, d.status ? "status" : "update", "WantedRequest", d.id, `Wanted request from ${w.name}${d.status ? ` → ${d.status}` : ""}${d.matchListingIds ? ` (${d.matchListingIds.length} matches)` : ""}`);
     return { ok: true, message: "Wanted request updated" };
+  });
+}
+
+/** Admin only: permanently delete a wanted request (linked listings are kept). */
+export async function deleteWantedAction(id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    const w = await db.wantedRequest.delete({ where: { id }, select: { name: true } });
+    await logActivity(session, "delete", "WantedRequest", id, `Deleted wanted request from ${w.name}`);
+    return { ok: true, message: "Wanted request deleted" };
   });
 }
 

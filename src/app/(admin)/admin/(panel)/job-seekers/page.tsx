@@ -8,7 +8,7 @@ import { db } from "@/lib/db";
 export const metadata: Metadata = { title: "Talent pool" };
 
 export default async function SeekersPage() {
-  await requireStaffPage();
+  const session = await requireStaffPage();
   const rows = await db.jobSeeker.findMany({ orderBy: [{ status: "asc" }, { createdAt: "desc" }], take: 5000, include: { area: { select: { nameEn: true } } } });
   return (
     <>
@@ -18,6 +18,7 @@ export default async function SeekersPage() {
         crumbs={[{ label: "Talent pool" }]}
       />
       <SeekersView
+        isAdmin={session.user.role === "ADMIN"}
         labels={CATALOG_EN}
         rows={rows.map((s) => ({
           id: s.id,
