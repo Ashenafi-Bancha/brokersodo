@@ -33,6 +33,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     webpackMemoryOptimizations: true,
+    // Docker builds run on small build servers: one worker keeps peak memory low.
+    ...(dockerBuild ? { cpus: 1, webpackBuildWorker: false } : {}),
     serverActions: {
       bodySizeLimit: "12mb",
       allowedOrigins: ["brokersodo.com", "www.brokersodo.com", "*.app.aletcloud.com"],

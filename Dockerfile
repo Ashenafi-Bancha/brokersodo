@@ -15,7 +15,7 @@ ENV DOCKER_BUILD=1 \
     DATABASE_URL=postgresql://build:build@localhost:5432/build \
     AUTH_SECRET=build-time-only \
     NEXT_PUBLIC_SITE_URL=https://brokersodo.com \
-    NODE_OPTIONS=--max-old-space-size=450
+    NODE_OPTIONS=--max-old-space-size=600
 RUN npx prisma generate && npx next build
 # One-file copy of the launch setup (admin, categories, areas, pages). Runs at start-up when SEED_ADMIN_* are set.
 RUN npx esbuild prisma/seed.ts --bundle --platform=node --target=node22 --format=cjs --external:@prisma/client --outfile=launch-seed.cjs
