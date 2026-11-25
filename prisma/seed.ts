@@ -361,7 +361,7 @@ async function launch() {
       phonePrimary: "+251947565691",
       whatsappNumber: "+251947565691",
       telegramUsername: "Sunagent01",
-      tiktokUrl: "https://www.tiktok.com/@BorkerSodo",
+      tiktokUrl: "https://www.tiktok.com/@brokersodo",
       addressEn: "Wolaita Sodo, Ethiopia",
       addressAm: "ወላይታ ሶዶ፣ ኢትዮጵያ",
       mapLat: 6.8556,
@@ -460,7 +460,7 @@ async function main() {
       statYears: 5,
       statClients: 1200,
       facebookUrl: "https://facebook.com/",
-      tiktokUrl: "https://www.tiktok.com/@BorkerSodo",
+      tiktokUrl: "https://www.tiktok.com/@brokersodo",
     },
   });
 
