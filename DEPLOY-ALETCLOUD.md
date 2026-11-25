@@ -1,6 +1,6 @@
 # Deploying BrokerSodo on AletCloud
 
-The app deploys from GitHub using the `Dockerfile` in this repo. Database migrations run automatically each time the container starts.
+The app deploys from GitHub using the `Dockerfile` in this repo. Database updates run automatically each time the app starts. Push to `main`, then press **Redeploy** on the app page (a push alone did not start a build).
 
 ## 1. Plans
 
@@ -14,65 +14,55 @@ The app deploys from GitHub using the `Dockerfile` in this repo. Database migrat
 
 Check the prices on your AletCloud order before paying.
 
-## 2. Ask AletCloud support first
+## 2. What is set up (live since 25 Nov 2026)
 
-The first question can block the launch. The database migrations need these extensions.
-
-1. Can PostgreSQL Pro enable the `pg_trgm` and `unaccent` extensions?
-2. What memory limit applies to Docker builds on App Pro? The build needs about 450 MB of Node heap.
-3. Can one app serve both `brokersodo.com` and `www.brokersodo.com`?
-4. Are there bandwidth limits or overage charges for the app and for Storage?
+| Item | Name in AletCloud |
+| --- | --- |
+| Project | `brokersodo`, domain `brokersodo.com` (www works too, HTTPS by Let's Encrypt, renewed automatically) |
+| Database | `brokersodo-db`, PostgreSQL 17 Pro, private, extensions `pg_trgm` and `unaccent` switched on |
+| Bucket | `t334-brokersodo-media` (shown as brokersodo-media), 5 GB, public read, file listing blocked |
+| App | `brokersodo`, App Pro, built from `main` with the repo's Dockerfile |
 
 ## 3. Create the database
 
-1. Create a PostgreSQL Pro database, version 16 or newer.
-2. Copy its connection string. This is `DATABASE_URL`.
+1. Databases → Create Database → PostgreSQL → Pro → version 17.
+2. On the database page, under **Extensions**, switch on `pg_trgm` and `unaccent` before the first deploy.
+
+The database is private. Only apps in your account can reach it, so nothing is run against it from your computer.
 
 ## 4. Create the image bucket
 
-1. Create a bucket, for example `brokersodo-media`, in region `et-addis-1`.
-2. Set it to public read.
-3. Create an access key limited to this bucket.
-4. Note the bucket's public URL. This is `S3_PUBLIC_URL`, with no trailing slash.
+1. Object Storage → New Bucket → 5 GB → **Public read**. Leave versioning and object lock off.
+2. AletCloud adds a prefix to the name (for example `t334-brokersodo-media`). Use that full name below.
 
-Clean originals are stored under hard-to-guess paths in `originals/`. A public bucket must not allow file listing. Confirm that opening the bucket's root URL does not show a list of files.
+Clean originals are stored under hard-to-guess paths in `originals/`. Opening the bucket's root URL must answer "Access Denied".
 
 ## 5. Create the app
 
-1. Create an App Pro app from the GitHub repository `Ashenafi-Bancha/brokersodo`, branch `main`.
-2. Choose the Dockerfile build.
-3. Add these environment variables:
+1. Apps → the project → New App → Deploy from GitHub → `Ashenafi-Bancha/brokersodo`.
+2. Web service, route `/`, framework **Auto-detect**. AletCloud builds with the repo's Dockerfile.
+3. **Link database**: the database from step 3. This adds `DATABASE_URL`.
+4. **Link storage**: the bucket from step 4. This adds the AWS keys, `S3_BUCKET`, `S3_ENDPOINT` and `S3_REGION`.
+5. Add these under Advanced → Environment Variables:
 
 | Variable | Value |
 | --- | --- |
-| `DATABASE_URL` | From step 3 |
-| `AUTH_SECRET` | Output of `npx auth secret`. Never change it after launch |
 | `SITE_URL` | `https://brokersodo.com` |
 | `NEXT_PUBLIC_SITE_URL` | `https://brokersodo.com` |
-| `S3_ENDPOINT` | `https://s3.aletcloud.com` |
-| `S3_REGION` | `et-addis-1` |
-| `S3_BUCKET` | Your bucket name |
-| `S3_ACCESS_KEY_ID` | From step 4 |
-| `S3_SECRET_ACCESS_KEY` | From step 4 |
-| `S3_PUBLIC_URL` | From step 4 |
+| `S3_PUBLIC_URL` | `https://s3.aletcloud.com/<full bucket name>` |
+| `SEED_ADMIN_EMAIL` | The admin login email |
+| `SEED_ADMIN_PASSWORD` | The admin password, 12+ characters. Typed by the owner. Remove after the first login |
+| `AUTH_SECRET` | A long random value, typed by the owner. Never change it after launch |
 
-4. Deploy, then open the temporary `*.app.aletcloud.com` address.
+6. Choose **Pro** and deploy. A build takes about 4–5 minutes.
 
-## 6. Load the launch data
+## 6. Launch data and admin account
 
-Run this once from your computer, using the production database URL. It creates the admin, contact details, categories, areas, FAQs and pages. It adds no sample listings or reviews, and running it again is safe.
-
-```powershell
-$env:DATABASE_URL="PASTE_PRODUCTION_DATABASE_URL"; $env:SEED_ADMIN_EMAIL="PASTE_ADMIN_EMAIL"; $env:SEED_ADMIN_PASSWORD="PASTE_LONG_PASSWORD"; npm run db:seed:launch
-```
-
-Close that terminal afterwards so the values are cleared. If the database only accepts connections from inside AletCloud, ask support how to run this command there.
+Nothing to run by hand. When the app starts it applies database updates, and while `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` are set it creates the admin and the starter content (categories, areas, FAQs, pages). The runtime log shows "Launch data ready". Running it again never changes an existing admin's password.
 
 ## 7. Connect the domain
 
-1. Add `brokersodo.com` and `www.brokersodo.com` to the app.
-2. Add the `_alet-challenge` TXT record and the A record that AletCloud shows.
-3. Wait for HTTPS to become active.
+Project page → **Change Domain** → My Domains → `brokersodo.com` → Set Domain. Because the domain is registered with AletCloud, DNS and HTTPS are set up automatically.
 
 ## 8. Test everything before sending the link
 
@@ -112,4 +102,4 @@ The site does not send email. New messages are seen in the admin panel, and the 
 
 ## Updating the site
 
-Push to `main`. AletCloud rebuilds the image, and new migrations run when the container starts.
+Push to `main`, then press **Redeploy** on the app page. New database updates run when the app starts.

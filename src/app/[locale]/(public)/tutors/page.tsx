@@ -14,6 +14,9 @@ import { getAreas } from "@/server/queries/public";
 
 type SP = Promise<Record<string, string | string[] | undefined>>;
 
+// Reads filters from the URL, so it must render on every request.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: SP }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "tutors" });
