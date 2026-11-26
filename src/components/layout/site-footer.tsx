@@ -6,6 +6,7 @@ import { telLink, telegramLink, whatsappLink } from "@/lib/contact";
 import { formatPhoneDisplay } from "@/lib/format";
 import { localized } from "@/lib/utils";
 import { Logo } from "./brand";
+import { SocialLink } from "./social-link";
 import { FacebookIcon, InstagramIcon, TelegramIcon, TikTokIcon, WhatsAppIcon, YouTubeIcon } from "./icons";
 
 export async function SiteFooter() {
@@ -38,16 +39,14 @@ export async function SiteFooter() {
               <p className="mb-2 text-xs font-bold tracking-wider text-primary uppercase">{t("follow")}</p>
               <div className="flex gap-2">
                 {socials.map((s) => (
-                  <a
+                  <SocialLink
                     key={s.label}
                     href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
+                    label={s.label}
                     className="grid size-10 place-items-center rounded-full bg-navy-800 text-white transition-colors hover:bg-red-500"
                   >
                     <s.Icon className="size-5" />
-                  </a>
+                  </SocialLink>
                 ))}
               </div>
             </div>
