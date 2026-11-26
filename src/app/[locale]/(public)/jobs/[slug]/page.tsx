@@ -96,7 +96,7 @@ export default async function JobPage({ params }: { params: Params }) {
         <Link prefetch={false} href="/jobs" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
           <ArrowLeft className="size-4" /> {t("backToJobs")}
         </Link>
-        <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="mt-4 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           <article className="min-w-0">
             <JobHeader job={job} />
             {!open && (
@@ -140,7 +140,7 @@ export default async function JobPage({ params }: { params: Params }) {
         {similar.length > 0 && (
           <section className="mt-14">
             <h2 className="mb-5 font-brand text-h3 text-fg">{t("similar")}</h2>
-            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {similar.map((j) => (
                 <li key={j.id}>
                   <JobCard job={j} />

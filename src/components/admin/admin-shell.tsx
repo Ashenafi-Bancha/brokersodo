@@ -28,7 +28,6 @@ import {
 } from "lucide-react";
 import { ADMIN_NAV } from "./nav-items";
 import { Logo } from "@/components/layout/brand";
-import { ThemeToggle } from "@/components/layout/header-controls";
 import { SheetContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -172,7 +171,6 @@ export function AdminShell({ me, counts, children }: { me: Me; counts: Counts; c
                 <ExternalLink />
               </a>
             </Button>
-            <ThemeToggle />
           </div>
         </header>
         <main id="main" className="flex-1 p-4 sm:p-6 lg:p-8">

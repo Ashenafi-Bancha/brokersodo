@@ -7,7 +7,7 @@ import { getCategories, getSiteSettings } from "@/server/queries/public";
 import { telLink } from "@/lib/contact";
 import { localized } from "@/lib/utils";
 import { Logo } from "./brand";
-import { HeaderSearch, LanguageSwitcher, MobileMenu, ThemeToggle, type NavCategory } from "./header-controls";
+import { HeaderSearch, LanguageSwitcher, MobileMenu, type NavCategory } from "./header-controls";
 import { MainNav } from "./main-nav";
 
 export async function SiteHeader() {
@@ -23,7 +23,7 @@ export async function SiteHeader() {
   const phoneHref = telLink(settings.phonePrimary);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-bg">
+    <header className="bs-header sticky top-0 z-40 border-b border-line bg-bg">
       <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-2 px-4 sm:px-6 xl:gap-3">
         <Suspense fallback={<span className="size-10 xl:hidden" />}>
           <MobileMenu categories={navCats} phoneHref={phoneHref} />
@@ -45,7 +45,6 @@ export async function SiteHeader() {
           <Suspense fallback={null}>
             <LanguageSwitcher compact className="hidden sm:inline-flex" />
           </Suspense>
-          <ThemeToggle className="hidden sm:inline-flex" />
           <Button asChild variant="secondary" size="sm" className="hidden 2xl:inline-flex">
             <a href={phoneHref}>
               <Phone /> {t("call")}

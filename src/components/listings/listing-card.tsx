@@ -45,6 +45,7 @@ export function ListingCard({
 
   return (
     <article
+      data-reveal
       className={cn(
         "group relative flex overflow-hidden rounded-card bg-surface shadow-card transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-pop focus-within:shadow-pop motion-reduce:hover:translate-y-0",
         layout === "grid" ? "flex-col" : "flex-row",

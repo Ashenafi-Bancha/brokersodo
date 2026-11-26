@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { ContactFab } from "@/components/layout/contact-fab";
+import { BackToTop, ScrollReveal } from "@/components/layout/motion";
 import { getSiteSettings } from "@/server/queries/public";
 import { telLink, telegramLink, whatsappLink } from "@/lib/contact";
 import { alternates, jsonLdScript } from "@/lib/seo";
@@ -105,12 +106,15 @@ export default async function LocaleLayout({
             >
               {t("skipToContent")}
             </a>
+            <div className="bs-progress" aria-hidden />
             <SiteHeader />
             <main id="main" className="min-h-[60vh]">
               {children}
             </main>
             <SiteFooter />
             <BottomNav />
+            <BackToTop label={t("backToTop")} />
+            <ScrollReveal />
             <ContactFab
               tel={telLink(settings.phonePrimary)}
               telegram={telegramLink(settings.telegramUsername)}

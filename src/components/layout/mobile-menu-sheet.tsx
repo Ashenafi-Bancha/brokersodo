@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, SheetContent } from "@/components/ui/dialog";
 import { CategoryIcon, Logo } from "./brand";
-import { HeaderSearch, LanguageSwitcher, ThemeToggle, type NavCategory } from "./header-controls";
+import { HeaderSearch, LanguageSwitcher, type NavCategory } from "./header-controls";
 
 export function MobileMenuSheet({
   open,
@@ -65,7 +65,6 @@ export function MobileMenuSheet({
           </ul>
           <div className="flex items-center justify-between gap-3">
             <LanguageSwitcher compact />
-            <ThemeToggle />
           </div>
           <div className="grid gap-2">
             <Button asChild variant="primary" block>

@@ -37,7 +37,8 @@
     "findTutor": "አስጠኚ ያግኙ",
     "becomeTutor": "አስጠኚ ይሁኑ",
     "talentPool": "የሥራ ፈላጊዎች ዝርዝር",
-    "more": "ተጨማሪ"
+    "more": "ተጨማሪ",
+    "backToTop": "ወደ ላይ ተመለስ"
   },
   "theme": {
     "toggle": "ገጽታ ቀይር",
@@ -67,7 +68,10 @@
     "tileLand": "መሬት እና ቦታ",
     "alsoOn": "በብሮከርሶዶ ደግሞ፦",
     "jobsLink": "ለተመራቂዎች እና ለባለሙያዎች ሥራ",
-    "tutorsLink": "አስጠኚ ያግኙ"
+    "tutorsLink": "አስጠኚ ያግኙ",
+    "mobileTitle": "ሁሉም ስምምነት",
+    "mobileTitleHighlight": "በወላይታ ሶዶ",
+    "mobileSubtitle": "ከስልክ እስከ መሬት፣ ከሥራ እስከ አስጠኚ። በሶዶ ላሉ ስምምነቶች ሁሉ የታመነ አንድ ቦታ።"
   },
   "home": {
     "categoriesTitle": "በምድብ ያስሱ",

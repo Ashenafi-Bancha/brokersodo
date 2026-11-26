@@ -37,7 +37,8 @@
     "findTutor": "Find a tutor",
     "becomeTutor": "Become a tutor",
     "talentPool": "Join talent pool",
-    "more": "More"
+    "more": "More",
+    "backToTop": "Back to top"
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -67,7 +68,10 @@
     "tileLand": "Land & plots",
     "alsoOn": "Also on BrokerSodo:",
     "jobsLink": "Jobs for graduates and skilled workers",
-    "tutorsLink": "Find a tutor"
+    "tutorsLink": "Find a tutor",
+    "mobileTitle": "Every deal in",
+    "mobileTitleHighlight": "Wolaita Sodo",
+    "mobileSubtitle": "From phones to plots, jobs to tutors. One trusted place for every deal in Sodo."
   },
   "home": {
     "categoriesTitle": "Browse by category",

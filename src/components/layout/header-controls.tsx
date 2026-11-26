@@ -1,10 +1,9 @@
 "use client";
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Menu, Moon, Search, Sun } from "lucide-react";
+import { ChevronDown, Menu, Search } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { LOCALE_LABELS, routing, type Locale } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
@@ -15,24 +14,6 @@ export type NavCategory = { id: string; slug: string; name: string; icon: string
 
 // The drawer (and its dialog library) is only downloaded when someone opens it.
 const MobileMenuSheet = dynamic(() => import("./mobile-menu-sheet").then((m) => m.MobileMenuSheet), { ssr: false });
-
-/** Light/dark switch. Follows the device setting until the visitor chooses. */
-export function ThemeToggle({ className }: { className?: string }) {
-  const t = useTranslations("theme");
-  const { resolvedTheme, setTheme } = useTheme();
-  return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={t("toggle")}
-      className={className}
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-    >
-      <Sun className="dark:hidden" />
-      <Moon className="hidden dark:block" />
-    </Button>
-  );
-}
 
 export function LanguageSwitcher({ className, compact }: { className?: string; compact?: boolean }) {
   const locale = useLocale() as Locale;

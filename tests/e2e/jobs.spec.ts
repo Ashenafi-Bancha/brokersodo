@@ -35,12 +35,12 @@ test("employer posts a job, staff publish it, a graduate applies", async ({ page
   const admin = await browser.newPage();
   await admin.goto("/admin/login");
   await admin.getByLabel("Email").fill(email);
-  await admin.getByLabel("Password").fill(password);
+  await admin.getByLabel("Password", { exact: true }).fill(password);
   await admin.getByRole("button", { name: "Sign in" }).click();
   await expect(admin.getByRole("heading", { level: 1 })).toContainText("Welcome back");
   await admin.goto("/admin/jobs");
   await admin.getByPlaceholder(/Search jobs/).fill(title);
-  await admin.getByRole("button", { name: new RegExp(title) }).click();
+  await admin.getByRole("button", { name: new RegExp(`^${title}`) }).click();
   await admin.getByRole("button", { name: "Publish", exact: true }).click();
   await expect(admin.getByText("Job published")).toBeVisible();
 
@@ -62,7 +62,7 @@ test("employer posts a job, staff publish it, a graduate applies", async ({ page
   // 4. Staff see the applicant inside the job.
   await admin.reload();
   await admin.getByPlaceholder(/Search jobs/).fill(title);
-  await admin.getByRole("button", { name: new RegExp(title) }).click();
+  await admin.getByRole("button", { name: new RegExp(`^${title}`) }).click();
   await expect(admin.getByText("E2E Applicant")).toBeVisible();
   await admin.close();
 });

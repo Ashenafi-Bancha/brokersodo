@@ -177,6 +177,9 @@
   }
   html {
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    /* In-page jumps stop below the sticky header. */
+    scroll-padding-top: 88px;
   }
   body {
     background: var(--bg);
@@ -268,6 +271,103 @@
   }
 }
 
+/* ---------------- Motion (light and CSS-first; see components/layout/motion.tsx) ---------------- */
+
+/* Reading progress bar: driven by scrolling itself, no JavaScript. */
+.bs-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--color-red-500), var(--color-yellow-500));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+@supports (animation-timeline: scroll()) {
+  .bs-progress {
+    animation: bs-grow linear both;
+    animation-timeline: scroll(root);
+  }
+  /* The sticky header gains a soft shadow over the first 80px of scrolling. */
+  .bs-header {
+    animation: bs-header-shadow linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 80px;
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  .bs-progress {
+    display: none;
+  }
+}
+@keyframes bs-grow {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes bs-header-shadow {
+  to {
+    box-shadow: 0 6px 24px rgb(15 27 61 / 0.08);
+  }
+}
+
+/* Reveal on scroll. Content is only hidden after the script marks the page ready,
+   and anything already on screen is shown first, so nothing flashes or goes missing. */
+.bs-reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.bs-reveal-ready [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* Cards in a row arrive one after another. */
+li:nth-child(4n + 2) > [data-reveal],
+li:nth-child(4n + 2)[data-reveal] {
+  --reveal-delay: 70ms;
+}
+li:nth-child(4n + 3) > [data-reveal],
+li:nth-child(4n + 3)[data-reveal] {
+  --reveal-delay: 140ms;
+}
+li:nth-child(4n + 4) > [data-reveal],
+li:nth-child(4n + 4)[data-reveal] {
+  --reveal-delay: 210ms;
+}
+
+/* Hero entrance: movement only (no fading), so the headline is visible from the first paint. */
+@keyframes bs-rise {
+  from {
+    transform: translateY(16px);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes bs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.bs-rise {
+  animation: bs-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+.bs-fade-in {
+  animation: bs-fade-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -276,6 +376,13 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .bs-reveal-ready [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .bs-progress {
+    display: none;
   }
 }
 

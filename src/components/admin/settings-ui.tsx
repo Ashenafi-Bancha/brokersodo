@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { KeyRound, Loader2, Pencil, Plus, Save, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/form-controls";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { MapPicker } from "@/components/listings/map-lazy";
@@ -268,7 +269,7 @@ function CreateUserForm({ onDone }: { onDone: () => void }) {
         </Field>
       </div>
       <Field id="u-pw" label="Temporary password" required hint="At least 10 characters. Share it privately; they can ask an admin to reset it." error={e.password?.message}>
-        <Input id="u-pw" type="password" autoComplete="new-password" {...register("password")} />
+        <PasswordInput id="u-pw" autoComplete="new-password" {...register("password")} />
       </Field>
       <Button type="submit" disabled={formState.isSubmitting}>
         {formState.isSubmitting ? <Loader2 className="animate-spin" /> : <Plus />} Create account
@@ -313,7 +314,7 @@ function EditUserForm({ user, meId, onDone }: { user: UserRow; meId: string; onD
       </div>
       <Switch id="e-active" label={watch("isActive") ? "Active" : "Deactivated"} description={self ? "You can't deactivate yourself" : "Deactivated staff are signed out and can't sign in"} checked={!!watch("isActive")} onCheckedChange={(v) => !self && setValue("isActive", v)} />
       <Field id="e-pw" label={<span className="inline-flex items-center gap-1"><KeyRound className="size-4" /> Reset password</span>} optionalLabel="leave empty to keep" error={e.password?.message}>
-        <Input id="e-pw" type="password" autoComplete="new-password" {...register("password")} />
+        <PasswordInput id="e-pw" autoComplete="new-password" {...register("password")} />
       </Field>
       <Button type="submit" disabled={formState.isSubmitting}>
         {formState.isSubmitting ? <Loader2 className="animate-spin" /> : watch("isActive") ? <Save /> : <UserX />} Save

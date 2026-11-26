@@ -71,19 +71,33 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       {/* 1. Hero */}
       <section className="border-b border-line bg-bg">
-        <Container className="grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-16">
+        <Container className="grid items-center gap-10 py-7 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-16">
           <div className="min-w-0">
-            <h1 className="font-brand text-[clamp(2.15rem,4.5vw,3.5rem)] leading-[1.08] text-fg">
+            <h1 className="bs-rise font-brand text-[clamp(2.15rem,4.5vw,3.5rem)] leading-[1.08] text-fg">
               {heroTitle ? (
                 heroTitle
               ) : (
                 <>
-                  {th("title")} <span className="block text-primary">{th("titleHighlight")}</span>
+                  {/* Phones: a short two-line headline. Larger screens: the full one. */}
+                  <span className="sm:hidden">
+                    {th("mobileTitle")} <span className="block text-primary">{th("mobileTitleHighlight")}</span>
+                  </span>
+                  <span className="hidden sm:inline">
+                    {th("title")} <span className="block text-primary">{th("titleHighlight")}</span>
+                  </span>
                 </>
               )}
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-fg-2">{heroSubtitle}</p>
-            <div className="mt-7">
+            {/* An admin-set subtitle is used everywhere; otherwise phones get the short line. */}
+            {localized(settings, "heroSubtitle", locale) ? (
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-fg-2 sm:mt-5 sm:text-lg">{heroSubtitle}</p>
+            ) : (
+              <>
+                <p className="bs-rise mt-3 text-base leading-relaxed text-fg-2 [--d:80ms] sm:hidden">{th("mobileSubtitle")}</p>
+                <p className="bs-rise mt-5 hidden max-w-xl text-lg leading-relaxed text-fg-2 [--d:80ms] sm:block">{heroSubtitle}</p>
+              </>
+            )}
+            <div className="bs-rise mt-5 [--d:160ms] sm:mt-7">
               <ScopedIntl namespaces={["hero"]}>
                 <HeroSearch
                   categories={topCats.map((c) => ({ slug: c.slug, name: localized(c, "name", locale) }))}
@@ -108,7 +122,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               ))}
             </ul>
           </div>
-          <ul className="hidden grid-cols-2 gap-3 lg:grid">
+          <ul className="bs-fade-in hidden grid-cols-2 gap-3 [--d:200ms] lg:grid">
             {(
               [
                 ["phone-1.webp", "tileSmall", "/c/electronics", "mt-8"],
@@ -137,6 +151,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Link
                 prefetch={false}
                 href={`/c/${c.slug}`}
+                data-reveal
                 className="group flex h-full flex-col items-center gap-3 rounded-card bg-surface p-5 text-center shadow-card transition-[transform,box-shadow] hover:-translate-y-1 hover:shadow-pop"
               >
                 <span className="grid size-16 place-items-center rounded-[18px] bg-yellow-100 transition-colors group-hover:bg-yellow-500 dark:bg-navy-700">
@@ -152,11 +167,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* 2b. Jobs & tutors */}
       <section className="border-y border-line bg-bg-2 py-14 sm:py-20">
-        <Container className="grid gap-10 lg:grid-cols-2">
-          <div>
+        <Container className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+          <div className="min-w-0">
             <SectionHeading title={tj("homeTitle")} subtitle={tj("homeSubtitle")} action={<ViewAll href="/jobs" label={tj("viewAll")} />} />
             {jobs.length > 0 ? (
-              <ul className="grid gap-3">
+              <ul className="grid grid-cols-1 gap-3">
                 {jobs.map((j) => (
                   <li key={j.id}>
                     <JobCard job={j} />
@@ -186,10 +201,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               )}
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <SectionHeading title={tt("homeTitle")} subtitle={tt("homeSubtitle")} action={tutorCount > 0 ? <ViewAll href="/tutors" label={tt("viewAll")} /> : undefined} />
             {tutors.length > 0 ? (
-              <ul className="grid gap-3 sm:grid-cols-2">
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {tutors.map((tu) => (
                   <li key={tu.id}>
                     <TutorCard tutor={tu} />
@@ -280,7 +295,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   ["forSellers", "sellerSteps", sellerSteps, "bg-yellow-500 text-navy-900"],
                 ] as const
               ).map(([label, key, icons, chip]) => (
-                <div key={key} className="rounded-card bg-surface p-6 shadow-card sm:p-8">
+                <div key={key} data-reveal className="rounded-card bg-surface p-6 shadow-card sm:p-8">
                   <h3 className="mb-6 font-brand text-h3 text-fg">{t(label)}</h3>
                   <ol className="grid gap-5 sm:grid-cols-2">
                     {icons.map((Icon, i) => (
@@ -371,7 +386,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* 11. CTA banners */}
         <Container className="grid gap-5 py-14 sm:py-20 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-card bg-red-500 p-8 text-white shadow-pop sm:p-10">
+          <div data-reveal className="relative overflow-hidden rounded-card bg-red-500 p-8 text-white shadow-pop sm:p-10">
             <div aria-hidden className="absolute inset-0 bg-pattern-dark opacity-40" />
             <div className="relative">
               <h2 className="font-brand text-h3">{t("ctaSellTitle")}</h2>
@@ -383,7 +398,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </Button>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-card bg-yellow-100 p-8 text-navy-900 shadow-card sm:p-10">
+          <div data-reveal className="relative overflow-hidden rounded-card bg-yellow-100 p-8 text-navy-900 shadow-card [--reveal-delay:100ms] sm:p-10">
             <div aria-hidden className="absolute inset-0 bg-[url(/brand/patterns/pattern-light.svg)] bg-[length:140px]" />
             <div className="relative">
               <h2 className="font-brand text-h3">{t("ctaWantedTitle")}</h2>

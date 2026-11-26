@@ -52,7 +52,7 @@ export default async function TutorPage({ params }: { params: Params }) {
       <Link prefetch={false} href="/tutors" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
         <ArrowLeft className="size-4" /> {t("backToTutors")}
       </Link>
-      <div className="mt-4 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="mt-4 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
         <article className="min-w-0">
           <header className="flex items-center gap-5 rounded-card bg-surface p-5 shadow-card sm:p-7">
             <TutorAvatar name={tutor.displayName} className="size-20 text-4xl" />

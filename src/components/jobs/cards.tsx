@@ -50,6 +50,7 @@ export function JobCard({ job, className }: { job: PublicJob; className?: string
   const area = job.area ? localized(job.area, "name", locale) : null;
   return (
     <article
+      data-reveal
       className={cn(
         "group relative flex h-full flex-col gap-3 rounded-card bg-surface p-5 shadow-card transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-pop focus-within:shadow-pop motion-reduce:hover:translate-y-0",
         job.featured && "outline-3 outline-yellow-500",
@@ -116,6 +117,7 @@ export function TutorCard({ tutor, className }: { tutor: PublicTutor; className?
   const area = tutor.area ? localized(tutor.area, "name", locale) : null;
   return (
     <article
+      data-reveal
       className={cn(
         "group relative flex h-full flex-col gap-3 rounded-card bg-surface p-5 shadow-card transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-pop focus-within:shadow-pop motion-reduce:hover:translate-y-0",
         tutor.featured && "outline-3 outline-yellow-500",
@@ -178,7 +180,7 @@ export function SafetyBox({ ns, className }: { ns: "jobs" | "tutors"; className?
 export function HowSteps({ ns }: { ns: "jobs" | "tutors" }) {
   const t = useTranslations(ns);
   return (
-    <section aria-labelledby={`${ns}-how`} className="rounded-card bg-surface p-6 shadow-card sm:p-8">
+    <section data-reveal aria-labelledby={`${ns}-how`} className="rounded-card bg-surface p-6 shadow-card sm:p-8">
       <h2 id={`${ns}-how`} className="mb-6 font-brand text-h3 text-fg">
         {t("howTitle")}
       </h2>

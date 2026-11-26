@@ -42,8 +42,8 @@ export function SectionHeading({
   as?: "h1" | "h2" | "h3";
 }) {
   return (
-    <div className={cn("mb-6 flex items-end justify-between gap-4", className)}>
-      <div>
+    <div data-reveal className={cn("mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-2", className)}>
+      <div className="min-w-0">
         <As className="font-brand text-h3 text-fg sm:text-h2">{title}</As>
         {subtitle ? <p className="mt-1.5 text-muted">{subtitle}</p> : null}
       </div>

@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { loginAction } from "@/server/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/form-controls";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const [state, action, pending] = useActionState(loginAction, undefined);
@@ -14,7 +15,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
         <Input id="email" name="email" type="email" autoComplete="username" required autoFocus />
       </Field>
       <Field id="password" label="Password">
-        <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <PasswordInput id="password" name="password" autoComplete="current-password" required />
       </Field>
       {state?.error && (
         <p role="alert" className="rounded-btn bg-red-50 px-3 py-2 text-sm font-medium text-error dark:bg-error/20 dark:text-red-200">

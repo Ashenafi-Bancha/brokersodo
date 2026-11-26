@@ -89,13 +89,13 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
           ]}
         />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div>
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
             <p className="mb-4 font-semibold text-fg-2" aria-live="polite">
               {t("resultCount", { count: result.total })}
             </p>
             {result.items.length > 0 ? (
-              <ul className="grid gap-4 sm:grid-cols-2">
+              <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {result.items.map((tu) => (
                   <li key={tu.id}>
                     <TutorCard tutor={tu} />
