@@ -100,7 +100,7 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
                     )}
                   >
                     <Icon className="size-4" aria-hidden /> {label}
-                    <span className={cn("rounded-pill px-2 text-xs", on ? "bg-white/20" : "bg-bg-2")}>{count}</span>
+                    <span className={cn("rounded-pill px-2 text-xs", on ? "bg-white text-red-600" : "bg-bg-2")}>{count}</span>
                   </Link>
                 </li>
               );
@@ -125,9 +125,9 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
-            <p className="mb-4 font-semibold text-fg-2" aria-live="polite">
+            <h2 className="mb-4 font-semibold text-fg-2" aria-live="polite">
               {t("resultCount", { count: result.total })}
-            </p>
+            </h2>
             {result.items.length > 0 ? (
               <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {result.items.map((j) => (

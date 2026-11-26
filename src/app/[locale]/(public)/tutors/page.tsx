@@ -91,9 +91,9 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
-            <p className="mb-4 font-semibold text-fg-2" aria-live="polite">
+            <h2 className="mb-4 font-semibold text-fg-2" aria-live="polite">
               {t("resultCount", { count: result.total })}
-            </p>
+            </h2>
             {result.items.length > 0 ? (
               <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {result.items.map((tu) => (
@@ -119,7 +119,7 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
           <aside className="flex flex-col gap-4">
             <div className="rounded-card bg-red-500 p-5 text-white shadow-pop">
               <h2 className="text-lg font-bold">{t("requestTitle")}</h2>
-              <p className="mt-1 text-sm text-red-50">{t("requestSubtitle")}</p>
+              <p className="mt-1 text-sm text-white">{t("requestSubtitle")}</p>
               <Button asChild variant="highlight" className="mt-4">
                 <Link prefetch={false} href={requestHref}>
                   {t("requestTutor")} <ArrowRight />

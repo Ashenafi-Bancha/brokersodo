@@ -47,11 +47,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getSiteSettings(),
     getCategories(),
     getAreas(),
-    getFeaturedListings(8),
-    getLatestListings(8),
-    getListingsByCategorySlugs(["house-rent"], 6, "RENT"),
-    getListingsByCategorySlugs(["vehicles", "motorbikes-bajaj"], 6),
-    getRecentlySold(6),
+    getFeaturedListings(6),
+    getLatestListings(4),
+    getListingsByCategorySlugs(["house-rent"], 4, "RENT"),
+    getListingsByCategorySlugs(["vehicles", "motorbikes-bajaj"], 4),
+    getRecentlySold(4),
     getStats(),
     getTestimonials(),
     getFaqs(4),
@@ -390,7 +390,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div aria-hidden className="absolute inset-0 bg-pattern-dark opacity-40" />
             <div className="relative">
               <h2 className="font-brand text-h3">{t("ctaSellTitle")}</h2>
-              <p className="mt-3 max-w-md text-red-50">{t("ctaSellBody")}</p>
+              <p className="mt-3 max-w-md text-white">{t("ctaSellBody")}</p>
               <Button asChild variant="highlight" className="mt-6">
                 <Link prefetch={false} href="/sell">
                   {t("ctaSellButton")} <ArrowRight />

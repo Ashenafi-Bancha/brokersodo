@@ -196,9 +196,10 @@
     outline: 3px solid var(--ring);
     outline-offset: 2px;
   }
+  /* Balanced line breaks for page and section headings only: on every card title (h3)
+     it is costly layout work on phones. */
   h1,
-  h2,
-  h3 {
+  h2 {
     text-wrap: balance;
   }
 }
