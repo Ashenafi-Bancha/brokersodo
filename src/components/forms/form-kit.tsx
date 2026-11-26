@@ -80,7 +80,7 @@ export function ChipGroup({
               onClick={() => toggle(o.value)}
               className={cn(
                 "inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-pill border-[1.5px] px-4 text-sm font-semibold transition-colors",
-                on ? "border-navy-900 bg-navy-900 text-white dark:border-yellow-500 dark:bg-yellow-500 dark:text-navy-900" : "border-line-strong text-fg hover:border-fg",
+                on ? "border-red-500 bg-red-500 text-white" : "border-line-strong text-fg hover:border-fg",
               )}
             >
               {on && multiple ? <Check className="size-4" aria-hidden /> : o.icon}

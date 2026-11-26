@@ -136,7 +136,7 @@ export function DataTable<T>({
       </div>
 
       {bulkActions && selected.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 rounded-btn bg-navy-900 px-3 py-2 text-sm text-white dark:bg-yellow-500 dark:text-navy-900">
+        <div className="flex flex-wrap items-center gap-2 rounded-btn bg-red-500 px-3 py-2 text-sm text-white">
           <span className="font-bold">{selected.length} selected</span>
           <span className="opacity-40">|</span>
           {bulkActions(selected, () => setRowSelection({}))}

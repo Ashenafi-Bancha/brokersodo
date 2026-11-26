@@ -145,7 +145,7 @@ export function InquiriesView({
               className={cn(
                 "inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-sm px-3 text-sm font-semibold",
                 view === v
-                  ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900"
+                  ? "bg-red-500 text-white"
                   : "text-muted",
               )}
             >

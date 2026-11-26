@@ -197,7 +197,7 @@ export function ListingForm({ id, refCode, slug, initial, categories, areas, sta
         <Section title="Description">
           <div className="inline-flex gap-1 rounded-pill bg-bg-2 p-1" role="tablist" aria-label="Description language">
             {(["en", "am"] as const).map((l) => (
-              <button key={l} type="button" role="tab" aria-selected={lang === l} onClick={() => setLang(l)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", lang === l ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "text-muted")}>
+              <button key={l} type="button" role="tab" aria-selected={lang === l} onClick={() => setLang(l)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", lang === l ? "bg-red-500 text-white" : "text-muted")}>
                 {l === "en" ? "English" : "አማርኛ (optional)"}
               </button>
             ))}

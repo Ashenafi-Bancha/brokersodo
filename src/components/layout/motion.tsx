@@ -96,7 +96,7 @@ export function BackToTop({ label }: { label: string }) {
       tabIndex={show ? 0 : -1}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-4 z-40 grid size-11 cursor-pointer place-items-center rounded-full bg-navy-900 text-white shadow-pop transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:bg-red-500 md:bottom-6 print:hidden",
+        "fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-4 z-40 grid size-11 cursor-pointer place-items-center rounded-full bg-red-500 text-white shadow-pop transition-[opacity,transform] duration-300 hover:-translate-y-0.5 hover:bg-red-600 md:bottom-6 print:hidden",
         show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0",
       )}
     >

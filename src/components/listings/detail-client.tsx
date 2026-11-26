@@ -59,7 +59,7 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
       </a>
       <button
         type="button"
-        className={`${link} cursor-pointer bg-navy-900 dark:bg-navy-600`}
+        className={`${link} cursor-pointer bg-yellow-500 text-navy-900!`}
         aria-label={linkCopied ? t("linkCopied") : t("copyLink")}
         onClick={async () => {
           try {

@@ -58,9 +58,9 @@ export function WantedForm({ categories, areas }: { categories: { id: string; na
       <Honeypot {...register("website")} />
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-fg">{t("dealType")}</legend>
-        <div className="inline-flex gap-1 rounded-pill bg-navy-800 p-1">
+        <div className="inline-flex gap-1 rounded-pill bg-yellow-500 p-1">
           {(["SALE", "RENT"] as const).map((d) => (
-            <button key={d} type="button" aria-pressed={deal === d} onClick={() => setValue("dealType", d)} className={cn("min-h-10 cursor-pointer rounded-pill px-6 font-bold text-white", deal === d ? "bg-red-500" : "hover:bg-white/10")}>
+            <button key={d} type="button" aria-pressed={deal === d} onClick={() => setValue("dealType", d)} className={cn("min-h-10 cursor-pointer rounded-pill px-6 font-bold", deal === d ? "bg-red-500 text-white" : "text-navy-900 hover:bg-yellow-400")}>
               {d === "SALE" ? tb("buy") : tb("rent")}
             </button>
           ))}

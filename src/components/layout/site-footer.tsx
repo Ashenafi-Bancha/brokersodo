@@ -43,7 +43,7 @@ export async function SiteFooter() {
                     key={s.label}
                     href={s.href}
                     label={s.label}
-                    className="grid size-10 place-items-center rounded-full bg-navy-800 text-white transition-colors hover:bg-red-500"
+                    className="grid size-10 place-items-center rounded-full bg-yellow-500 text-navy-900 transition-colors hover:bg-red-500 hover:text-white"
                   >
                     <s.Icon className="size-5" />
                   </SocialLink>

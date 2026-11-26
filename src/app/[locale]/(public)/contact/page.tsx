@@ -29,7 +29,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     { href: telLink(s.phonePrimary), label: t("phone"), value: formatPhoneDisplay(s.phonePrimary), Icon: Phone, cls: "bg-red-500" },
     { href: telegramLink(s.telegramUsername), label: t("telegram"), value: `@${s.telegramUsername}`, Icon: TelegramIcon, cls: "bg-telegram" },
     { href: whatsappLink(s.whatsappNumber), label: t("whatsapp"), value: formatPhoneDisplay(s.whatsappNumber), Icon: WhatsAppIcon, cls: "bg-whatsapp" },
-    ...(s.email ? [{ href: `mailto:${s.email}`, label: t("email"), value: s.email, Icon: Mail, cls: "bg-navy-900 dark:bg-navy-600" }] : []),
+    ...(s.email ? [{ href: `mailto:${s.email}`, label: t("email"), value: s.email, Icon: Mail, cls: "bg-yellow-500 text-navy-900!" }] : []),
   ];
   return (
     <>

@@ -107,7 +107,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
             <p className="mt-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-fg-2">
               <span>{th("alsoOn")}</span>
-              <Link prefetch={false} href="/jobs" className="inline-flex min-h-9 items-center gap-1.5 rounded-pill bg-navy-900 px-3 text-white hover:bg-navy-700 dark:bg-white dark:text-navy-900">
+              <Link prefetch={false} href="/jobs" className="inline-flex min-h-9 items-center gap-1.5 rounded-pill bg-yellow-500 px-3 font-bold text-navy-900 hover:bg-yellow-400">
                 <Briefcase className="size-4" aria-hidden /> {th("jobsLink")}
               </Link>
               <Link prefetch={false} href="/tutors" className="inline-flex min-h-9 items-center gap-1.5 rounded-pill bg-yellow-500 px-3 text-navy-900 hover:bg-yellow-400">

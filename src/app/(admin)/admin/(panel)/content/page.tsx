@@ -52,7 +52,7 @@ export default async function ContentPage({ searchParams }: { searchParams: Prom
       <AdminPageHeader title="Content" description="What visitors read on the public site." crumbs={[{ label: "Content" }]} />
       <nav className="mb-6 flex flex-wrap gap-2" aria-label="Content sections">
         {TABS.map(([k, label]) => (
-          <Link key={k} href={`/admin/content?tab=${k}`} aria-current={tab === k ? "page" : undefined} className={cn("inline-flex min-h-10 items-center rounded-pill px-4 text-sm font-bold", tab === k ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "bg-surface text-muted shadow-card hover:text-fg")}>
+          <Link key={k} href={`/admin/content?tab=${k}`} aria-current={tab === k ? "page" : undefined} className={cn("inline-flex min-h-10 items-center rounded-pill px-4 text-sm font-bold", tab === k ? "bg-red-500 text-white" : "bg-surface text-muted shadow-card hover:text-fg")}>
             {label}
           </Link>
         ))}

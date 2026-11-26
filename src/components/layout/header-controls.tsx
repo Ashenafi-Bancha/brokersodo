@@ -33,7 +33,7 @@ export function LanguageSwitcher({ className, compact }: { className?: string; c
           onClick={() => router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { locale: l })}
           className={cn(
             "min-h-8 cursor-pointer rounded-pill px-3 text-[13px] font-bold transition-colors",
-            l === locale ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "text-muted hover:text-fg",
+            l === locale ? "bg-red-500 text-white" : "text-muted hover:text-fg",
           )}
         >
           {compact ? LOCALE_LABELS[l].short : LOCALE_LABELS[l].long}

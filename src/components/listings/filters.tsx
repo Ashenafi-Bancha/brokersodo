@@ -106,7 +106,7 @@ export function FilterForm({
               onClick={() => set({ deal: d })}
               className={cn(
                 "min-h-10 cursor-pointer rounded-pill text-sm font-bold transition-colors",
-                draft.deal === d ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "text-muted hover:text-fg",
+                draft.deal === d ? "bg-red-500 text-white" : "text-muted hover:text-fg",
               )}
             >
               {d === "sale" ? t("buy") : d === "rent" ? t("rent") : t("any")}

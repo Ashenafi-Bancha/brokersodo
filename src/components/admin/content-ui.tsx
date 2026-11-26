@@ -247,7 +247,7 @@ export function PageEditor({ pages }: { pages: (PageInput & { id: string })[] })
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Pages">
         {pages.map((p) => (
-          <button key={p.slug} type="button" role="tab" aria-selected={p.slug === slug} onClick={() => setSlug(p.slug)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", p.slug === slug ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "bg-bg-2 text-muted")}>
+          <button key={p.slug} type="button" role="tab" aria-selected={p.slug === slug} onClick={() => setSlug(p.slug)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", p.slug === slug ? "bg-red-500 text-white" : "bg-bg-2 text-muted")}>
             /{p.slug}
           </button>
         ))}
@@ -274,7 +274,7 @@ export function PageEditor({ pages }: { pages: (PageInput & { id: string })[] })
         </div>
         <div className="inline-flex gap-1 rounded-pill bg-bg-2 p-1" role="tablist" aria-label="Body language">
           {(["en", "am"] as const).map((l) => (
-            <button key={l} type="button" role="tab" aria-selected={lang === l} onClick={() => setLang(l)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", lang === l ? "bg-navy-900 text-white dark:bg-yellow-500 dark:text-navy-900" : "text-muted")}>
+            <button key={l} type="button" role="tab" aria-selected={lang === l} onClick={() => setLang(l)} className={cn("min-h-9 cursor-pointer rounded-pill px-4 text-sm font-bold", lang === l ? "bg-red-500 text-white" : "text-muted")}>
               {l === "en" ? "English" : "አማርኛ"}
             </button>
           ))}
