@@ -16,7 +16,7 @@ ENV DOCKER_BUILD=1 \
     AUTH_SECRET=build-time-only \
     NEXT_PUBLIC_SITE_URL=https://brokersodo.com \
     NODE_OPTIONS=--max-old-space-size=600
-RUN npx prisma generate && npx next build
+RUN npx prisma generate && npx next build && node scripts/lower-browser-js.mjs
 # One-file copy of the launch setup (admin, categories, areas, pages). Runs at start-up when SEED_ADMIN_* are set.
 RUN npx esbuild prisma/seed.ts --bundle --platform=node --target=node22 --format=cjs --external:@prisma/client --outfile=launch-seed.cjs
 

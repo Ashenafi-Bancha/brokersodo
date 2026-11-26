@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build && node scripts/lower-browser-js.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -79,8 +79,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.2",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
+    "postcss": "^8.5.33",
+    "postcss-preset-env": "^10.6.1",
+    "postcss-selector-parser": "^7.2.1",
     "prettier": "^3.10.1",
     "prisma": "^6.19.3",
     "tailwindcss": "^4",
@@ -89,10 +93,13 @@
     "vitest": "^3.2.7"
   },
   "browserslist": [
-    "chrome >= 111",
-    "edge >= 111",
-    "firefox >= 111",
-    "safari >= 16.4",
-    "samsung >= 23"
+    "chrome >= 64",
+    "and_chr >= 64",
+    "edge >= 79",
+    "firefox >= 67",
+    "opera >= 51",
+    "safari >= 12",
+    "ios_saf >= 12",
+    "samsung >= 9"
   ]
 }
