@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { FilterBar } from "@/components/jobs/filter-bar";
 import { HowSteps, Pager, SafetyBox, TutorCard } from "@/components/jobs/cards";
-import { TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { LANGUAGES, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { formatETB } from "@/lib/format";
 import { alternates, localePath } from "@/lib/seo";
 import { localized } from "@/lib/utils";
-import { getTutorCount, parseTutorFilters, searchTutors } from "@/server/queries/jobs";
+import { TUTOR_MAX_RATES, TUTOR_SORTS, getTutorCount, parseTutorFilters, searchTutors } from "@/server/queries/jobs";
 import { getAreas } from "@/server/queries/public";
 
 type SP = Promise<Record<string, string | string[] | undefined>>;
@@ -25,7 +26,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
     title: t("title"),
     description: t("subtitle"),
     alternates: alternates(locale, "/tutors"),
-    robots: f.level || f.mode || f.area || (f.page ?? 1) > 1 ? { index: false, follow: true } : undefined,
+    robots: f.subject || f.level || f.mode || f.area || f.language || f.maxRate || f.sort || (f.page ?? 1) > 1 ? { index: false, follow: true } : undefined,
   };
 }
 
@@ -41,7 +42,7 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
     searchTutors(f),
     getTutorCount(),
   ]);
-  const keep = { subject: f.subject, level: f.level, mode: f.mode, area: f.area };
+  const keep = { subject: f.subject, level: f.level, mode: f.mode, area: f.area, language: f.language, maxRate: f.maxRate, sort: f.sort };
   const area = f.area ? areas.find((a) => a.slug === f.area) : undefined;
   const requestHref = `/tutors/request?${new URLSearchParams(
     Object.entries({ subject: f.subject, level: f.level, mode: f.mode, area: area?.id }).filter((e): e is [string, string] => !!e[1]),
@@ -86,6 +87,9 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
             { name: "level", label: t("filterLevel"), anyLabel: t("anyLevel"), value: f.level, options: TUTOR_LEVELS.map((s) => ({ value: s, label: tc(`level.${s}` as "level.KG") })) },
             { name: "mode", label: t("filterMode"), anyLabel: t("anyMode"), value: f.mode, options: TUTOR_MODES.map((s) => ({ value: s, label: tc(`mode.${s}` as "mode.HOME") })) },
             { name: "area", label: t("filterArea"), anyLabel: t("anyArea"), value: f.area, options: areas.map((a) => ({ value: a.slug, label: localized(a, "name", locale) })) },
+            { name: "language", label: t("filterLanguage"), anyLabel: t("anyLanguage"), value: f.language, options: LANGUAGES.map((s) => ({ value: s, label: tc(`language.${s}` as "language.AMHARIC") })) },
+            { name: "maxRate", label: t("filterPrice"), anyLabel: t("anyPrice"), value: f.maxRate, options: TUTOR_MAX_RATES.map((s) => ({ value: s, label: t("upToPerHour", { price: formatETB(Number(s)) }) })) },
+            { name: "sort", label: t("sortLabel"), anyLabel: t("sortBest"), value: f.sort, options: TUTOR_SORTS.map((s) => ({ value: s, label: t(`sort_${s}` as "sort_rating") })) },
           ]}
         />
 

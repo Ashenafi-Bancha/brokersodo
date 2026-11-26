@@ -2,14 +2,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Honeypot, Input, Select, Textarea } from "@/components/ui/form-controls";
 import { ServerError, Success } from "./simple-forms";
 import { ChipGroup, ConsentBox, FormSection, useSubmit } from "./form-kit";
-import { tutorRequestSchema, tutorSchema, type TutorInput, type TutorRequestInput } from "@/lib/validators/jobs";
-import { EDUCATION_LEVELS, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
-import { createTutorAction, createTutorRequestAction } from "@/server/actions/jobs-public";
+import { tutorRequestSchema, tutorReviewSchema, tutorSchema, type TutorInput, type TutorRequestInput, type TutorReviewInput } from "@/lib/validators/jobs";
+import { EDUCATION_LEVELS, LANGUAGES, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { createTutorAction, createTutorRequestAction, createTutorReviewAction } from "@/server/actions/jobs-public";
+import { cn } from "@/lib/utils";
 
 type Opt = { id: string; name: string };
 
@@ -51,6 +52,8 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
       bio: "",
       availability: "",
       hourlyRate: "",
+      monthlyRate: "",
+      languages: ["AMHARIC"],
       areaId: "",
       consent: false,
       website: "",
@@ -60,7 +63,7 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
   const { onSubmit, done, serverError, err } = useSubmit(form, createTutorAction);
   if (done) return <Success title={t("joinDoneTitle")} body={t("joinDoneBody")} />;
   const e = formState.errors;
-  const pick = (k: "subjects" | "levels" | "modes") => (v: string | string[]) => setValue(k, v as TutorInput[typeof k], { shouldValidate: formState.isSubmitted });
+  const pick = (k: "subjects" | "levels" | "modes" | "languages") => (v: string | string[]) => setValue(k, v as TutorInput[typeof k], { shouldValidate: formState.isSubmitted });
   return (
     <form onSubmit={onSubmit} noValidate className="relative flex flex-col gap-8 rounded-card bg-surface p-5 shadow-card sm:p-8">
       <Honeypot {...register("website")} />
@@ -68,6 +71,7 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
         <ChipGroup legend={t("subjectsPick")} hint={t("chooseHint")} required multiple options={options("subject", TUTOR_SUBJECTS)} value={watch("subjects") ?? []} onChange={pick("subjects")} error={err(e.subjects?.message)} />
         <ChipGroup legend={t("levelsPick")} hint={t("chooseHint")} required multiple options={options("level", TUTOR_LEVELS)} value={watch("levels") ?? []} onChange={pick("levels")} error={err(e.levels?.message)} />
         <ChipGroup legend={t("modesPick")} required multiple options={options("mode", TUTOR_MODES)} value={watch("modes") ?? []} onChange={pick("modes")} error={err(e.modes?.message)} />
+        <ChipGroup legend={t("languagesPick")} multiple options={options("language", LANGUAGES)} value={watch("languages") ?? []} onChange={pick("languages")} />
       </FormSection>
       <FormSection title={t("educationLabel")}>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -82,6 +86,9 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
           </Field>
           <Field id="tj-rate" label={t("hourlyRate")} optionalLabel={tf("optional")} error={err(e.hourlyRate?.message)}>
             <Input id="tj-rate" inputMode="numeric" {...register("hourlyRate")} />
+          </Field>
+          <Field id="tj-mrate" label={t("monthlyRate")} optionalLabel={tf("optional")} error={err(e.monthlyRate?.message)}>
+            <Input id="tj-mrate" inputMode="numeric" {...register("monthlyRate")} />
           </Field>
           <Field id="tj-area" label={t("area")} optionalLabel={tf("optional")}>
             <OptionSelect id="tj-area" options={areas.map((a) => ({ value: a.id, label: a.name }))} placeholder="—" {...register("areaId")} />
@@ -202,6 +209,64 @@ export function TutorRequestForm({
       <ServerError msg={serverError} />
       <Button type="submit" block={compact} size={compact ? "default" : "lg"} disabled={formState.isSubmitting} className={compact ? undefined : "self-start"}>
         {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("submitRequest")}
+      </Button>
+    </form>
+  );
+}
+
+/* ---------------- Family reviews a tutor ---------------- */
+
+export function TutorReviewForm({ tutorId }: { tutorId: string }) {
+  const t = useTranslations("tutors");
+  const tf = useTranslations("form");
+  const form = useForm<TutorReviewInput>({
+    resolver: zodResolver(tutorReviewSchema),
+    defaultValues: { tutorId, name: "", phone: "", rating: 0, comment: "", consent: false, website: "" },
+  });
+  const { register, formState, watch, setValue } = form;
+  const { onSubmit, done, serverError, err } = useSubmit(form, createTutorReviewAction);
+  if (done) return <Success title={t("reviewDoneTitle")} body={t("reviewDoneBody")} />;
+  const e = formState.errors;
+  const rating = Number(watch("rating")) || 0;
+  return (
+    <form onSubmit={onSubmit} noValidate className="relative flex flex-col gap-4">
+      <Honeypot {...register("website")} />
+      <fieldset aria-invalid={!!e.rating || undefined}>
+        <legend className="mb-1 text-sm font-semibold text-fg">
+          {t("yourRating")} <span className="text-primary">*</span>
+        </legend>
+        <div className="flex gap-1" role="radiogroup" aria-label={t("yourRating")}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              role="radio"
+              aria-checked={rating === n}
+              aria-label={t("stars", { count: n })}
+              onClick={() => setValue("rating", n, { shouldValidate: formState.isSubmitted })}
+              className="grid size-11 cursor-pointer place-items-center rounded-btn hover:bg-yellow-50"
+            >
+              <Star className={cn("size-7", n <= rating ? "fill-yellow-500 text-yellow-500" : "text-line-strong")} aria-hidden />
+            </button>
+          ))}
+        </div>
+        {e.rating && <p className="mt-1 text-sm font-semibold text-error">{err(e.rating.message)}</p>}
+      </fieldset>
+      <Field id="rv-comment" label={t("reviewComment")} required error={err(e.comment?.message)}>
+        <Textarea id="rv-comment" rows={4} placeholder={t("reviewPlaceholder")} aria-invalid={!!e.comment} {...register("comment")} />
+      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field id="rv-name" label={tf("name")} required hint={t("reviewNameHint")} error={err(e.name?.message)}>
+          <Input id="rv-name" autoComplete="name" aria-invalid={!!e.name} {...register("name")} />
+        </Field>
+        <Field id="rv-phone" label={tf("phone")} required hint={t("reviewPhoneHint")} error={err(e.phone?.message)}>
+          <Input id="rv-phone" type="tel" inputMode="tel" autoComplete="tel" aria-invalid={!!e.phone} {...register("phone")} />
+        </Field>
+      </div>
+      <ConsentBox id="rv-consent" label={t("consentReview")} error={err(e.consent?.message)} {...register("consent")} />
+      <ServerError msg={serverError} />
+      <Button type="submit" disabled={formState.isSubmitting} className="self-start">
+        {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("submitReview")}
       </Button>
     </form>
   );

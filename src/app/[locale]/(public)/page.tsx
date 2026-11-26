@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, BadgeCheck, Briefcase, CalendarCheck, Eye, GraduationCap, Handshake, Megaphone, PhoneCall, Quote, Search, Send, Star, Wallet } from "lucide-react";
+import { ArrowRight, BadgeCheck, Briefcase, CalendarCheck, Eye, GraduationCap, Handshake, Megaphone, PhoneCall, Quote, Search, Send, Star, UsersRound, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Container, SectionHeading } from "@/components/ui/misc";
@@ -39,11 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, th, tj, tt, settings, categories, areas, featured, latest, rentals, vehicles, sold, stats, testimonials, faqs, jobs, jobCounts, tutors, tutorCount] = await Promise.all([
+  const [t, th, tj, tt, tn, settings, categories, areas, featured, latest, rentals, vehicles, sold, stats, testimonials, faqs, jobs, jobCounts, tutors, tutorCount] = await Promise.all([
     getTranslations("home"),
     getTranslations("hero"),
     getTranslations("jobs"),
     getTranslations("tutors"),
+    getTranslations("nav"),
     getSiteSettings(),
     getCategories(),
     getAreas(),
@@ -190,6 +191,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Button asChild size="sm" variant="secondary">
                 <Link prefetch={false} href="/jobs/talent-pool">
                   {tj("joinPool")}
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link prefetch={false} href="/talent">
+                  <UsersRound /> {tn("findTalent")}
                 </Link>
               </Button>
               {jobCounts.graduate > 0 && (

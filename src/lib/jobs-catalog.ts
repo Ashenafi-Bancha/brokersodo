@@ -18,8 +18,14 @@ export const JOB_SECTORS = [
   "NGO",
   "TRADES",
   "SECURITY",
+  "CUSTOMER_SERVICE",
+  "LOGISTICS",
+  "CREATIVE",
   "OTHER",
 ] as const;
+
+/** Where the work happens. */
+export const WORK_MODES = ["ONSITE", "HYBRID", "REMOTE"] as const;
 
 export const JOB_TYPES = ["FULL_TIME", "PART_TIME", "CONTRACT", "TEMPORARY", "INTERNSHIP", "DAILY"] as const;
 
@@ -43,6 +49,14 @@ export const TUTOR_SUBJECTS = [
   "ACCOUNTING",
   "WOLAITTATTO",
   "EXAM_PREP",
+  "UNIVERSITY",
+  "LANGUAGES",
+  "COMPUTER",
+  "PROGRAMMING",
+  "AI_TECH",
+  "GRAPHICS",
+  "MUSIC",
+  "OTHER_SKILL",
   "ALL_SUBJECTS",
 ] as const;
 
@@ -50,7 +64,15 @@ export const TUTOR_LEVELS = ["KG", "PRIMARY", "MIDDLE", "SECONDARY", "PREPARATOR
 
 export const TUTOR_MODES = ["HOME", "ONLINE", "CENTER"] as const;
 
+/** Languages a tutor teaches in or a candidate speaks. */
+export const LANGUAGES = ["AMHARIC", "ENGLISH", "WOLAITTATTO", "AFAAN_OROMO", "OTHER"] as const;
+
+/** Talent profile visibility. */
+export const TALENT_VISIBILITY = ["PRIVATE", "PUBLIC"] as const;
+
 export type JobSector = (typeof JOB_SECTORS)[number];
+export type WorkMode = (typeof WORK_MODES)[number];
+export type Language = (typeof LANGUAGES)[number];
 export type JobType = (typeof JOB_TYPES)[number];
 export type JobAudience = (typeof JOB_AUDIENCES)[number];
 export type EducationLevel = (typeof EDUCATION_LEVELS)[number];
@@ -106,3 +128,24 @@ export function daysLeft(deadline: Date | string | null | undefined, now = new D
 }
 
 export const DEFAULT_JOB_DAYS = 30;
+
+/** "Excel, driving, customer care" → ["Excel", "Driving", "Customer care"] (max 15, de-duplicated). */
+export function splitSkills(text: string | null | undefined): string[] {
+  if (!text) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of text.split(/[,\n;،፣]+/)) {
+    const v = raw.trim().replace(/\s+/g, " ").slice(0, 40);
+    if (!v || seen.has(v.toLowerCase())) continue;
+    seen.add(v.toLowerCase());
+    out.push(v.charAt(0).toUpperCase() + v.slice(1));
+    if (out.length === 15) break;
+  }
+  return out;
+}
+
+/** "CUSTOMER_SERVICE" ⇄ "customer-service" for clean category URLs. */
+export const catalogSlug = (value: string) => value.toLowerCase().replace(/_/g, "-");
+export function fromCatalogSlug<T extends string>(list: readonly T[], slug: string): T | undefined {
+  return list.find((v) => catalogSlug(v) === slug);
+}

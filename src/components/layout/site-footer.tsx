@@ -78,6 +78,7 @@ export async function SiteFooter() {
               ["/jobs/post", tn("postJob")],
               ["/tutors", tn("findTutor")],
               ["/tutors/join", tn("becomeTutor")],
+              ["/talent", tn("findTalent")],
               ["/wanted", tn("wanted")],
               ["/saved", tn("saved")],
               ["/how-it-works", tn("howItWorks")],

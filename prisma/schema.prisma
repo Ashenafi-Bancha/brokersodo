@@ -409,18 +409,24 @@ model RateLimit {
  */
 
 enum JobStatus {
+  /// Submitted, waiting for staff
   PENDING
+  UNDER_REVIEW
   PUBLISHED
   CLOSED
   REJECTED
 }
 
+/// Hiring pipeline: NEW (applied) → REVIEWING → SHORTLISTED → INTERVIEW → HIRED (selected) / REJECTED.
 enum ApplicationStatus {
   NEW
+  REVIEWING
   SHORTLISTED
   CONTACTED
+  INTERVIEW
   HIRED
   REJECTED
+  WITHDRAWN
 }
 
 enum SeekerStatus {
@@ -454,6 +460,12 @@ model JobPost {
   area             Area?     @relation(fields: [areaId], references: [id], onDelete: SetNull)
   description      String
   requirements     String    @default("")
+  responsibilities String    @default("")
+  skills           String[]  @default([])
+  /// ONSITE, HYBRID or REMOTE
+  workMode         String    @default("ONSITE")
+  /// Optional public instructions; applications still go through BrokerSodo
+  howToApply       String?
   deadline         DateTime?
   status           JobStatus @default(PENDING)
   featured         Boolean   @default(false)
@@ -475,6 +487,8 @@ model JobPost {
   @@index([sector, status])
   @@index([audience, status])
   @@index([areaId, status])
+  @@index([workMode, status])
+  @@index([skills], type: Gin)
 }
 
 /// Private: visible to staff only.
@@ -500,7 +514,7 @@ model JobApplication {
 
 /// Private talent pool: skilled workers and graduates. Never shown publicly.
 model JobSeeker {
-  id             String       @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String
   phone          String
   /// GRADUATE or SKILLED
@@ -510,19 +524,58 @@ model JobSeeker {
   education      String
   field          String?
   graduationYear Int?
-  experience     Int          @default(0)
+  experience     Int             @default(0)
   skills         String?
   about          String?
+  /// PRIVATE (staff only) or PUBLIC (listed on Find Talent, first name only)
+  visibility     String          @default("PRIVATE")
+  /// Set when the profile is first made public
+  slug           String?         @unique
+  displayName    String?
+  languages      String[]        @default([])
+  certifications String?
+  projects       String?
+  portfolioUrl   String?
+  availability   String?
+  isVerified     Boolean         @default(false)
+  publishedAt    DateTime?
   areaId         String?
-  area           Area?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
-  status         SeekerStatus @default(NEW)
+  area           Area?           @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  status         SeekerStatus    @default(NEW)
   notes          String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  talentRequests TalentRequest[]
 
   @@index([status, createdAt(sort: Desc)])
   @@index([sector, seekerType])
   @@index([phone])
+  @@index([visibility, status, publishedAt(sort: Desc)])
+}
+
+enum TalentRequestStatus {
+  NEW
+  CONTACTED
+  CONNECTED
+  CLOSED
+}
+
+/// Private: an employer asking BrokerSodo to connect them with a listed candidate.
+model TalentRequest {
+  id           String              @id @default(cuid())
+  seekerId     String?
+  seeker       JobSeeker?          @relation(fields: [seekerId], references: [id], onDelete: SetNull)
+  employerName String
+  contactName  String
+  phone        String
+  message      String?
+  status       TalentRequestStatus @default(NEW)
+  notes        String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([seekerId])
 }
 
 /**
@@ -540,6 +593,8 @@ enum TutorRequestStatus {
   NEW
   CONTACTED
   MATCHED
+  COMPLETED
+  CANCELLED
   CLOSED
 }
 
@@ -559,6 +614,12 @@ model Tutor {
   availability    String?
   /// Whole ETB per hour
   hourlyRate      Int?
+  /// Whole ETB per month (regular lessons)
+  monthlyRate     Int?
+  languages       String[]    @default([])
+  /// Approved reviews only, kept in step by the review actions
+  ratingAvg       Float       @default(0)
+  ratingCount     Int         @default(0)
   areaId          String?
   area            Area?       @relation(fields: [areaId], references: [id], onDelete: SetNull)
   status          TutorStatus @default(PENDING)
@@ -576,6 +637,7 @@ model Tutor {
   updatedAt   DateTime  @updatedAt
 
   requests TutorRequest[]
+  reviews  TutorReview[]
 
   @@index([status, featured, publishedAt(sort: Desc)])
   @@index([areaId, status])
@@ -603,8 +665,40 @@ model TutorRequest {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
+  reviews TutorReview[]
+
   @@index([status, createdAt(sort: Desc)])
   @@index([tutorId])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// A family's review of a tutor. Shown only after staff approve it.
+model TutorReview {
+  id        String        @id @default(cuid())
+  tutorId   String
+  tutor     Tutor         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  /// Set when the reviewer's phone matches a request matched to this tutor
+  requestId String?
+  request   TutorRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  /// Public: first name only
+  name      String
+  /// Private: staff only
+  phone     String
+  rating    Int
+  comment   String
+  verified  Boolean       @default(false)
+  status    ReviewStatus  @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([tutorId, phone])
+  @@index([tutorId, status, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
 }
 
 /// De-duplicates listing view counts (hashed visitor + listing per day)

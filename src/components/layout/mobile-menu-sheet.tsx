@@ -28,6 +28,7 @@ export function MobileMenuSheet({
     { href: "/jobs/post", label: t("postJob") },
     { href: "/tutors", label: t("findTutor") },
     { href: "/tutors/join", label: t("becomeTutor") },
+    { href: "/talent", label: t("findTalent") },
     { href: "/wanted", label: t("wanted") },
     { href: "/saved", label: t("saved") },
     { href: "/how-it-works", label: t("howItWorks") },

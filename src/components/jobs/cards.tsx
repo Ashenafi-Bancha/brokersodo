@@ -1,11 +1,11 @@
 import { useLocale, useTranslations } from "next-intl";
-import { BadgeCheck, Briefcase, Building2, Clock, GraduationCap, MapPin, ShieldAlert, Star, Users, Wrench } from "lucide-react";
+import { BadgeCheck, Briefcase, Building2, Clock, GraduationCap, Laptop, MapPin, ShieldAlert, Star, UserRound, Users, Wrench } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { daysLeft } from "@/lib/jobs-catalog";
 import { formatDate, formatETB, relativeTime } from "@/lib/format";
 import { cn, localized } from "@/lib/utils";
-import type { PublicJob, PublicTutor } from "@/server/queries/jobs";
+import type { PublicJob, PublicTalent, PublicTutor } from "@/server/queries/jobs";
 
 /** "8,000 – 12,000 ETB / month", "Up to 5,000 ETB / day" or "Salary discussed at interview". */
 export function useSalaryText() {
@@ -86,6 +86,11 @@ export function JobCard({ job, className }: { job: PublicJob; className?: string
             <AudienceIcon audience={job.audience} className="size-3.5" /> {tc(`audience.${job.audience}` as "audience.ANY")}
           </li>
         )}
+        {job.workMode !== "ONSITE" && (
+          <li className="inline-flex items-center gap-1 rounded-pill bg-yellow-100 px-2.5 py-1 text-navy-900">
+            <Laptop className="size-3.5" aria-hidden /> {tc(`workMode.${job.workMode}` as "workMode.REMOTE")}
+          </li>
+        )}
         <li className="rounded-pill bg-bg-2 px-2.5 py-1 text-fg-2">{tc(`sector.${job.sector}` as "sector.OTHER")}</li>
       </ul>
       <p className="font-bold text-primary">{salary(job)}</p>
@@ -136,6 +141,7 @@ export function TutorCard({ tutor, className }: { tutor: PublicTutor; className?
             {tc(`education.${tutor.education}` as "education.DEGREE")}
             {tutor.field ? ` · ${tutor.field}` : ""}
           </p>
+          {tutor.ratingCount > 0 && <Stars value={tutor.ratingAvg} count={tutor.ratingCount} className="mt-1" />}
         </div>
         {tutor.isVerified && <BadgeCheck className="size-6 shrink-0 text-sold" aria-label={t("verified")} />}
       </div>
@@ -177,7 +183,7 @@ export function SafetyBox({ ns, className }: { ns: "jobs" | "tutors"; className?
   );
 }
 
-export function HowSteps({ ns }: { ns: "jobs" | "tutors" }) {
+export function HowSteps({ ns }: { ns: "jobs" | "tutors" | "talent" }) {
   const t = useTranslations(ns);
   return (
     <section data-reveal aria-labelledby={`${ns}-how`} className="rounded-card bg-surface p-6 shadow-card sm:p-8">
@@ -224,5 +230,85 @@ export function Pager({ basePath, params, page, pageCount, label }: { basePath: 
         </Link>
       )}
     </nav>
+  );
+}
+
+/** "★ 4.6 (12)" with an accessible label. */
+export function Stars({ value, count, className }: { value: number; count?: number; className?: string }) {
+  const t = useTranslations("tutors");
+  const full = Math.round(value);
+  return (
+    <span className={cn("inline-flex items-center gap-1 text-sm", className)} aria-label={t("ratingLabel", { rating: value.toFixed(1), count: count ?? 0 })}>
+      <span aria-hidden className="inline-flex">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Star key={n} className={cn("size-4", n <= full ? "fill-yellow-500 text-yellow-500" : "text-line-strong")} />
+        ))}
+      </span>
+      <span aria-hidden className="font-bold text-fg">
+        {value.toFixed(1)}
+      </span>
+      {count != null && (
+        <span aria-hidden className="text-muted">
+          ({count})
+        </span>
+      )}
+    </span>
+  );
+}
+
+export function TalentCard({ talent, className }: { talent: PublicTalent; className?: string }) {
+  const t = useTranslations("talent");
+  const tc = useTranslations("catalog");
+  const locale = useLocale();
+  const area = talent.area ? localized(talent.area, "name", locale) : null;
+  const skills = (talent.skills ?? "")
+    .split(/[,\n;]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return (
+    <article
+      data-reveal
+      className={cn(
+        "group relative flex h-full flex-col gap-3 rounded-card bg-surface p-5 shadow-card transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-pop focus-within:shadow-pop motion-reduce:hover:translate-y-0",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <TutorAvatar name={talent.displayName ?? "?"} className="size-14 text-2xl" />
+        <div className="min-w-0 flex-1">
+          <h3 className="text-lg font-bold text-fg">
+            <Link prefetch={false} href={`/talent/${talent.slug}`} className="after:absolute after:inset-0 after:rounded-card hover:text-primary">
+              {talent.displayName}
+            </Link>
+          </h3>
+          <p className="truncate text-sm font-semibold text-fg-2">{talent.profession}</p>
+        </div>
+        {talent.isVerified && <BadgeCheck className="size-6 shrink-0 text-sold" aria-label={t("verified")} />}
+      </div>
+      <ul className="flex flex-wrap gap-1.5 text-xs font-semibold">
+        <li className="inline-flex items-center gap-1 rounded-pill bg-blue-50 px-2.5 py-1 text-blue-500">
+          <AudienceIcon audience={talent.seekerType} className="size-3.5" /> {tc(`audience.${talent.seekerType}` as "audience.ANY")}
+        </li>
+        <li className="rounded-pill bg-bg-2 px-2.5 py-1 text-fg-2">{tc(`sector.${talent.sector}` as "sector.OTHER")}</li>
+      </ul>
+      {skills.length > 0 && (
+        <ul className="flex flex-wrap gap-1.5 text-xs font-semibold" aria-label={t("skills")}>
+          {skills.slice(0, 5).map((sk) => (
+            <li key={sk} className="rounded-pill bg-yellow-100 px-2.5 py-1 text-navy-900">
+              {sk}
+            </li>
+          ))}
+          {skills.length > 5 && <li className="rounded-pill bg-bg-2 px-2.5 py-1 text-fg-2">+{skills.length - 5}</li>}
+        </ul>
+      )}
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line pt-3 text-sm text-muted">
+        <span className="inline-flex items-center gap-1">
+          <UserRound className="size-4" aria-hidden /> {t("experience", { count: talent.experience })} · {tc(`education.${talent.education}` as "education.DEGREE")}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="size-4" aria-hidden /> {area ?? "Wolaita Sodo"}
+        </span>
+      </div>
+    </article>
   );
 }

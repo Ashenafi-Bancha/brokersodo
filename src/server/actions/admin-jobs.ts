@@ -1,14 +1,17 @@
 "use server";
 import { db } from "@/lib/db";
 import { listingSlug, nextRefCode } from "@/lib/ref-code";
-import { DEFAULT_JOB_DAYS, deadlineFromDate, dateFromDeadline } from "@/lib/jobs-catalog";
+import { DEFAULT_JOB_DAYS, deadlineFromDate, dateFromDeadline, splitSkills } from "@/lib/jobs-catalog";
 import {
   APPLICATION_STATUSES,
+  REVIEW_STATUSES,
   SEEKER_STATUSES,
+  TALENT_REQUEST_STATUSES,
   TUTOR_REQUEST_STATUSES,
   TUTOR_STATUSES,
   JOB_STATUSES,
   adminJobSchema,
+  adminTalentSchema,
   adminTutorSchema,
   inboxUpdateSchema,
 } from "@/lib/validators/jobs";
@@ -50,6 +53,10 @@ export async function saveJobAction(input: unknown): Promise<ActionResult<{ id: 
       areaId: await areaOrNull(d.areaId),
       description: d.description,
       requirements: d.requirements,
+      responsibilities: d.responsibilities,
+      skills: splitSkills(d.skills),
+      workMode: d.workMode,
+      howToApply: d.howToApply,
       deadline,
       contactName: d.contactName,
       contactPhone: d.contactPhone,
@@ -153,7 +160,9 @@ export async function updateSeekerAction(input: unknown): Promise<ActionResult> 
       data: { status: d.status as (typeof SEEKER_STATUSES)[number], notes: d.notes?.trim() || null },
       select: { name: true },
     });
+    await ensureTalentSlug(d.id);
     await logActivity(session, "status", "JobSeeker", d.id, `Job seeker ${s.name} → ${d.status}`);
+    revalidatePublic();
     return { ok: true, message: "Job seeker updated" };
   });
 }
@@ -178,11 +187,12 @@ export async function updateTutorRequestAction(input: unknown): Promise<ActionRe
 }
 
 /** Personal data: only admins can delete it permanently. */
-export async function deletePersonAction(kind: "application" | "seeker" | "tutorRequest", id: string): Promise<ActionResult> {
+export async function deletePersonAction(kind: "application" | "seeker" | "tutorRequest" | "talentRequest", id: string): Promise<ActionResult> {
   return adminAction(["ADMIN"], async (session) => {
     if (kind === "application") await db.jobApplication.delete({ where: { id } });
     else if (kind === "seeker") await db.jobSeeker.delete({ where: { id } });
     else if (kind === "tutorRequest") await db.tutorRequest.delete({ where: { id } });
+    else if (kind === "talentRequest") await db.talentRequest.delete({ where: { id } });
     else return { ok: false, error: "Unknown record" };
     await logActivity(session, "delete", kind, id, `Deleted ${kind}`);
     return { ok: true, message: "Deleted" };
@@ -210,6 +220,8 @@ export async function saveTutorAction(input: unknown): Promise<ActionResult<{ id
       bio: d.bio,
       availability: d.availability,
       hourlyRate: d.hourlyRate,
+      monthlyRate: d.monthlyRate,
+      languages: d.languages,
       areaId: await areaOrNull(d.areaId),
       isVerified: d.isVerified,
       featured: d.featured,
@@ -260,5 +272,99 @@ export async function deleteTutorAction(id: string): Promise<ActionResult> {
     await logActivity(session, "delete", "Tutor", id, `Deleted tutor ${tu.refCode} ${tu.displayName}`);
     revalidatePublic();
     return { ok: true, message: "Tutor deleted" };
+  });
+}
+
+/* ---------------- Talent profiles ---------------- */
+
+/** A public, active profile needs a stable address on /talent. */
+async function ensureTalentSlug(id: string) {
+  const p = await db.jobSeeker.findUnique({ where: { id }, select: { slug: true, visibility: true, status: true, displayName: true, name: true, profession: true, publishedAt: true } });
+  if (!p || p.visibility !== "PUBLIC" || p.status !== "ACTIVE") return;
+  const displayName = p.displayName || p.name.split(/\s+/)[0].slice(0, 40);
+  await db.jobSeeker.update({
+    where: { id },
+    data: {
+      displayName,
+      ...(p.slug ? {} : { slug: listingSlug(`${displayName} ${p.profession}`, `P${id.slice(-6).toUpperCase()}`) }),
+      ...(p.publishedAt ? {} : { publishedAt: new Date() }),
+    },
+  });
+}
+
+export async function saveTalentProfileAction(input: unknown): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    const d = adminTalentSchema.parse(input);
+    const p = await db.jobSeeker.update({
+      where: { id: d.id },
+      data: {
+        visibility: d.visibility,
+        displayName: d.displayName,
+        profession: d.profession,
+        skills: d.skills,
+        about: d.about,
+        languages: d.languages,
+        certifications: d.certifications,
+        projects: d.projects,
+        portfolioUrl: d.portfolioUrl,
+        availability: d.availability,
+        isVerified: d.isVerified,
+      },
+      select: { name: true },
+    });
+    await ensureTalentSlug(d.id);
+    await logActivity(session, "update", "JobSeeker", d.id, `Talent profile ${p.name} (${d.visibility.toLowerCase()})`);
+    revalidatePublic();
+    return { ok: true, message: "Talent profile saved" };
+  });
+}
+
+export async function updateTalentRequestAction(input: unknown): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    const d = inboxUpdateSchema.parse(input);
+    if (!(TALENT_REQUEST_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const r = await db.talentRequest.update({
+      where: { id: d.id },
+      data: { status: d.status as (typeof TALENT_REQUEST_STATUSES)[number], notes: d.notes?.trim() || null },
+      select: { employerName: true },
+    });
+    await logActivity(session, "status", "TalentRequest", d.id, `Talent request from ${r.employerName} → ${d.status}`);
+    return { ok: true, message: "Request updated" };
+  });
+}
+
+/* ---------------- Tutor reviews ---------------- */
+
+/** Keeps the tutor's star average in step with approved reviews. */
+async function refreshTutorRating(tutorId: string) {
+  const agg = await db.tutorReview.aggregate({ where: { tutorId, status: "APPROVED" }, _avg: { rating: true }, _count: { _all: true } });
+  await db.tutor.update({
+    where: { id: tutorId },
+    data: { ratingAvg: Math.round((agg._avg.rating ?? 0) * 10) / 10, ratingCount: agg._count._all },
+  });
+}
+
+export async function setReviewStatusAction(id: string, status: string): Promise<ActionResult> {
+  return adminAction([...STAFF], async (session) => {
+    if (!(REVIEW_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "Unknown status" };
+    const r = await db.tutorReview.update({
+      where: { id },
+      data: { status: status as (typeof REVIEW_STATUSES)[number] },
+      select: { tutorId: true, name: true, rating: true, tutor: { select: { refCode: true } } },
+    });
+    await refreshTutorRating(r.tutorId);
+    await logActivity(session, "status", "TutorReview", id, `${r.rating}★ review by ${r.name} for ${r.tutor.refCode} → ${status}`);
+    revalidatePublic();
+    return { ok: true, message: status === "APPROVED" ? "Review is now public" : `Review marked ${status.toLowerCase()}` };
+  });
+}
+
+export async function deleteReviewAction(id: string): Promise<ActionResult> {
+  return adminAction(["ADMIN"], async (session) => {
+    const r = await db.tutorReview.delete({ where: { id }, select: { tutorId: true, name: true } });
+    await refreshTutorRating(r.tutorId);
+    await logActivity(session, "delete", "TutorReview", id, `Deleted review by ${r.name}`);
+    revalidatePublic();
+    return { ok: true, message: "Review deleted" };
   });
 }

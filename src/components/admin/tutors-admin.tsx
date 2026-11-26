@@ -35,6 +35,7 @@ import {
 } from "@/server/actions/admin-jobs";
 import {
   EDUCATION_LEVELS,
+  LANGUAGES,
   TUTOR_LEVELS,
   TUTOR_MODES,
   TUTOR_SUBJECTS,
@@ -63,6 +64,10 @@ export type TutorRow = {
   bio: string;
   availability: string | null;
   hourlyRate: number | null;
+  monthlyRate: number | null;
+  languages: string[];
+  ratingAvg: number;
+  ratingCount: number;
   areaId: string | null;
   area: string;
   isVerified: boolean;
@@ -90,6 +95,10 @@ const emptyTutor = (): TutorRow => ({
   bio: "",
   availability: null,
   hourlyRate: null,
+  monthlyRate: null,
+  languages: ["AMHARIC"],
+  ratingAvg: 0,
+  ratingCount: 0,
   areaId: null,
   area: "",
   isVerified: false,
@@ -307,6 +316,7 @@ function TutorEditor({
           id: v.id || null,
           experienceYears: String(v.experienceYears),
           hourlyRate: v.hourlyRate ?? "",
+          monthlyRate: v.monthlyRate ?? "",
         }),
       () => {
         onDone();
@@ -448,6 +458,13 @@ function TutorEditor({
         value={v.modes}
         onChange={(x) => set("modes", x as string[])}
       />
+      <ChipGroup
+        legend="Teaches in"
+        multiple
+        options={opts("language", LANGUAGES)}
+        value={v.languages}
+        onChange={(x) => set("languages", x as string[])}
+      />
       <div className="grid gap-3 sm:grid-cols-3">
         <L label="Education">
           <Select
@@ -483,6 +500,20 @@ function TutorEditor({
             onChange={(e) =>
               set(
                 "hourlyRate",
+                e.target.value
+                  ? Number(e.target.value.replace(/,/g, ""))
+                  : null,
+              )
+            }
+          />
+        </L>
+        <L label="Rate per month (ETB)">
+          <Input
+            inputMode="numeric"
+            value={v.monthlyRate ?? ""}
+            onChange={(e) =>
+              set(
+                "monthlyRate",
                 e.target.value
                   ? Number(e.target.value.replace(/,/g, ""))
                   : null,

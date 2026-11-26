@@ -58,6 +58,7 @@ export function MainNav({ categories }: { categories: NavCategory[] }) {
       <DealLink deal="rent" label={t("rent")} />
       {page("/jobs", t("jobs"))}
       {page("/tutors", t("tutors"))}
+      {page("/talent", t("talent"))}
       {page("/wanted", t("wanted"))}
       {page("/about", t("about"))}
       {page("/contact", t("contact"))}

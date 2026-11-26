@@ -7,10 +7,12 @@ import {
   applicationSchema,
   jobPostSchema,
   seekerSchema,
+  talentRequestSchema,
   tutorRequestSchema,
+  tutorReviewSchema,
   tutorSchema,
 } from "@/lib/validators/jobs";
-import { deadlineFromDate } from "@/lib/jobs-catalog";
+import { deadlineFromDate, splitSkills } from "@/lib/jobs-catalog";
 import type { PublicActionResult } from "./public";
 
 function fieldErrors(issues: { path: (string | number)[]; message: string }[]) {
@@ -62,6 +64,9 @@ export async function createJobPostAction(input: unknown): Promise<PublicActionR
           areaId,
           description: d.description,
           requirements: d.requirements,
+          responsibilities: d.responsibilities,
+          skills: splitSkills(d.skills),
+          workMode: d.workMode,
           deadline: d.deadline ? deadlineFromDate(d.deadline) : null,
           contactName: d.contactName,
           contactPhone: d.contactPhone,
@@ -130,6 +135,14 @@ export async function createSeekerAction(input: unknown): Promise<PublicActionRe
         experience: d.experience ?? 0,
         skills: d.skills,
         about: d.about,
+        languages: d.languages,
+        certifications: d.certifications,
+        projects: d.projects,
+        portfolioUrl: d.portfolioUrl,
+        availability: d.availability,
+        // Public profiles still wait for staff (status NEW) before they are listed.
+        visibility: d.makePublic ? "PUBLIC" : "PRIVATE",
+        displayName: d.name.split(/\s+/)[0].slice(0, 40),
         areaId: await validArea(d.areaId),
       },
     });
@@ -169,6 +182,8 @@ export async function createTutorAction(input: unknown): Promise<PublicActionRes
           bio: d.bio,
           availability: d.availability,
           hourlyRate: d.hourlyRate,
+          monthlyRate: d.monthlyRate,
+          languages: d.languages,
           areaId,
         },
       });
@@ -206,6 +221,65 @@ export async function createTutorRequestAction(input: unknown): Promise<PublicAc
     return { ok: true };
   } catch (e) {
     console.error("[tutor request]", e);
+    return { ok: false, error: "generic" };
+  }
+}
+
+/**
+ * A family reviews a tutor. Reviews are shown only after staff approve them, and
+ * are marked "verified" when the phone matches a request staff matched to that tutor.
+ * One review per phone per tutor; a second one updates the first.
+ */
+export async function createTutorReviewAction(input: unknown): Promise<PublicActionResult> {
+  const parsed = tutorReviewSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
+  const d = parsed.data;
+  if (d.website) return botOk;
+  if (await limited("tutor-review", 3, 60 * 60)) return { ok: false, error: "rateLimited" };
+  try {
+    const tutor = await db.tutor.findFirst({ where: { id: d.tutorId, status: "ACTIVE" }, select: { id: true } });
+    if (!tutor) return { ok: false, error: "generic" };
+    const match = await db.tutorRequest.findFirst({
+      where: { tutorId: tutor.id, phone: d.phone, status: { in: ["MATCHED", "COMPLETED"] } },
+      select: { id: true },
+      orderBy: { createdAt: "desc" },
+    });
+    const data = {
+      name: d.name.split(/\s+/)[0].slice(0, 40),
+      rating: d.rating,
+      comment: d.comment,
+      requestId: match?.id ?? null,
+      verified: !!match,
+      status: "PENDING" as const,
+    };
+    await db.tutorReview.upsert({
+      where: { tutorId_phone: { tutorId: tutor.id, phone: d.phone } },
+      create: { tutorId: tutor.id, phone: d.phone, ...data },
+      update: data,
+    });
+    return { ok: true };
+  } catch (e) {
+    console.error("[tutor review]", e);
+    return { ok: false, error: "generic" };
+  }
+}
+
+/** An employer asks BrokerSodo to connect them with a listed candidate. */
+export async function createTalentRequestAction(input: unknown): Promise<PublicActionResult> {
+  const parsed = talentRequestSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
+  const d = parsed.data;
+  if (d.website) return botOk;
+  if (await limited("talent-request", 6, 60 * 30)) return { ok: false, error: "rateLimited" };
+  try {
+    const seeker = await db.jobSeeker.findFirst({ where: { id: d.seekerId, visibility: "PUBLIC", status: "ACTIVE" }, select: { id: true } });
+    if (!seeker) return { ok: false, error: "generic" };
+    await db.talentRequest.create({
+      data: { seekerId: seeker.id, employerName: d.employerName, contactName: d.contactName, phone: d.phone, message: d.message },
+    });
+    return { ok: true };
+  } catch (e) {
+    console.error("[talent request]", e);
     return { ok: false, error: "generic" };
   }
 }

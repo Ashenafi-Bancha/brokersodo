@@ -41,7 +41,7 @@ test("employer posts a job, staff publish it, a graduate applies", async ({ page
   await admin.goto("/admin/jobs");
   await admin.getByPlaceholder(/Search jobs/).fill(title);
   await admin.getByRole("button", { name: new RegExp(`^${title}`) }).click();
-  await admin.getByRole("button", { name: "Publish", exact: true }).click();
+  await admin.getByRole("button", { name: "Approve & publish", exact: true }).click();
   await expect(admin.getByText("Job published")).toBeVisible();
 
   // 3. It is public, without the employer's phone, and a graduate applies.

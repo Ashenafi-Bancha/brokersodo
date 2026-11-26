@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { FilterBar } from "@/components/jobs/filter-bar";
 import { HowSteps, JobCard, Pager, SafetyBox } from "@/components/jobs/cards";
-import { EDUCATION_LEVELS, JOB_SECTORS, JOB_TYPES } from "@/lib/jobs-catalog";
+import { EDUCATION_LEVELS, JOB_SECTORS, JOB_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
 import { alternates, localePath } from "@/lib/seo";
 import { cn, localized } from "@/lib/utils";
-import { getJobCounts, parseJobFilters, searchJobs } from "@/server/queries/jobs";
+import { JOB_SORTS, getJobCounts, parseJobFilters, searchJobs } from "@/server/queries/jobs";
 import { getAreas } from "@/server/queries/public";
 
 type SP = Promise<Record<string, string | string[] | undefined>>;
@@ -21,7 +21,7 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "jobs" });
   const f = parseJobFilters(await searchParams);
-  const filtered = f.q || f.type || f.education || f.area || (f.page ?? 1) > 1;
+  const filtered = f.q || f.type || f.education || f.area || f.mode || f.sort || (f.page ?? 1) > 1;
   // Sector and audience pages are worth indexing; free-text searches are not.
   return {
     title: t("title"),
@@ -44,7 +44,7 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
     getJobCounts(),
   ]);
   const base = localePath(locale, "/jobs");
-  const keep = { q: f.q, sector: f.sector, type: f.type, area: f.area, education: f.education };
+  const keep = { q: f.q, sector: f.sector, type: f.type, area: f.area, education: f.education, mode: f.mode, sort: f.sort };
   const tabs = [
     { key: undefined, label: t("forAll"), count: counts.open, Icon: Users },
     { key: "GRADUATE", label: t("forGraduates"), count: counts.graduate, Icon: GraduationCap },
@@ -120,6 +120,8 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
             { name: "type", label: t("filterType"), anyLabel: t("anyType"), value: f.type, options: JOB_TYPES.map((s) => ({ value: s, label: tc(`jobType.${s}` as "jobType.FULL_TIME") })) },
             { name: "education", label: t("filterEducation"), anyLabel: t("anyEducation"), value: f.education, options: EDUCATION_LEVELS.map((s) => ({ value: s, label: tc(`education.${s}` as "education.NONE") })) },
             { name: "area", label: t("filterArea"), anyLabel: t("anyArea"), value: f.area, options: areas.map((a) => ({ value: a.slug, label: localized(a, "name", locale) })) },
+            { name: "mode", label: t("workMode"), anyLabel: t("anyWorkMode"), value: f.mode, options: WORK_MODES.map((s) => ({ value: s, label: tc(`workMode.${s}` as "workMode.ONSITE") })) },
+            { name: "sort", label: t("sortLabel"), anyLabel: t("sortNewest"), value: f.sort, options: JOB_SORTS.map((s) => ({ value: s, label: t(`sort_${s}` as "sort_deadline") })) },
           ]}
         />
 

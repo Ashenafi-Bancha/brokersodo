@@ -38,7 +38,9 @@
     "becomeTutor": "አስጠኚ ይሁኑ",
     "talentPool": "የሥራ ፈላጊዎች ዝርዝር",
     "more": "ተጨማሪ",
-    "backToTop": "ወደ ላይ ተመለስ"
+    "backToTop": "ወደ ላይ ተመለስ",
+    "talent": "ባለሙያዎች",
+    "findTalent": "ባለሙያ ያግኙ"
   },
   "theme": {
     "toggle": "ገጽታ ቀይር",
@@ -297,7 +299,11 @@
       "employer_max": "ስሙ በጣም ረጅም ነው",
       "profession_min": "ሙያዎን ያስገቡ",
       "profession_max": "በጣም ረጅም ነው",
-      "jobClosed": "ይህ ሥራ ማመልከቻ መቀበል አቁሟል።"
+      "jobClosed": "ይህ ሥራ ማመልከቻ መቀበል አቁሟል።",
+      "url_invalid": "ትክክለኛ ሊንክ ያስገቡ (ለምሳሌ linkedin.com/in/ስም)",
+      "rating_required": "ከ1 እስከ 5 ኮከብ ይምረጡ",
+      "review_min": "ቢያንስ አንድ ዓረፍተ ነገር ይጻፉ",
+      "review_max": "አስተያየቱ በጣም ረጅም ነው"
     }
   },
   "inquiry": {
@@ -460,7 +466,10 @@
       "NGO": "መንግሥታዊ ያልሆኑ ድርጅቶች",
       "TRADES": "የእጅ ሙያ",
       "SECURITY": "ጥበቃ እና ጽዳት",
-      "OTHER": "ሌላ"
+      "OTHER": "ሌላ",
+      "CUSTOMER_SERVICE": "የደንበኛ አገልግሎት",
+      "LOGISTICS": "ሎጂስቲክስ እና መጋዘን",
+      "CREATIVE": "ፈጠራ እና ሚዲያ"
     },
     "jobType": {
       "FULL_TIME": "ሙሉ ጊዜ",
@@ -506,7 +515,15 @@
       "ACCOUNTING": "አካውንቲንግ",
       "WOLAITTATTO": "ወላይትኛ",
       "EXAM_PREP": "የብሔራዊ ፈተና ዝግጅት",
-      "ALL_SUBJECTS": "ሁሉም ትምህርቶች"
+      "ALL_SUBJECTS": "ሁሉም ትምህርቶች",
+      "UNIVERSITY": "የዩኒቨርሲቲ ኮርሶች",
+      "LANGUAGES": "ሌሎች ቋንቋዎች",
+      "COMPUTER": "የኮምፒውተር ክህሎት",
+      "PROGRAMMING": "ፕሮግራሚንግ",
+      "AI_TECH": "ኤአይ እና ቴክኖሎጂ",
+      "GRAPHICS": "ግራፊክስ ዲዛይን",
+      "MUSIC": "ሙዚቃ",
+      "OTHER_SKILL": "ሌሎች ክህሎቶች"
     },
     "level": {
       "KG": "መዋዕለ ሕፃናት",
@@ -520,6 +537,18 @@
       "HOME": "ቤት ውስጥ",
       "ONLINE": "በኦንላይን",
       "CENTER": "በማዕከል"
+    },
+    "workMode": {
+      "ONSITE": "በሥራ ቦታ",
+      "HYBRID": "ድብልቅ",
+      "REMOTE": "ከርቀት"
+    },
+    "language": {
+      "AMHARIC": "አማርኛ",
+      "ENGLISH": "እንግሊዝኛ",
+      "WOLAITTATTO": "ወላይትኛ",
+      "AFAAN_OROMO": "አፋን ኦሮሞ",
+      "OTHER": "ሌላ"
     }
   },
   "jobs": {
@@ -668,7 +697,32 @@
     "submitSeeker": "ዝርዝሩ ውስጥ ግባ",
     "seekerDoneTitle": "የሥራ ፈላጊዎች ዝርዝር ውስጥ ገብተዋል",
     "seekerDoneBody": "የሚመጥን ሥራ ሲመጣ እንደውልልዎታለን።",
-    "privateNote": "መረጃዎ ሚስጥር ነው። በድረ-ገጹ ላይ ፈጽሞ አይለጠፍም።"
+    "privateNote": "መረጃዎ ሚስጥር ነው። በድረ-ገጹ ላይ ፈጽሞ አይለጠፍም።",
+    "workMode": "የሥራ ሁኔታ",
+    "anyWorkMode": "ማንኛውም",
+    "responsibilities": "ኃላፊነቶች",
+    "responsibilitiesField": "ዋና ኃላፊነቶች",
+    "responsibilitiesPlaceholder": "ይህ ሰው በየቀኑ ምን ይሠራል?",
+    "jobSkills": "የሚያስፈልጉ ክህሎቶች",
+    "jobSkillsPlaceholder": "ለምሳሌ፦ ኤክሴል፣ የደንበኛ አገልግሎት፣ መንጃ ፈቃድ",
+    "skillsHint": "ክህሎቶቹን በኮማ (፣) ይለዩ።",
+    "howToApply": "እንዴት እንደሚያመለክቱ",
+    "languages": "የሚናገሯቸው ቋንቋዎች",
+    "projects": "የሠሯቸው ፕሮጀክቶች ወይም ሥራዎች",
+    "projectsPlaceholder": "ለምሳሌ፦ ለሱቅ የዕቃ መቆጣጠሪያ መተግበሪያ ሠርቻለሁ",
+    "certifications": "ሰርተፊኬቶች",
+    "certificationsPlaceholder": "ለምሳሌ፦ COC ደረጃ III፣ መንጃ ፈቃድ",
+    "portfolioUrl": "የፖርትፎሊዮ፣ LinkedIn ወይም GitHub ሊንክ",
+    "availability": "መቼ መጀመር ይችላሉ?",
+    "availabilityPlaceholder": "ለምሳሌ፦ ወዲያውኑ፣ ከሚቀጥለው ወር",
+    "makePublic": "መገለጫዬን በ«ባለሙያ ያግኙ» ላይ አሳይ",
+    "makePublicHint": "ቀጣሪዎች የመጀመሪያ ስምዎን፣ ክህሎትዎን እና ልምድዎን ያያሉ። ስልክዎ እና ሙሉ ስምዎ ሚስጥር ናቸው — በብሮከርሶዶ በኩል ያገኙዎታል።",
+    "sortLabel": "ቅደም ተከተል",
+    "sortNewest": "አዲስ መጀመሪያ",
+    "sort_deadline": "በቅርቡ የሚዘጉ",
+    "sort_salary": "ከፍተኛ ደመወዝ",
+    "sectorTitle": "በወላይታ ሶዶ የ{sector} ሥራዎች",
+    "sectorDescription": "በብሮከርሶዶ ቡድን የተረጋገጡ በወላይታ ሶዶ ያሉ የ{sector} ክፍት ሥራዎች። በነፃ ያመልክቱ።"
   },
   "tutors": {
     "title": "በወላይታ ሶዶ አስጠኚ ያግኙ",
@@ -768,6 +822,104 @@
     },
     "homeTitle": "አስጠኚ ያግኙ",
     "homeSubtitle": "ለሁሉም ክፍል የተረጋገጡ አስጠኚዎች፣ በቤት ወይም በኦንላይን።",
-    "viewAll": "ሁሉም አስጠኚዎች"
+    "viewAll": "ሁሉም አስጠኚዎች",
+    "languagesPick": "የሚያስተምሩበት ቋንቋ",
+    "monthlyRate": "ወርሃዊ ዋጋ (ብር)",
+    "perMonth": "{price} / በወር",
+    "languages": "የማስተማሪያ ቋንቋ",
+    "ratingLabel": "ከ5 {rating} — {count, plural, one {# አስተያየት} other {# አስተያየቶች}}",
+    "reviewsTitle": "የቤተሰቦች አስተያየት",
+    "verifiedReview": "በብሮከርሶዶ የተገናኙ",
+    "noReviews": "እስካሁን አስተያየት የለም።",
+    "writeReview": "አስተያየት ይጻፉ",
+    "reviewIntro": "ከዚህ አስጠኚ ጋር ያጠኑ ቤተሰቦች ብቻ አስተያየት ይጻፉ። ከመታየቱ በፊት እያንዳንዱን አስተያየት እናረጋግጣለን።",
+    "yourRating": "የእርስዎ ደረጃ",
+    "stars": "{count, plural, one {# ኮከብ} other {# ኮከቦች}}",
+    "reviewComment": "አስተያየትዎ",
+    "reviewPlaceholder": "ትምህርቱ እንዴት ነበር? ተማሪው ምን ለውጥ አሳየ?",
+    "reviewNameHint": "የመጀመሪያ ስምዎ ብቻ ይታያል።",
+    "reviewPhoneHint": "ሚስጥር ነው። አስጠኚ ሲጠይቁ የተጠቀሙበትን ቁጥር ያስገቡ።",
+    "consentReview": "ይህ አስተያየት እውነተኛ እና ከራሴ ልምድ የመጣ ነው።",
+    "submitReview": "አስተያየት ላክ",
+    "reviewDoneTitle": "ስለ አስተያየትዎ እናመሰግናለን",
+    "reviewDoneBody": "ቡድናችን አረጋግጦ በቅርቡ ያወጣዋል።",
+    "filterLanguage": "ቋንቋ",
+    "anyLanguage": "ማንኛውም ቋንቋ",
+    "filterPrice": "ዋጋ",
+    "anyPrice": "ማንኛውም ዋጋ",
+    "upToPerHour": "እስከ {price} / በሰዓት",
+    "sortLabel": "ቅደም ተከተል",
+    "sortBest": "ተስማሚ",
+    "sort_rating": "ከፍተኛ ደረጃ",
+    "sort_price": "ዝቅተኛ ዋጋ",
+    "sort_experience": "ብዙ ልምድ",
+    "subjectTitle": "በወላይታ ሶዶ የ{subject} አስጠኚዎች",
+    "subjectDescription": "በወላይታ ሶዶ ለቤት ወይም ለኦንላይን ትምህርት የተረጋገጡ የ{subject} አስጠኚዎች። የሚፈልጉትን ይንገሩን፣ እናገናኝዎታለን።"
+  },
+  "talent": {
+    "title": "በወላይታ ሶዶ ባለሙያዎችን ያግኙ",
+    "subtitle": "ለሥራ ዝግጁ የሆኑ ተመራቂዎች እና ባለሙያዎች። መገለጫዎች በቡድናችን ይረጋገጣሉ፤ እንድናገናኝዎ እስኪጠይቁ ድረስ የስልክ ቁጥሮች ሚስጥር ናቸው።",
+    "resultCount": "{count, plural, =0 {እስካሁን መገለጫ የለም} one {# መገለጫ} other {# መገለጫዎች}}",
+    "postJob": "ሥራ ያስታውቁ",
+    "createProfile": "መገለጫዎን ይፍጠሩ",
+    "search": "ፈልግ",
+    "clear": "ማጣሪያዎችን አጥፋ",
+    "searchLabel": "ባለሙያ ይፈልጉ",
+    "searchPlaceholder": "ክህሎት ወይም ሙያ፣ ለምሳሌ፦ አካውንታንት፣ ኤሌክትሪሽያን፣ ኤክሴል",
+    "filterSector": "የሙያ ዘርፍ",
+    "anySector": "ማንኛውም ዘርፍ",
+    "filterType": "ዓይነት",
+    "anyType": "ተመራቂዎች እና ባለሙያዎች",
+    "filterEducation": "ትምህርት (ቢያንስ)",
+    "anyEducation": "ማንኛውም ትምህርት",
+    "filterArea": "ሰፈር",
+    "anyArea": "ማንኛውም ሰፈር",
+    "emptyTitle": "መገለጫዎች በቅርቡ ይመጣሉ",
+    "emptyBody": "ሥራዎን ያስታውቁ፣ ከሚስጥራዊ ዝርዝራችን ተስማሚ ሰዎችን እንጠቁምዎታለን።",
+    "noResultsTitle": "የሚዛመድ መገለጫ የለም",
+    "noResultsBody": "ማጣሪያዎችን ይቀንሱ፣ ወይም ሥራ ያስታውቁ እኛ እንፈልግልዎታለን።",
+    "ctaTitle": "ሥራ እየፈለጉ ነው?",
+    "ctaBody": "ነፃ መገለጫ ይፍጠሩ። ክህሎትዎን፣ ፕሮጀክቶችዎን እና ልምድዎን ያሳዩ — ዲግሪ አያስፈልግም።",
+    "howTitle": "በብሮከርሶዶ በኩል መቅጠር እንዴት ነው",
+    "steps": {
+      "1": {
+        "title": "መገለጫዎችን ያስሱ",
+        "body": "በክህሎት፣ በዘርፍ፣ በትምህርት እና በሰፈር ይፈልጉ።"
+      },
+      "2": {
+        "title": "እንድናገናኝዎ ይጠይቁ",
+        "body": "አጭር ጥያቄ ይላኩ። ክፍያ የለም።"
+      },
+      "3": {
+        "title": "ሁለቱንም ወገን እናረጋግጣለን",
+        "body": "ሰውየው ዝግጁ መሆኑን እና ሥራው እውነተኛ መሆኑን እናረጋግጣለን።"
+      },
+      "4": {
+        "title": "ይገናኙ እና ይቅጠሩ",
+        "body": "እንድትገናኙ የስልክ ቁጥር እንሰጣለን።"
+      }
+    },
+    "verified": "በብሮከርሶዶ የተረጋገጠ",
+    "skills": "ክህሎቶች",
+    "experience": "{count, plural, =0 {አዲስ ሥራ ፈላጊ} one {# ዓመት ልምድ} other {# ዓመት ልምድ}}",
+    "experienceLabel": "ልምድ",
+    "sector": "የሙያ ዘርፍ",
+    "education": "ትምህርት",
+    "location": "ሰፈር",
+    "languages": "ቋንቋዎች",
+    "availability": "ዝግጁነት",
+    "back": "ወደ ባለሙያዎች ተመለስ",
+    "about": "ስለ እኔ",
+    "projects": "ፕሮጀክቶች እና ሥራዎች",
+    "certifications": "ሰርተፊኬቶች",
+    "portfolio": "ፖርትፎሊዮ ይመልከቱ",
+    "requestTitle": "{name}ን ይቅጠሩ",
+    "requestIntro": "የስልክ ቁጥሮች ሚስጥር ናቸው። ጥያቄ ይላኩ፣ ዝግጁነቱን አረጋግጠን እናገናኝዎታለን።",
+    "employerName": "ድርጅት ወይም ቀጣሪ",
+    "requestMessage": "ስለ ሥራው",
+    "requestPlaceholder": "የሥራ መደብ፣ ቦታ፣ ደመወዝ፣ የሚጀመርበት ቀን…",
+    "requestSubmit": "እንድናገናኝዎ ይጠይቁ",
+    "requestDoneTitle": "ጥያቄዎ ተልኳል",
+    "requestDoneBody": "የሰውየውን ዝግጁነት ካረጋገጥን በኋላ እንደውልልዎታለን።"
   }
 }

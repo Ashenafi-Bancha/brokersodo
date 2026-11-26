@@ -14,7 +14,7 @@ export default async function SeekersPage() {
     <>
       <AdminPageHeader
         title="Talent pool"
-        description="Graduates and skilled workers looking for work. Private and never shown on the website. Open a job and use Matching talent to find people for it."
+        description="Graduates and skilled workers looking for work. Private unless the person chose a public profile: set them Active to list them on Find Talent (first name only, no phone). Open a job and use Matching talent to find people for it."
         crumbs={[{ label: "Talent pool" }]}
       />
       <SeekersView
@@ -37,6 +37,23 @@ export default async function SeekersPage() {
           status: s.status,
           notes: s.notes,
           createdAt: s.createdAt.toISOString(),
+          profile: {
+            id: s.id,
+            slug: s.slug,
+            status: s.status,
+            visibility: s.visibility,
+            displayName: s.displayName,
+            name: s.name,
+            profession: s.profession,
+            skills: s.skills,
+            about: s.about,
+            languages: s.languages,
+            certifications: s.certifications,
+            projects: s.projects,
+            portfolioUrl: s.portfolioUrl,
+            availability: s.availability,
+            isVerified: s.isVerified,
+          },
         }))}
       />
     </>

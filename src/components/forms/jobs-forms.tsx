@@ -11,12 +11,14 @@ import {
   applicationSchema,
   jobPostSchema,
   seekerSchema,
+  talentRequestSchema,
   type ApplicationInput,
   type JobPostInput,
   type SeekerInput,
+  type TalentRequestInput,
 } from "@/lib/validators/jobs";
-import { EDUCATION_LEVELS, JOB_AUDIENCES, JOB_SECTORS, JOB_TYPES, SALARY_PERIODS, SEEKER_TYPES } from "@/lib/jobs-catalog";
-import { applyToJobAction, createJobPostAction, createSeekerAction } from "@/server/actions/jobs-public";
+import { EDUCATION_LEVELS, JOB_AUDIENCES, JOB_SECTORS, JOB_TYPES, LANGUAGES, SALARY_PERIODS, SEEKER_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
+import { applyToJobAction, createJobPostAction, createSeekerAction, createTalentRequestAction } from "@/server/actions/jobs-public";
 
 type Opt = { id: string; name: string };
 
@@ -80,6 +82,9 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
       areaId: "",
       description: "",
       requirements: "",
+      responsibilities: "",
+      skills: "",
+      workMode: "ONSITE",
       deadline: "",
       contactName: "",
       contactPhone: "",
@@ -123,6 +128,9 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
           <Field id="jp-type" label={t("type")} required>
             <CatalogSelect id="jp-type" group="jobType" list={JOB_TYPES} {...register("jobType")} />
           </Field>
+          <Field id="jp-mode" label={t("workMode")} required>
+            <CatalogSelect id="jp-mode" group="workMode" list={WORK_MODES} {...register("workMode")} />
+          </Field>
           <Field id="jp-edu" label={t("educationLabel")} required>
             <CatalogSelect id="jp-edu" group="education" list={EDUCATION_LEVELS} {...register("education")} />
           </Field>
@@ -139,8 +147,14 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
         <Field id="jp-desc" label={t("description")} required error={err(e.description?.message)}>
           <Textarea id="jp-desc" rows={6} placeholder={t("descriptionPlaceholder")} aria-invalid={!!e.description} {...register("description")} />
         </Field>
+        <Field id="jp-resp" label={t("responsibilitiesField")} optionalLabel={tf("optional")}>
+          <Textarea id="jp-resp" rows={4} placeholder={t("responsibilitiesPlaceholder")} {...register("responsibilities")} />
+        </Field>
         <Field id="jp-req" label={t("requirementsField")} optionalLabel={tf("optional")}>
           <Textarea id="jp-req" rows={4} placeholder={t("requirementsPlaceholder")} {...register("requirements")} />
+        </Field>
+        <Field id="jp-skills" label={t("jobSkills")} optionalLabel={tf("optional")} hint={t("skillsHint")}>
+          <Input id="jp-skills" placeholder={t("jobSkillsPlaceholder")} {...register("skills")} />
         </Field>
       </FormSection>
 
@@ -250,6 +264,12 @@ export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?:
       experience: "",
       skills: "",
       about: "",
+      languages: [],
+      certifications: "",
+      projects: "",
+      portfolioUrl: "",
+      availability: "",
+      makePublic: false,
       areaId: "",
       consent: false,
       website: "",
@@ -305,16 +325,80 @@ export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?:
           <AreaSelect id="sk-area" areas={areas} placeholder="—" {...register("areaId")} />
         </Field>
       </div>
-      <Field id="sk-skills" label={t("skills")} optionalLabel={tf("optional")}>
+      <Field id="sk-skills" label={t("skills")} optionalLabel={tf("optional")} hint={t("skillsHint")}>
         <Input id="sk-skills" placeholder={t("skillsPlaceholder")} {...register("skills")} />
       </Field>
       <Field id="sk-about" label={t("about")} optionalLabel={tf("optional")}>
         <Textarea id="sk-about" rows={3} placeholder={t("aboutPlaceholder")} {...register("about")} />
       </Field>
+      <ChipGroup
+        legend={t("languages")}
+        multiple
+        options={options("language", LANGUAGES)}
+        value={watch("languages") ?? []}
+        onChange={(v) => setValue("languages", v as SeekerInput["languages"], { shouldValidate: true })}
+      />
+      <Field id="sk-projects" label={t("projects")} optionalLabel={tf("optional")}>
+        <Textarea id="sk-projects" rows={3} placeholder={t("projectsPlaceholder")} {...register("projects")} />
+      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field id="sk-certs" label={t("certifications")} optionalLabel={tf("optional")}>
+          <Input id="sk-certs" placeholder={t("certificationsPlaceholder")} {...register("certifications")} />
+        </Field>
+        <Field id="sk-link" label={t("portfolioUrl")} optionalLabel={tf("optional")} error={err(e.portfolioUrl?.message)}>
+          <Input id="sk-link" type="url" inputMode="url" placeholder="linkedin.com/in/…" aria-invalid={!!e.portfolioUrl} {...register("portfolioUrl")} />
+        </Field>
+        <Field id="sk-avail" label={t("availability")} optionalLabel={tf("optional")}>
+          <Input id="sk-avail" placeholder={t("availabilityPlaceholder")} {...register("availability")} />
+        </Field>
+      </div>
+      <label className="flex cursor-pointer items-start gap-3 rounded-btn border-[1.5px] border-yellow-500 bg-yellow-50 p-4 text-sm text-fg">
+        <input type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[var(--primary)]" {...register("makePublic")} />
+        <span>
+          <span className="font-semibold">{t("makePublic")}</span>
+          <span className="block text-fg-2">{t("makePublicHint")}</span>
+        </span>
+      </label>
       <ConsentBox id="sk-consent" label={t("consentSeeker")} error={err(e.consent?.message)} {...register("consent")} />
       <ServerError msg={serverError} />
       <Button type="submit" size="lg" disabled={formState.isSubmitting} className="self-start">
         {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("submitSeeker")}
+      </Button>
+    </form>
+  );
+}
+
+/* ---------------- Employer asks about a candidate ---------------- */
+
+export function TalentRequestForm({ seekerId }: { seekerId: string }) {
+  const t = useTranslations("talent");
+  const tf = useTranslations("form");
+  const form = useForm<TalentRequestInput>({
+    resolver: zodResolver(talentRequestSchema),
+    defaultValues: { seekerId, employerName: "", contactName: "", phone: "", message: "", website: "" },
+  });
+  const { register, formState } = form;
+  const { onSubmit, done, serverError, err } = useSubmit(form, createTalentRequestAction);
+  if (done) return <Success title={t("requestDoneTitle")} body={t("requestDoneBody")} />;
+  const e = formState.errors;
+  return (
+    <form onSubmit={onSubmit} noValidate className="relative flex flex-col gap-4">
+      <Honeypot {...register("website")} />
+      <Field id="tr-emp" label={t("employerName")} required error={err(e.employerName?.message)}>
+        <Input id="tr-emp" autoComplete="organization" aria-invalid={!!e.employerName} {...register("employerName")} />
+      </Field>
+      <Field id="tr-cname" label={tf("name")} required error={err(e.contactName?.message)}>
+        <Input id="tr-cname" autoComplete="name" aria-invalid={!!e.contactName} {...register("contactName")} />
+      </Field>
+      <Field id="tr-phone" label={tf("phone")} required hint={tf("phoneHint")} error={err(e.phone?.message)}>
+        <Input id="tr-phone" type="tel" inputMode="tel" autoComplete="tel" aria-invalid={!!e.phone} {...register("phone")} />
+      </Field>
+      <Field id="tr-msg" label={t("requestMessage")} optionalLabel={tf("optional")}>
+        <Textarea id="tr-msg" rows={3} placeholder={t("requestPlaceholder")} {...register("message")} />
+      </Field>
+      <ServerError msg={serverError} />
+      <Button type="submit" block disabled={formState.isSubmitting}>
+        {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("requestSubmit")}
       </Button>
     </form>
   );

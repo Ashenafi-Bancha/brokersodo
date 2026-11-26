@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { useLocale as useLocaleSync, useTranslations as useTranslationsSync } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, BadgeCheck, Briefcase, Building2, CalendarClock, GraduationCap, MapPin, Timer, Users, Wallet } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Briefcase, Building2, CalendarClock, GraduationCap, Info, Laptop, MapPin, Timer, Users, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/misc";
 import { ScopedIntl } from "@/components/scoped-intl";
@@ -51,7 +51,9 @@ function jobPostingLd(job: PublicJob, url: string, confidential: string) {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: [job.description, job.requirements].filter(Boolean).join("\n\n").replace(/\n/g, "<br>"),
+    description: [job.description, job.responsibilities, job.requirements].filter(Boolean).join("\n\n").replace(/\n/g, "<br>"),
+    ...(job.skills.length ? { skills: job.skills.join(", ") } : {}),
+    ...(job.workMode === "REMOTE" ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: { "@type": "Country", name: "Ethiopia" } } : {}),
     identifier: { "@type": "PropertyValue", name: "BrokerSodo", value: job.refCode },
     datePosted: (job.publishedAt ?? job.updatedAt).toISOString(),
     ...(job.deadline ? { validThrough: new Date(job.deadline).toISOString() } : {}),
@@ -109,10 +111,39 @@ export default async function JobPage({ params }: { params: Params }) {
               <h2 className="font-brand text-h3 text-fg">{t("aboutRole")}</h2>
               <p className="mt-3 leading-relaxed whitespace-pre-line text-fg-2">{job.description}</p>
             </section>
+            {job.responsibilities && (
+              <section className="mt-8">
+                <h2 className="font-brand text-h3 text-fg">{t("responsibilities")}</h2>
+                <p className="mt-3 leading-relaxed whitespace-pre-line text-fg-2">{job.responsibilities}</p>
+              </section>
+            )}
             {job.requirements && (
               <section className="mt-8">
                 <h2 className="font-brand text-h3 text-fg">{t("requirements")}</h2>
                 <p className="mt-3 leading-relaxed whitespace-pre-line text-fg-2">{job.requirements}</p>
+              </section>
+            )}
+            {job.skills.length > 0 && (
+              <section className="mt-8">
+                <h2 className="font-brand text-h3 text-fg">{t("jobSkills")}</h2>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {job.skills.map((sk) => (
+                    <li key={sk}>
+                      <Link prefetch={false} href={`/jobs?q=${encodeURIComponent(sk)}`} className="inline-flex min-h-9 items-center rounded-pill bg-yellow-100 px-3 text-sm font-semibold text-navy-900 hover:bg-yellow-500">
+                        {sk}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {job.howToApply && (
+              <section className="mt-8 flex gap-3 rounded-card bg-bg-2 p-5">
+                <Info className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                <div>
+                  <h2 className="font-bold text-fg">{t("howToApply")}</h2>
+                  <p className="mt-1 whitespace-pre-line text-fg-2">{job.howToApply}</p>
+                </div>
               </section>
             )}
             <p className="mt-8 text-sm text-muted">
@@ -188,6 +219,7 @@ function JobFacts({ job }: { job: PublicJob }) {
     [Wallet, "", <span key="s" className="font-bold text-primary">{salary(job)}</span>],
     [MapPin, t("location"), job.area ? localized(job.area, "name", locale) : "Wolaita Sodo"],
     [Briefcase, t("type"), tc(`jobType.${job.jobType}` as "jobType.FULL_TIME")],
+    [Laptop, t("workMode"), tc(`workMode.${job.workMode}` as "workMode.ONSITE")],
     [Users, t("audienceLabel"), (
       <span key="a" className="inline-flex items-center gap-1">
         <AudienceIcon audience={job.audience} className="size-4" /> {tc(`audience.${job.audience}` as "audience.ANY")}

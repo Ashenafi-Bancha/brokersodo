@@ -18,7 +18,7 @@ export default async function AdminJobsPage() {
     }),
     db.area.findMany({ orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }], select: { id: true, nameEn: true } }),
   ]);
-  const pending = jobs.filter((j) => j.status === "PENDING").length;
+  const pending = jobs.filter((j) => j.status === "PENDING" || j.status === "UNDER_REVIEW").length;
   return (
     <>
       <AdminPageHeader
@@ -52,6 +52,10 @@ export default async function AdminJobsPage() {
           area: j.area?.nameEn ?? "",
           description: j.description,
           requirements: j.requirements,
+          responsibilities: j.responsibilities,
+          skills: j.skills.join(", "),
+          workMode: j.workMode,
+          howToApply: j.howToApply,
           deadline: dateFromDeadline(j.deadline),
           contactName: j.contactName,
           contactPhone: j.contactPhone,

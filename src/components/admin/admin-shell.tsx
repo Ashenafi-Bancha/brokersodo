@@ -11,6 +11,8 @@ import {
   ExternalLink,
   GraduationCap,
   FileText,
+  Handshake,
+  Star,
   History,
   Inbox,
   LayoutDashboard,
@@ -51,10 +53,12 @@ const ICONS: Record<string, LucideIcon> = {
   Contact,
   GraduationCap,
   BookOpen,
+  Handshake,
+  Star,
 };
 
 type Me = { name: string; email: string; role: "ADMIN" | "BROKER" };
-type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number };
+type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number; talentRequests: number; reviews: number; seekers: number };
 
 function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -67,6 +71,9 @@ function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigat
     "/admin/jobs": counts.jobs,
     "/admin/tutors": counts.tutors,
     "/admin/tutor-requests": counts.tutorRequests,
+    "/admin/talent-requests": counts.talentRequests,
+    "/admin/reviews": counts.reviews,
+    "/admin/job-seekers": counts.seekers,
   };
   return (
     <nav aria-label="Admin" className="flex flex-col gap-5">

@@ -40,6 +40,7 @@ import {
   JOB_SECTORS,
   JOB_TYPES,
   SALARY_PERIODS,
+  WORK_MODES,
   daysLeft,
   riskFlags,
 } from "@/lib/jobs-catalog";
@@ -51,6 +52,7 @@ import {
 import { formatETB, formatPhoneDisplay, relativeTime } from "@/lib/format";
 import { telLink, whatsappLink } from "@/lib/contact";
 import { cn } from "@/lib/utils";
+import { TalentProfileEditor, type TalentProfileRow } from "./talent-admin";
 
 export type Labels = Record<string, Record<string, string>>;
 type Area = { id: string; name: string };
@@ -206,6 +208,10 @@ export type JobRow = {
   area: string;
   description: string;
   requirements: string;
+  responsibilities: string;
+  skills: string;
+  workMode: string;
+  howToApply: string | null;
   deadline: string;
   contactName: string;
   contactPhone: string;
@@ -238,6 +244,10 @@ const emptyJob = (): JobRow => ({
   area: "",
   description: "",
   requirements: "",
+  responsibilities: "",
+  skills: "",
+  workMode: "ONSITE",
+  howToApply: null,
   deadline: "",
   contactName: "",
   contactPhone: "",
@@ -565,9 +575,14 @@ function JobQuickActions({
             </a>
           </Button>
         )}
+        {job.status === "PENDING" && (
+          <Button size="sm" variant="secondary" disabled={pending} onClick={() => set("UNDER_REVIEW")}>
+            Start review
+          </Button>
+        )}
         {job.status !== "PUBLISHED" && (
           <Button size="sm" disabled={pending} onClick={() => set("PUBLISHED")}>
-            Publish
+            Approve &amp; publish
           </Button>
         )}
         {job.status === "PUBLISHED" && (
@@ -580,7 +595,7 @@ function JobQuickActions({
             Close
           </Button>
         )}
-        {job.status === "PENDING" && (
+        {(job.status === "PENDING" || job.status === "UNDER_REVIEW") && (
           <Button
             size="sm"
             variant="outline"
@@ -715,6 +730,14 @@ function JobEditor({
             <Options group="audience" list={JOB_AUDIENCES} />
           </Select>
         </L>
+        <L label="Work mode">
+          <Select
+            value={v.workMode}
+            onChange={(e) => set("workMode", e.target.value)}
+          >
+            <Options group="workMode" list={WORK_MODES} />
+          </Select>
+        </L>
         <L label="Minimum education">
           <Select
             value={v.education}
@@ -776,11 +799,32 @@ function JobEditor({
           onChange={(e) => set("description", e.target.value)}
         />
       </L>
+      <L label="Responsibilities">
+        <Textarea
+          rows={3}
+          value={v.responsibilities}
+          onChange={(e) => set("responsibilities", e.target.value)}
+        />
+      </L>
       <L label="Requirements">
         <Textarea
           rows={3}
           value={v.requirements}
           onChange={(e) => set("requirements", e.target.value)}
+        />
+      </L>
+      <L label="Skills (comma separated)">
+        <Input
+          value={v.skills}
+          placeholder="Excel, customer care, driving licence"
+          onChange={(e) => set("skills", e.target.value)}
+        />
+      </L>
+      <L label="How to apply (public, optional)">
+        <Input
+          value={v.howToApply ?? ""}
+          placeholder="e.g. Bring your CV and ID for the interview"
+          onChange={(e) => set("howToApply", e.target.value || null)}
         />
       </L>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -1084,6 +1128,7 @@ export type SeekerRow = {
   status: (typeof SEEKER_STATUSES)[number];
   notes: string | null;
   createdAt: string;
+  profile: TalentProfileRow;
 };
 
 export function SeekersView({
@@ -1153,6 +1198,13 @@ export function SeekersView({
         cell: ({ getValue }) => <StatusBadge status={String(getValue())} />,
       },
       {
+        id: "visibility",
+        header: "Profile",
+        accessorFn: (r) => r.profile.visibility,
+        filterFn: (row, id, v) => !v || row.getValue(id) === v,
+        cell: ({ getValue }) => <StatusBadge status={String(getValue())} />,
+      },
+      {
         accessorKey: "createdAt",
         header: "Joined",
         cell: ({ getValue }) => (
@@ -1208,6 +1260,15 @@ export function SeekersView({
                 value: s,
                 label: labels.sector?.[s] ?? s,
               }))}
+            />
+            <ColumnSelectFilter
+              table={t}
+              column="visibility"
+              label="Profile"
+              options={[
+                { value: "PUBLIC", label: "Public" },
+                { value: "PRIVATE", label: "Private" },
+              ]}
             />
             <ColumnSelectFilter
               table={t}
@@ -1288,6 +1349,7 @@ function SeekerDetail({
           {s.about}
         </p>
       )}
+      <TalentProfileEditor p={s.profile} />
       <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
         <L label="Status">
           <Select

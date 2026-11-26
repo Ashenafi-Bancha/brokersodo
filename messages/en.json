@@ -38,7 +38,9 @@
     "becomeTutor": "Become a tutor",
     "talentPool": "Join talent pool",
     "more": "More",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "talent": "Talent",
+    "findTalent": "Find talent"
   },
   "theme": {
     "toggle": "Toggle theme",
@@ -297,7 +299,11 @@
       "employer_max": "Name is too long",
       "profession_min": "Enter your profession or trade",
       "profession_max": "Too long",
-      "jobClosed": "This job is no longer taking applications."
+      "jobClosed": "This job is no longer taking applications.",
+      "url_invalid": "Enter a valid link (e.g. linkedin.com/in/name)",
+      "rating_required": "Choose 1 to 5 stars",
+      "review_min": "Write at least a sentence (10+ characters)",
+      "review_max": "Review is too long"
     }
   },
   "inquiry": {
@@ -460,7 +466,10 @@
       "NGO": "NGO & development",
       "TRADES": "Skilled trades",
       "SECURITY": "Security & cleaning",
-      "OTHER": "Other"
+      "OTHER": "Other",
+      "CUSTOMER_SERVICE": "Customer service",
+      "LOGISTICS": "Logistics & warehouse",
+      "CREATIVE": "Creative & media"
     },
     "jobType": {
       "FULL_TIME": "Full-time",
@@ -506,7 +515,15 @@
       "ACCOUNTING": "Accounting",
       "WOLAITTATTO": "Wolaittatto",
       "EXAM_PREP": "National exam prep",
-      "ALL_SUBJECTS": "All subjects"
+      "ALL_SUBJECTS": "All subjects",
+      "UNIVERSITY": "University courses",
+      "LANGUAGES": "Other languages",
+      "COMPUTER": "Computer skills",
+      "PROGRAMMING": "Programming",
+      "AI_TECH": "AI & technology",
+      "GRAPHICS": "Graphic design",
+      "MUSIC": "Music",
+      "OTHER_SKILL": "Other skills"
     },
     "level": {
       "KG": "KG",
@@ -520,6 +537,18 @@
       "HOME": "At home",
       "ONLINE": "Online",
       "CENTER": "At a centre"
+    },
+    "workMode": {
+      "ONSITE": "On-site",
+      "HYBRID": "Hybrid",
+      "REMOTE": "Remote"
+    },
+    "language": {
+      "AMHARIC": "Amharic",
+      "ENGLISH": "English",
+      "WOLAITTATTO": "Wolaittatto",
+      "AFAAN_OROMO": "Afaan Oromo",
+      "OTHER": "Other"
     }
   },
   "jobs": {
@@ -668,7 +697,32 @@
     "submitSeeker": "Join the talent pool",
     "seekerDoneTitle": "You're in the talent pool",
     "seekerDoneBody": "We will call you when a matching job comes in.",
-    "privateNote": "Your details stay private. They are never published on the website."
+    "privateNote": "Your details stay private. They are never published on the website.",
+    "workMode": "Work mode",
+    "anyWorkMode": "Any work mode",
+    "responsibilities": "Responsibilities",
+    "responsibilitiesField": "Main responsibilities",
+    "responsibilitiesPlaceholder": "What will this person do day to day?",
+    "jobSkills": "Skills needed",
+    "jobSkillsPlaceholder": "e.g. Excel, customer care, driving licence",
+    "skillsHint": "Separate skills with commas.",
+    "howToApply": "How to apply",
+    "languages": "Languages you speak",
+    "projects": "Projects or work you are proud of",
+    "projectsPlaceholder": "e.g. Built a stock app for a shop; wired 12 houses in Arada",
+    "certifications": "Certificates",
+    "certificationsPlaceholder": "e.g. COC Level III, driving licence",
+    "portfolioUrl": "Portfolio, LinkedIn or GitHub link",
+    "availability": "When can you start?",
+    "availabilityPlaceholder": "e.g. Immediately, from next month",
+    "makePublic": "Show my profile on Find Talent",
+    "makePublicHint": "Employers see your first name, skills and experience. Your phone and full name stay private — they contact you through BrokerSodo.",
+    "sortLabel": "Sort by",
+    "sortNewest": "Newest first",
+    "sort_deadline": "Closing soon",
+    "sort_salary": "Highest salary",
+    "sectorTitle": "{sector} jobs in Wolaita Sodo",
+    "sectorDescription": "Open {sector} jobs in Wolaita Sodo, checked by the BrokerSodo team. Apply free in a minute."
   },
   "tutors": {
     "title": "Find a tutor in Wolaita Sodo",
@@ -768,6 +822,104 @@
     },
     "homeTitle": "Find a tutor",
     "homeSubtitle": "Checked tutors for every grade, at home or online.",
-    "viewAll": "All tutors"
+    "viewAll": "All tutors",
+    "languagesPick": "Languages you teach in",
+    "monthlyRate": "Monthly price (ETB)",
+    "perMonth": "{price} / month",
+    "languages": "Teaches in",
+    "ratingLabel": "Rated {rating} out of 5 from {count, plural, one {# review} other {# reviews}}",
+    "reviewsTitle": "Reviews from families",
+    "verifiedReview": "Matched by BrokerSodo",
+    "noReviews": "No reviews yet.",
+    "writeReview": "Write a review",
+    "reviewIntro": "Only families who studied with this tutor should write a review. We check every review before it appears.",
+    "yourRating": "Your rating",
+    "stars": "{count, plural, one {# star} other {# stars}}",
+    "reviewComment": "Your review",
+    "reviewPlaceholder": "How did the lessons go? What changed for the student?",
+    "reviewNameHint": "Only your first name is shown.",
+    "reviewPhoneHint": "Private. Use the number you used to request the tutor.",
+    "consentReview": "This review is honest and from my own experience with this tutor.",
+    "submitReview": "Send review",
+    "reviewDoneTitle": "Thank you for your review",
+    "reviewDoneBody": "Our team will check it and publish it soon.",
+    "filterLanguage": "Language",
+    "anyLanguage": "Any language",
+    "filterPrice": "Price",
+    "anyPrice": "Any price",
+    "upToPerHour": "Up to {price} / hour",
+    "sortLabel": "Sort by",
+    "sortBest": "Best match",
+    "sort_rating": "Highest rated",
+    "sort_price": "Lowest price",
+    "sort_experience": "Most experience",
+    "subjectTitle": "{subject} tutors in Wolaita Sodo",
+    "subjectDescription": "Checked {subject} tutors in Wolaita Sodo for home or online lessons. Tell us what you need and we match you."
+  },
+  "talent": {
+    "title": "Find skilled people in Wolaita Sodo",
+    "subtitle": "Graduates and skilled workers ready to work. Profiles are checked by our team; contact details stay private until you ask us to connect you.",
+    "resultCount": "{count, plural, =0 {No profiles yet} one {# profile} other {# profiles}}",
+    "postJob": "Post a job",
+    "createProfile": "Create your profile",
+    "search": "Search",
+    "clear": "Clear filters",
+    "searchLabel": "Search talent",
+    "searchPlaceholder": "Skill or profession, e.g. accountant, electrician, Excel",
+    "filterSector": "Field",
+    "anySector": "Any field",
+    "filterType": "Type",
+    "anyType": "Graduates & skilled",
+    "filterEducation": "Education (at least)",
+    "anyEducation": "Any education",
+    "filterArea": "Area",
+    "anyArea": "Any area",
+    "emptyTitle": "Profiles are coming soon",
+    "emptyBody": "Post your job and we will suggest suitable people from our private talent list.",
+    "noResultsTitle": "No profiles match",
+    "noResultsBody": "Try fewer filters, or post a job and we will look for you.",
+    "ctaTitle": "Looking for work?",
+    "ctaBody": "Create a free profile. Show your skills, projects and experience — a degree is not required.",
+    "howTitle": "How hiring through BrokerSodo works",
+    "steps": {
+      "1": {
+        "title": "Browse profiles",
+        "body": "Search by skill, field, education and area."
+      },
+      "2": {
+        "title": "Ask to connect",
+        "body": "Send a short request. No fee to ask."
+      },
+      "3": {
+        "title": "We check both sides",
+        "body": "We confirm the candidate is available and the job is real."
+      },
+      "4": {
+        "title": "Meet and hire",
+        "body": "We share contact details so you can meet."
+      }
+    },
+    "verified": "Checked by BrokerSodo",
+    "skills": "Skills",
+    "experience": "{count, plural, =0 {New to work} one {# year experience} other {# years experience}}",
+    "experienceLabel": "Experience",
+    "sector": "Field",
+    "education": "Education",
+    "location": "Area",
+    "languages": "Languages",
+    "availability": "Available",
+    "back": "Back to talent",
+    "about": "About",
+    "projects": "Projects and work",
+    "certifications": "Certificates",
+    "portfolio": "View portfolio",
+    "requestTitle": "Hire {name}",
+    "requestIntro": "Contact details are private. Send a request and we will check availability and connect you.",
+    "employerName": "Company or employer",
+    "requestMessage": "About the job",
+    "requestPlaceholder": "Role, location, salary range, start date…",
+    "requestSubmit": "Ask to connect",
+    "requestDoneTitle": "Request sent",
+    "requestDoneBody": "We will call you after checking the candidate's availability."
   }
 }

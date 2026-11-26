@@ -5,11 +5,13 @@ import {
   JOB_AUDIENCES,
   JOB_SECTORS,
   JOB_TYPES,
+  LANGUAGES,
   SALARY_PERIODS,
   SEEKER_TYPES,
   TUTOR_LEVELS,
   TUTOR_MODES,
   TUTOR_SUBJECTS,
+  WORK_MODES,
   dateFromDeadline,
 } from "@/lib/jobs-catalog";
 
@@ -33,6 +35,33 @@ const smallInt = (max: number, fallback: number | null = 0) =>
 
 const consent = z.boolean().refine((v) => v === true, "consent.required");
 const text = (min: number, max: number, key: string) => z.string().trim().min(min, `${key}.min`).max(max, `${key}.max`);
+
+/** Comma-separated skills typed in one field; split into a list with splitSkills() when saving. */
+const skillsList = z.string().trim().max(600, "description.max").optional().nullable();
+
+/** Optional choices from a fixed list (may be empty). */
+const pickAny = <T extends readonly [string, ...string[]]>(list: T, max: number) =>
+  z.array(z.enum(list)).max(max).optional().default([]).transform((v) => [...new Set(v)]);
+
+/** Optional https link (portfolio, LinkedIn, GitHub). */
+const optionalUrl = z
+  .string()
+  .trim()
+  .max(300)
+  .optional()
+  .nullable()
+  .transform((v, ctx) => {
+    if (!v) return null;
+    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    try {
+      const u = new URL(withScheme);
+      if (!u.hostname.includes(".")) throw new Error("host");
+      return u.toString();
+    } catch {
+      ctx.addIssue({ code: "custom", message: "url.invalid" });
+      return z.NEVER;
+    }
+  });
 
 /** YYYY-MM-DD between today and 6 months ahead, or empty. */
 const deadlineSchema = z
@@ -77,6 +106,9 @@ export const jobPostSchema = z
     areaId: optionalString(40),
     description: text(30, 5000, "description"),
     requirements: z.string().trim().max(3000, "description.max").optional().default(""),
+    responsibilities: z.string().trim().max(3000, "description.max").optional().default(""),
+    skills: skillsList,
+    workMode: choice(WORK_MODES),
     deadline: deadlineSchema,
     contactName: nameSchema,
     contactPhone: phoneSchema,
@@ -112,6 +144,13 @@ export const seekerSchema = z.object({
   experience: smallInt(40),
   skills: optionalString(500),
   about: optionalString(1000),
+  languages: pickAny(LANGUAGES, 5),
+  certifications: optionalString(800),
+  projects: optionalString(1500),
+  portfolioUrl: optionalUrl,
+  availability: optionalString(200),
+  /** true = list on Find Talent (first name only, contact through BrokerSodo) */
+  makePublic: z.boolean().optional().default(false),
   areaId: optionalString(40),
   consent,
   website: honeypotSchema,
@@ -133,6 +172,8 @@ export const tutorSchema = z.object({
   bio: text(30, 1500, "description"),
   availability: optionalString(200),
   hourlyRate: priceSchema,
+  monthlyRate: priceSchema,
+  languages: pickAny(LANGUAGES, 5),
   areaId: optionalString(40),
   consent,
   website: honeypotSchema,
@@ -154,13 +195,36 @@ export const tutorRequestSchema = z.object({
 });
 export type TutorRequestInput = z.input<typeof tutorRequestSchema>;
 
+export const tutorReviewSchema = z.object({
+  tutorId: z.string().min(1).max(40),
+  name: nameSchema,
+  phone: phoneSchema,
+  rating: z.coerce.number().int().min(1, "rating.required").max(5, "rating.required"),
+  comment: text(10, 1000, "review"),
+  consent,
+  website: honeypotSchema,
+});
+export type TutorReviewInput = z.input<typeof tutorReviewSchema>;
+
+export const talentRequestSchema = z.object({
+  seekerId: z.string().min(1).max(40),
+  employerName: text(2, 120, "employer"),
+  contactName: nameSchema,
+  phone: phoneSchema,
+  message: optionalString(1000),
+  website: honeypotSchema,
+});
+export type TalentRequestInput = z.input<typeof talentRequestSchema>;
+
 /* ---------------- Admin ---------------- */
 
-export const JOB_STATUSES = ["PENDING", "PUBLISHED", "CLOSED", "REJECTED"] as const;
-export const APPLICATION_STATUSES = ["NEW", "SHORTLISTED", "CONTACTED", "HIRED", "REJECTED"] as const;
+export const JOB_STATUSES = ["PENDING", "UNDER_REVIEW", "PUBLISHED", "CLOSED", "REJECTED"] as const;
+export const APPLICATION_STATUSES = ["NEW", "REVIEWING", "SHORTLISTED", "CONTACTED", "INTERVIEW", "HIRED", "REJECTED", "WITHDRAWN"] as const;
 export const SEEKER_STATUSES = ["NEW", "ACTIVE", "PLACED", "ARCHIVED"] as const;
 export const TUTOR_STATUSES = ["PENDING", "ACTIVE", "HIDDEN", "REJECTED"] as const;
-export const TUTOR_REQUEST_STATUSES = ["NEW", "CONTACTED", "MATCHED", "CLOSED"] as const;
+export const TUTOR_REQUEST_STATUSES = ["NEW", "CONTACTED", "MATCHED", "COMPLETED", "CANCELLED", "CLOSED"] as const;
+export const TALENT_REQUEST_STATUSES = ["NEW", "CONTACTED", "CONNECTED", "CLOSED"] as const;
+export const REVIEW_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;
 
 export const adminJobSchema = z
   .object({
@@ -182,6 +246,10 @@ export const adminJobSchema = z
     areaId: optionalString(40),
     description: text(30, 5000, "description"),
     requirements: z.string().trim().max(3000).default(""),
+    responsibilities: z.string().trim().max(3000).default(""),
+    skills: skillsList,
+    workMode: choice(WORK_MODES),
+    howToApply: optionalString(500),
     deadline: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/).or(z.literal("")).optional().nullable(),
     contactName: nameSchema,
     contactPhone: phoneSchema,
@@ -204,6 +272,8 @@ export const adminTutorSchema = z.object({
   bio: text(30, 1500, "description"),
   availability: optionalString(200),
   hourlyRate: priceSchema,
+  monthlyRate: priceSchema,
+  languages: pickAny(LANGUAGES, 5),
   areaId: optionalString(40),
   isVerified: z.boolean(),
   featured: z.boolean(),
@@ -216,4 +286,20 @@ export const inboxUpdateSchema = z.object({
   status: z.string().max(20),
   notes: z.string().max(5000).optional().nullable(),
   tutorId: z.string().max(40).optional().nullable(),
+});
+
+/** Staff edit of a talent profile's public side. */
+export const adminTalentSchema = z.object({
+  id: z.string().min(1).max(40),
+  visibility: z.enum(["PRIVATE", "PUBLIC"]),
+  displayName: text(2, 40, "name"),
+  profession: text(2, 120, "profession"),
+  skills: optionalString(500),
+  about: optionalString(1000),
+  languages: pickAny(LANGUAGES, 5),
+  certifications: optionalString(800),
+  projects: optionalString(1500),
+  portfolioUrl: optionalUrl,
+  availability: optionalString(200),
+  isVerified: z.boolean(),
 });
