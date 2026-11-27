@@ -139,6 +139,7 @@ model Area {
   jobSeekers    JobSeeker[]
   tutors        Tutor[]
   tutorRequests TutorRequest[]
+  companies     Company[]
 
   @@index([sortOrder])
 }
@@ -482,6 +483,13 @@ model JobPost {
 
   applications JobApplication[]
 
+  /// Posted from a member account (employer dashboard); null = staff or the public form
+  memberId  String?
+  member    Member?    @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  companyId String?
+  company   Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  savedBy   SavedJob[]
+
   @@index([status, publishedAt(sort: Desc)])
   @@index([status, deadline])
   @@index([sector, status])
@@ -489,6 +497,8 @@ model JobPost {
   @@index([areaId, status])
   @@index([workMode, status])
   @@index([skills], type: Gin)
+  @@index([memberId])
+  @@index([companyId])
 }
 
 /// Private: visible to staff only.
@@ -505,11 +515,14 @@ model JobApplication {
   message    String?
   status     ApplicationStatus @default(NEW)
   notes      String?
+  memberId   String?
+  member     Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
   @@unique([jobId, phone])
   @@index([status, createdAt(sort: Desc)])
+  @@index([memberId])
 }
 
 /// Private talent pool: skilled workers and graduates. Never shown publicly.
@@ -539,6 +552,9 @@ model JobSeeker {
   availability   String?
   isVerified     Boolean         @default(false)
   publishedAt    DateTime?
+  /// The member account that owns this profile (one per account)
+  memberId       String?         @unique
+  member         Member?         @relation(fields: [memberId], references: [id], onDelete: SetNull)
   areaId         String?
   area           Area?           @relation(fields: [areaId], references: [id], onDelete: SetNull)
   status         SeekerStatus    @default(NEW)
@@ -620,6 +636,9 @@ model Tutor {
   /// Approved reviews only, kept in step by the review actions
   ratingAvg       Float       @default(0)
   ratingCount     Int         @default(0)
+  /// The member account that owns this profile (one per account)
+  memberId        String?     @unique
+  member          Member?     @relation(fields: [memberId], references: [id], onDelete: SetNull)
   areaId          String?
   area            Area?       @relation(fields: [areaId], references: [id], onDelete: SetNull)
   status          TutorStatus @default(PENDING)
@@ -647,28 +666,35 @@ model Tutor {
 
 /// Private: a family or student asking for a tutor.
 model TutorRequest {
-  id        String             @id @default(cuid())
-  tutorId   String?
-  tutor     Tutor?             @relation(fields: [tutorId], references: [id], onDelete: SetNull)
-  name      String
-  phone     String
-  subject   String
-  level     String
-  mode      String
-  areaId    String?
-  area      Area?              @relation(fields: [areaId], references: [id], onDelete: SetNull)
-  schedule  String?
-  budget    Int?
-  message   String?
-  status    TutorRequestStatus @default(NEW)
-  notes     String?
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id            String             @id @default(cuid())
+  tutorId       String?
+  tutor         Tutor?             @relation(fields: [tutorId], references: [id], onDelete: SetNull)
+  name          String
+  phone         String
+  subject       String
+  level         String
+  mode          String
+  areaId        String?
+  area          Area?              @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  schedule      String?
+  budget        Int?
+  message       String?
+  status        TutorRequestStatus @default(NEW)
+  notes         String?
+  /// The family's account, when they asked while signed in
+  memberId      String?
+  member        Member?            @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  /// The tutor's answer from their dashboard: ACCEPTED or DECLINED
+  tutorResponse String?
+  respondedAt   DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 
   reviews TutorReview[]
 
   @@index([status, createdAt(sort: Desc)])
   @@index([tutorId])
+  @@index([memberId])
 }
 
 enum ReviewStatus {
@@ -708,4 +734,75 @@ model ListingView {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+/**
+ * ---------------- Member accounts ----------------
+ * Public visitors (job seekers, tutors, families, employers). Separate from staff `User`:
+ * a member session can never open /admin.
+ */
+model Member {
+  id           String    @id @default(cuid())
+  name         String
+  /// Normalised +2519…/+2517…; the sign-in name
+  phone        String    @unique
+  passwordHash String
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions      MemberSession[]
+  seeker        JobSeeker?
+  tutor         Tutor?
+  company       Company?
+  jobs          JobPost[]
+  applications  JobApplication[]
+  savedJobs     SavedJob[]
+  tutorRequests TutorRequest[]
+
+  @@index([isActive, createdAt(sort: Desc)])
+}
+
+/// Server-side sessions. The cookie holds a random token; only its SHA-256 is stored here.
+model MemberSession {
+  id        String   @id
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([memberId])
+  @@index([expiresAt])
+}
+
+/// An employer's company profile (one per account). Staff verify it before the employer can see applicants.
+model Company {
+  id        String   @id @default(cuid())
+  memberId  String   @unique
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  name      String
+  sector    String   @default("OTHER")
+  about     String?
+  website   String?
+  areaId    String?
+  area      Area?    @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobs JobPost[]
+
+  @@index([verified])
+}
+
+model SavedJob {
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       JobPost  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([memberId, jobId])
+  @@index([jobId])
 }

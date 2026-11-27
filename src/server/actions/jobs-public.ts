@@ -13,6 +13,7 @@ import {
   tutorSchema,
 } from "@/lib/validators/jobs";
 import { deadlineFromDate, splitSkills } from "@/lib/jobs-catalog";
+import { getMember } from "@/lib/member-auth";
 import type { PublicActionResult } from "./public";
 
 function fieldErrors(issues: { path: (string | number)[]; message: string }[]) {
@@ -94,8 +95,10 @@ export async function applyToJobAction(input: unknown): Promise<PublicActionResu
       select: { id: true },
     });
     if (!job) return { ok: false, error: "jobClosed" };
+    const me = await getMember();
     await db.jobApplication.create({
       data: {
+        memberId: me?.id ?? null,
         jobId: job.id,
         name: d.name,
         phone: d.phone,
@@ -204,8 +207,10 @@ export async function createTutorRequestAction(input: unknown): Promise<PublicAc
   if (await limited("tutor-request", 6, 60 * 30)) return { ok: false, error: "rateLimited" };
   try {
     const tutor = d.tutorId ? await db.tutor.findFirst({ where: { id: d.tutorId, status: "ACTIVE" }, select: { id: true } }) : null;
+    const me = await getMember();
     await db.tutorRequest.create({
       data: {
+        memberId: me?.id ?? null,
         tutorId: tutor?.id ?? null,
         name: d.name,
         phone: d.phone,

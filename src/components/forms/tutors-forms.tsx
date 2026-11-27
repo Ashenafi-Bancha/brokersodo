@@ -10,6 +10,7 @@ import { ChipGroup, ConsentBox, FormSection, useSubmit } from "./form-kit";
 import { tutorRequestSchema, tutorReviewSchema, tutorSchema, type TutorInput, type TutorRequestInput, type TutorReviewInput } from "@/lib/validators/jobs";
 import { EDUCATION_LEVELS, LANGUAGES, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
 import { createTutorAction, createTutorRequestAction, createTutorReviewAction } from "@/server/actions/jobs-public";
+import { saveMyTutorAction } from "@/server/actions/member";
 import { cn } from "@/lib/utils";
 
 type Opt = { id: string; name: string };
@@ -34,7 +35,8 @@ function OptionSelect({ id, options, placeholder, ...props }: React.SelectHTMLAt
 
 /* ---------------- Tutor joins ---------------- */
 
-export function TutorJoinForm({ areas }: { areas: Opt[] }) {
+/** `member`: editing your own tutor profile from your account; `initial` fills the form. */
+export function TutorJoinForm({ areas, member, initial }: { areas: Opt[]; member?: { phone: string }; initial?: Partial<TutorInput> }) {
   const t = useTranslations("tutors");
   const tf = useTranslations("form");
   const options = useOptions();
@@ -57,11 +59,13 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
       areaId: "",
       consent: false,
       website: "",
+      ...(member ? { phone: member.phone.replace(/^\+251/, "0") } : {}),
+      ...initial,
     },
   });
   const { register, formState, watch, setValue } = form;
-  const { onSubmit, done, serverError, err } = useSubmit(form, createTutorAction);
-  if (done) return <Success title={t("joinDoneTitle")} body={t("joinDoneBody")} />;
+  const { onSubmit, done, serverError, err } = useSubmit(form, member ? saveMyTutorAction : createTutorAction);
+  if (done) return member ? <Success title={tf("savedTitle")} body={t("profileSavedBody")} /> : <Success title={t("joinDoneTitle")} body={t("joinDoneBody")} />;
   const e = formState.errors;
   const pick = (k: "subjects" | "levels" | "modes" | "languages") => (v: string | string[]) => setValue(k, v as TutorInput[typeof k], { shouldValidate: formState.isSubmitted });
   return (
@@ -110,14 +114,14 @@ export function TutorJoinForm({ areas }: { areas: Opt[] }) {
             <Input id="tj-name" autoComplete="name" aria-invalid={!!e.fullName} {...register("fullName")} />
           </Field>
           <Field id="tj-phone" label={tf("phone")} required hint={tf("phoneHint")} error={err(e.phone?.message)}>
-            <Input id="tj-phone" type="tel" inputMode="tel" autoComplete="tel" aria-invalid={!!e.phone} {...register("phone")} />
+            <Input id="tj-phone" type="tel" inputMode="tel" autoComplete="tel" readOnly={!!member} aria-invalid={!!e.phone} {...register("phone")} />
           </Field>
         </div>
         <ConsentBox id="tj-consent" label={t("consentTutor")} error={err(e.consent?.message)} {...register("consent")} />
       </FormSection>
       <ServerError msg={serverError} />
       <Button type="submit" size="lg" disabled={formState.isSubmitting} className="self-start">
-        {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("submitJoin")}
+        {formState.isSubmitting && <Loader2 className="animate-spin" />} {member ? tf("saveChanges") : t("submitJoin")}
       </Button>
     </form>
   );

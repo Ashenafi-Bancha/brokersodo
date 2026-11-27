@@ -7,10 +7,11 @@ import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/misc";
 import { ScopedIntl } from "@/components/scoped-intl";
 import { ApplyForm } from "@/components/forms/jobs-forms";
+import { SaveJobButton } from "@/components/account/account-forms";
 import { AudienceIcon, DeadlineText, JobCard, SafetyBox, useSalaryText } from "@/components/jobs/cards";
 import { daysLeft } from "@/lib/jobs-catalog";
 import { formatDate, relativeTime } from "@/lib/format";
-import { alternates, jsonLdScript } from "@/lib/seo";
+import { alternates, jsonLdScript, localePath } from "@/lib/seo";
 import { localized, siteUrl } from "@/lib/utils";
 import { getJobBySlug, getSimilarJobs, type PublicJob } from "@/server/queries/jobs";
 
@@ -153,6 +154,11 @@ export default async function JobPage({ params }: { params: Params }) {
           </article>
 
           <aside className="flex flex-col gap-5 lg:sticky lg:top-24 lg:self-start">
+            {open && (
+              <ScopedIntl namespaces={["account"]}>
+                <SaveJobButton jobId={job.id} signInHref={`${localePath(locale, "/account/sign-in")}?next=${encodeURIComponent(`/jobs/${job.slug}`)}`} />
+              </ScopedIntl>
+            )}
             {open && (
               <section id="apply" aria-labelledby="apply-title" className="rounded-card bg-surface p-5 shadow-card sm:p-6">
                 <h2 id="apply-title" className="font-brand text-h3 text-fg">

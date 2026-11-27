@@ -26,6 +26,7 @@ import {
   Shapes,
   Tags,
   Users,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { ADMIN_NAV } from "./nav-items";
@@ -55,10 +56,11 @@ const ICONS: Record<string, LucideIcon> = {
   BookOpen,
   Handshake,
   Star,
+  UserRound,
 };
 
 type Me = { name: string; email: string; role: "ADMIN" | "BROKER" };
-type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number; talentRequests: number; reviews: number; seekers: number };
+type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number; talentRequests: number; reviews: number; seekers: number; companies: number };
 
 function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -74,6 +76,7 @@ function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigat
     "/admin/talent-requests": counts.talentRequests,
     "/admin/reviews": counts.reviews,
     "/admin/job-seekers": counts.seekers,
+    "/admin/members": counts.companies,
   };
   return (
     <nav aria-label="Admin" className="flex flex-col gap-5">

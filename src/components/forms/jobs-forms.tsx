@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -19,6 +20,7 @@ import {
 } from "@/lib/validators/jobs";
 import { EDUCATION_LEVELS, JOB_AUDIENCES, JOB_SECTORS, JOB_TYPES, LANGUAGES, SALARY_PERIODS, SEEKER_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
 import { applyToJobAction, createJobPostAction, createSeekerAction, createTalentRequestAction } from "@/server/actions/jobs-public";
+import { myJobStateAction, postMyJobAction, saveMyTalentAction } from "@/server/actions/member";
 
 type Opt = { id: string; name: string };
 
@@ -60,7 +62,8 @@ function CatalogSelect({ id, group, list, placeholder, ...props }: React.SelectH
 
 /* ---------------- Employer: post a job ---------------- */
 
-export function JobPostForm({ areas }: { areas: Opt[] }) {
+/** `member`: posting from an employer dashboard — employer and contact come from the account. */
+export function JobPostForm({ areas, member }: { areas: Opt[]; member?: { company: string; name: string; phone: string } }) {
   const t = useTranslations("jobs");
   const tf = useTranslations("form");
   const { options } = useCatalog();
@@ -68,7 +71,7 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
     resolver: zodResolver(jobPostSchema),
     defaultValues: {
       title: "",
-      employerName: "",
+      employerName: member?.company ?? "",
       showEmployer: true,
       sector: "" as JobPostInput["sector"],
       jobType: "FULL_TIME",
@@ -86,14 +89,14 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
       skills: "",
       workMode: "ONSITE",
       deadline: "",
-      contactName: "",
-      contactPhone: "",
+      contactName: member?.name ?? "",
+      contactPhone: member?.phone ?? "",
       consent: false,
       website: "",
     },
   });
   const { register, formState, watch, setValue } = form;
-  const { onSubmit, done, serverError, err } = useSubmit<JobPostInput, { ref: string }>(form, createJobPostAction);
+  const { onSubmit, done, serverError, err } = useSubmit<JobPostInput, { ref: string }>(form, member ? postMyJobAction : createJobPostAction);
   if (done) return <Success title={t("postedTitle")} body={t("postedBody", { ref: done.data?.ref ?? "" })} />;
   const e = formState.errors;
   return (
@@ -103,9 +106,15 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
         <Field id="jp-title" label={t("jobTitle")} required error={err(e.title?.message)}>
           <Input id="jp-title" placeholder={t("jobTitlePlaceholder")} aria-invalid={!!e.title} {...register("title")} />
         </Field>
-        <Field id="jp-employer" label={t("employerName")} required error={err(e.employerName?.message)}>
-          <Input id="jp-employer" autoComplete="organization" aria-invalid={!!e.employerName} {...register("employerName")} />
-        </Field>
+        {member ? (
+          <p className="rounded-btn bg-bg-2 px-3 py-2 text-sm text-fg-2">
+            {t("employerName")}: <strong className="text-fg">{member.company}</strong>
+          </p>
+        ) : (
+          <Field id="jp-employer" label={t("employerName")} required error={err(e.employerName?.message)}>
+            <Input id="jp-employer" autoComplete="organization" aria-invalid={!!e.employerName} {...register("employerName")} />
+          </Field>
+        )}
         <label className="flex cursor-pointer items-start gap-3 text-sm text-fg">
           <input type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[var(--primary)]" {...register("showEmployer")} />
           <span>
@@ -177,7 +186,7 @@ export function JobPostForm({ areas }: { areas: Opt[] }) {
       </FormSection>
 
       <FormSection title={t("sectionContact")}>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className={member ? "hidden" : "grid gap-4 sm:grid-cols-2"}>
           <Field id="jp-cname" label={t("contactName")} required error={err(e.contactName?.message)}>
             <Input id="jp-cname" autoComplete="name" aria-invalid={!!e.contactName} {...register("contactName")} />
           </Field>
@@ -205,9 +214,25 @@ export function ApplyForm({ jobId }: { jobId: string }) {
     resolver: zodResolver(applicationSchema),
     defaultValues: { jobId, name: "", phone: "", education: "" as ApplicationInput["education"], field: "", experience: "", skills: "", message: "", consent: false, website: "" },
   });
-  const { register, formState } = form;
+  const { register, formState, setValue, getValues } = form;
   const { onSubmit, done, serverError, err } = useSubmit(form, applyToJobAction);
+  const [applied, setApplied] = React.useState(false);
+  React.useEffect(() => {
+    let live = true;
+    myJobStateAction(jobId)
+      .then((s) => {
+        if (!live || !s.signedIn) return;
+        if (s.applied) setApplied(true);
+        if (s.name && !getValues("name")) setValue("name", s.name);
+        if (s.phone && !getValues("phone")) setValue("phone", s.phone.replace(/^\+251/, "0"));
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [jobId, getValues, setValue]);
   if (done) return <Success title={t("appliedTitle")} body={t("appliedBody")} />;
+  if (applied) return <Success title={t("alreadyAppliedTitle")} body={t("alreadyAppliedBody")} />;
   const e = formState.errors;
   return (
     <form onSubmit={onSubmit} noValidate className="relative flex flex-col gap-4">
@@ -246,7 +271,8 @@ export function ApplyForm({ jobId }: { jobId: string }) {
 
 /* ---------------- Talent pool ---------------- */
 
-export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?: "GRADUATE" | "SKILLED" }) {
+/** `member`: editing your own talent profile from your account; `initial` fills the form. */
+export function SeekerForm({ areas, defaultType, member, initial }: { areas: Opt[]; defaultType?: "GRADUATE" | "SKILLED"; member?: { phone: string }; initial?: Partial<SeekerInput> }) {
   const t = useTranslations("jobs");
   const tf = useTranslations("form");
   const { options } = useCatalog();
@@ -273,11 +299,13 @@ export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?:
       areaId: "",
       consent: false,
       website: "",
+      ...(member ? { phone: member.phone.replace(/^\+251/, "0") } : {}),
+      ...initial,
     },
   });
   const { register, formState, watch, setValue } = form;
-  const { onSubmit, done, serverError, err } = useSubmit(form, createSeekerAction);
-  if (done) return <Success title={t("seekerDoneTitle")} body={t("seekerDoneBody")} />;
+  const { onSubmit, done, serverError, err } = useSubmit(form, member ? saveMyTalentAction : createSeekerAction);
+  if (done) return member ? <Success title={tf("savedTitle")} body={t("profileSavedBody")} /> : <Success title={t("seekerDoneTitle")} body={t("seekerDoneBody")} />;
   const e = formState.errors;
   const type = watch("seekerType");
   return (
@@ -298,7 +326,7 @@ export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?:
           <Input id="sk-name" autoComplete="name" aria-invalid={!!e.name} {...register("name")} />
         </Field>
         <Field id="sk-phone" label={tf("phone")} required hint={tf("phoneHint")} error={err(e.phone?.message)}>
-          <Input id="sk-phone" type="tel" inputMode="tel" autoComplete="tel" aria-invalid={!!e.phone} {...register("phone")} />
+          <Input id="sk-phone" type="tel" inputMode="tel" autoComplete="tel" readOnly={!!member} aria-invalid={!!e.phone} {...register("phone")} />
         </Field>
         <Field id="sk-prof" label={t("profession")} required error={err(e.profession?.message)}>
           <Input id="sk-prof" placeholder={t("professionPlaceholder")} aria-invalid={!!e.profession} {...register("profession")} />
@@ -362,7 +390,7 @@ export function SeekerForm({ areas, defaultType }: { areas: Opt[]; defaultType?:
       <ConsentBox id="sk-consent" label={t("consentSeeker")} error={err(e.consent?.message)} {...register("consent")} />
       <ServerError msg={serverError} />
       <Button type="submit" size="lg" disabled={formState.isSubmitting} className="self-start">
-        {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("submitSeeker")}
+        {formState.isSubmitting && <Loader2 className="animate-spin" />} {member ? tf("saveChanges") : t("submitSeeker")}
       </Button>
     </form>
   );

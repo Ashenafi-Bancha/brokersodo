@@ -9,6 +9,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/submissions", label: "Submissions", icon: "Inbox", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/inquiries", label: "Inquiries", icon: "MessagesSquare", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/wanted", label: "Wanted", icon: "Search", roles: ["ADMIN", "BROKER"], group: "Work" },
+  { href: "/admin/members", label: "Members", icon: "UserRound", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },
   { href: "/admin/jobs", label: "Jobs", icon: "Briefcase", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },
   { href: "/admin/job-seekers", label: "Talent pool", icon: "Contact", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },
   { href: "/admin/tutors", label: "Tutors", icon: "GraduationCap", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },

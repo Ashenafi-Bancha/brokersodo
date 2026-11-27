@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Phone, Search } from "lucide-react";
+import { Phone, Search, UserRound } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { getCategories, getSiteSettings } from "@/server/queries/public";
@@ -49,6 +49,11 @@ export async function SiteHeader() {
             <a href={phoneHref}>
               <Phone /> {t("call")}
             </a>
+          </Button>
+          <Button asChild variant="ghost" size="icon-sm" aria-label={t("account")} title={t("account")}>
+            <Link href="/account">
+              <UserRound />
+            </Link>
           </Button>
           <Button asChild variant="primary" size="sm" className="hidden sm:inline-flex">
             <Link href="/sell">{t("sellWithUs")}</Link>

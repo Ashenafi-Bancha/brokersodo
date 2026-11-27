@@ -98,7 +98,7 @@ export function ChipGroup({
   );
 }
 
-export function ConsentBox({ id, label, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { id: string; label: string; error?: string }) {
+export function ConsentBox({ id, label, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { id: string; label: React.ReactNode; error?: string }) {
   return (
     <div>
       <label htmlFor={id} className="flex cursor-pointer items-start gap-3 rounded-btn bg-bg-2 p-3 text-sm text-fg">
