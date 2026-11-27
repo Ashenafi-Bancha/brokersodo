@@ -12,6 +12,9 @@ import { telLink } from "@/lib/contact";
 import { requireMemberPage } from "@/lib/member-auth";
 import { EMPLOYER_APPLICANT_STATUSES } from "@/lib/validators/member";
 
+// Reads the sign-in cookie, so it renders on every request (also for /am).
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "account" });

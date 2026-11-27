@@ -8,6 +8,9 @@ import { SignUpForm } from "@/components/account/account-forms";
 import { getMember, safeNext } from "@/lib/member-auth";
 import { localePath } from "@/lib/seo";
 
+// Reads the sign-in cookie, so it renders on every request (also for /am).
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -29,7 +29,11 @@ async function staff(browser: Browser) {
   return admin;
 }
 
-test("sign up, sign out, sign in; account pages need a session and members cannot open the admin", async ({ page }) => {
+test("sign up, sign out, sign in; account pages need a session and members cannot open the admin", async ({ page, request }) => {
+  // Both languages render (Amharic pages are pre-built, so pages that read the cookie must be dynamic).
+  // Plain requests, so the browser does not switch to Amharic for the rest of the test.
+  for (const u of ["/account/sign-in", "/am/account/sign-in", "/am/account/sign-up"]) expect((await request.get(u)).status()).toBe(200);
+
   await page.goto("/account/talent");
   await expect(page).toHaveURL(/\/account\/sign-in\?next=%2Faccount/);
 
