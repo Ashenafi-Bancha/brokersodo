@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
 /** Namespaces needed by client components on every public page. */
-const CORE = ["nav", "theme", "fab", "bottomNav", "listing", "errors"] as const;
+const CORE = ["nav", "theme", "fab", "chat", "bottomNav", "listing", "errors"] as const;
 
 type Messages = Record<string, unknown>;
 

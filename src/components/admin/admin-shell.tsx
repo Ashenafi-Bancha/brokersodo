@@ -28,6 +28,7 @@ import {
   Users,
   UserRound,
   Store,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 import { ADMIN_NAV } from "./nav-items";
@@ -59,10 +60,11 @@ const ICONS: Record<string, LucideIcon> = {
   Star,
   UserRound,
   Store,
+  MessageCircle,
 };
 
 type Me = { name: string; email: string; role: "ADMIN" | "BROKER" };
-type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number; talentRequests: number; reviews: number; seekers: number; companies: number; stores: number };
+type Counts = { submissions: number; inquiries: number; wanted: number; jobs: number; tutors: number; tutorRequests: number; talentRequests: number; reviews: number; seekers: number; companies: number; stores: number; chats: number };
 
 function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -80,6 +82,7 @@ function NavList({ me, counts, onNavigate }: { me: Me; counts: Counts; onNavigat
     "/admin/job-seekers": counts.seekers,
     "/admin/members": counts.companies,
     "/admin/stores": counts.stores,
+    "/admin/chats": counts.chats,
   };
   return (
     <nav aria-label="Admin" className="flex flex-col gap-5">

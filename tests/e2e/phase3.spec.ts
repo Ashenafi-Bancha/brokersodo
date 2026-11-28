@@ -90,7 +90,7 @@ test("an employer gets an update when staff verify the company, and sees it in t
   const admin = await staff(browser);
   await admin.goto("/admin/members");
   await admin.getByPlaceholder(/Search name/).fill(company);
-  await admin.getByRole("button", { name: "Verify", exact: true }).click();
+  await admin.locator("tr", { hasText: company }).getByRole("button", { name: "Verify", exact: true }).click();
   await admin.getByRole("alertdialog").getByRole("button", { name: "Verify" }).click();
   await expect(admin.getByText("Company verified")).toBeVisible();
   await admin.close();

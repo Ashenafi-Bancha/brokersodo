@@ -1258,5 +1258,28 @@
     "storeNote": "Our team calls you and checks your business before the store goes live. After that you can update items and prices any time.",
     "itemsManage": "Items, menu and services",
     "itemsNote": "Changes to items show on your store page right away."
+  },
+  "chat": {
+    "open": "Chat with us",
+    "title": "BrokerSodo assistant",
+    "subtitle": "Ask about properties, jobs, tutors or stores",
+    "withTeam": "Our team is answering",
+    "close": "Close chat",
+    "greeting": "Hello! 👋 I can help you find properties, jobs, tutors and stores in Wolaita Sodo. What are you looking for?",
+    "team": "BrokerSodo team",
+    "handoverIntro": "Leave your name and phone (optional) so we can call you back if you leave.",
+    "name": "Your name",
+    "phone": "Phone number",
+    "handoverSubmit": "Talk to our team",
+    "cancel": "Cancel",
+    "talkToTeam": "Talk to our team",
+    "placeholder": "Type your message…",
+    "send": "Send",
+    "errorRate": "Too many messages. Please wait a few minutes.",
+    "errorGeneric": "Message not sent. Check your connection and try again.",
+    "writeFirst": "Write your question first, then tap “Talk to our team”.",
+    "phoneInvalid": "Enter a valid Ethiopian mobile number (09… or 07…).",
+    "aiNote": "Answers come from an AI assistant using BrokerSodo's listings and may contain mistakes.",
+    "teamNote": "Our team replies here during working hours."
   }
 }

@@ -7,6 +7,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin", label: "Dashboard", icon: "LayoutDashboard", roles: ["ADMIN", "BROKER"], group: "Overview" },
   { href: "/admin/listings", label: "Listings", icon: "Tags", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/submissions", label: "Submissions", icon: "Inbox", roles: ["ADMIN", "BROKER"], group: "Work" },
+  { href: "/admin/chats", label: "Chats", icon: "MessageCircle", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/inquiries", label: "Inquiries", icon: "MessagesSquare", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/wanted", label: "Wanted", icon: "Search", roles: ["ADMIN", "BROKER"], group: "Work" },
   { href: "/admin/stores", label: "Stores", icon: "Store", roles: ["ADMIN", "BROKER"], group: "Work" },

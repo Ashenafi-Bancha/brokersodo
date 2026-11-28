@@ -963,3 +963,63 @@ model StoreItem {
 
   @@index([storeId, sortOrder])
 }
+
+/**
+ * ---------------- Live chat ----------------
+ * Visitors chat with the AI assistant; "Talk to a person" hands the chat to staff.
+ * The visitor holds a random token (only its SHA-256 is stored) to read and post.
+ */
+enum ChatStatus {
+  /// The AI assistant answers
+  AI
+  /// Visitor asked for a person; nobody has replied yet
+  WAITING
+  /// A staff member is answering
+  STAFF
+  CLOSED
+}
+
+enum ChatRole {
+  VISITOR
+  AI
+  STAFF
+  /// Notes shown in the chat, e.g. "You are now talking to our team"
+  SYSTEM
+}
+
+model ChatConversation {
+  id            String     @id @default(cuid())
+  tokenHash     String     @unique
+  memberId      String?
+  locale        String     @default("en")
+  status        ChatStatus @default(AI)
+  /// Optional, given at handover so staff can call back
+  visitorName   String?
+  visitorPhone  String?
+  /// Page the chat started on
+  startPath     String?
+  aiTurns       Int        @default(0)
+  /// Staff have not read the newest visitor message
+  unreadByStaff Boolean    @default(false)
+  lastMessageAt DateTime   @default(now())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  messages ChatMessage[]
+
+  @@index([status, lastMessageAt(sort: Desc)])
+  @@index([lastMessageAt(sort: Desc)])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           ChatRole
+  text           String
+  /// Staff member who wrote a STAFF message
+  staffName      String?
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+}
