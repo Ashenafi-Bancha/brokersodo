@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { BriefcaseBusiness, GraduationCap, LayoutDashboard, Settings, UserRound } from "lucide-react";
+import { BriefcaseBusiness, GraduationCap, LayoutDashboard, Settings, Store, UserRound } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const TABS = [
   { href: "/account/talent", key: "tabTalent", Icon: UserRound },
   { href: "/account/tutor", key: "tabTutor", Icon: GraduationCap },
   { href: "/account/employer", key: "tabEmployer", Icon: BriefcaseBusiness },
+  { href: "/account/store", key: "tabStore", Icon: Store },
   { href: "/account/settings", key: "tabSettings", Icon: Settings },
 ] as const;
 

@@ -2,7 +2,8 @@
 import { db } from "@/lib/db";
 import { clientFingerprint, rateLimit } from "@/lib/rate-limit";
 import { storeImage, trustedPhoto, UploadError, type StoredImage } from "@/lib/storage";
-import { contactSchema, inquirySchema, submissionSchema, wantedSchema } from "@/lib/validators/public-forms";
+import { createVideoUpload, verifiedVideo, type VideoTicket } from "@/lib/storage/video";
+import { contactSchema, inquirySchema, submissionSchema, wantedSchema, wantedResponseSchema } from "@/lib/validators/public-forms";
 import { parseAttributeSchema, validateAttributes } from "@/lib/validators/attribute-schema";
 import type { Prisma } from "@prisma/client";
 
@@ -39,7 +40,7 @@ export async function createInquiryAction(input: unknown): Promise<PublicActionR
     let brokerId: string | null = null;
     if (parsed.data.listingId) {
       const l = await db.listing.findFirst({
-        where: { id: parsed.data.listingId, status: { in: ["PUBLISHED", "RESERVED", "SOLD", "RENTED"] } },
+        where: { id: parsed.data.listingId, status: { in: ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED", "SOLD", "RENTED"] } },
         select: { id: true, refCode: true, assignedBrokerId: true },
       });
       if (l) {
@@ -133,6 +134,16 @@ export async function uploadSubmissionPhotoAction(formData: FormData): Promise<P
   }
 }
 
+/** A one-time link to upload one optional property video (max 50 MB) straight to storage. */
+export async function requestVideoUploadAction(input: { type?: unknown; size?: unknown }): Promise<PublicActionResult<VideoTicket>> {
+  if (await limited("video", 6, 60 * 60)) return { ok: false, error: "rateLimited" };
+  try {
+    return { ok: true, data: await createVideoUpload(String(input?.type ?? ""), Number(input?.size)) };
+  } catch {
+    return { ok: false, error: "invalid" };
+  }
+}
+
 export async function createSubmissionAction(input: unknown): Promise<PublicActionResult> {
   const parsed = submissionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
@@ -161,11 +172,32 @@ export async function createSubmissionAction(input: unknown): Promise<PublicActi
         expectedPrice: d.expectedPrice,
         areaId: area?.id ?? null,
         photos: photos as unknown as Prisma.InputJsonValue,
+        // Only a finished upload in our storage, checked for size and type.
+        videoFile: await verifiedVideo(d.videoFile),
+        isNegotiable: d.isNegotiable,
       },
     });
     return { ok: true };
   } catch (e) {
     console.error("[submission]", e);
+    return { ok: false, error: "generic" };
+  }
+}
+
+/** An owner says "I have this" on a public Wanted post. Goes to staff, never to the buyer directly. */
+export async function createWantedResponseAction(input: unknown): Promise<PublicActionResult> {
+  const parsed = wantedResponseSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
+  const d = parsed.data;
+  if (d.website) return botOk;
+  if (await limited("wanted-response", 6, 60 * 30)) return { ok: false, error: "rateLimited" };
+  try {
+    const w = await db.wantedRequest.findFirst({ where: { id: d.wantedId, isPublic: true, status: "OPEN" }, select: { id: true } });
+    if (!w) return { ok: false, error: "generic" };
+    await db.wantedResponse.create({ data: { wantedId: w.id, name: d.name, phone: d.phone, message: d.message || null } });
+    return { ok: true };
+  } catch (e) {
+    console.error("[wanted response]", e);
     return { ok: false, error: "generic" };
   }
 }

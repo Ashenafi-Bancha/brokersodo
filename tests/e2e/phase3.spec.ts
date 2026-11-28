@@ -1,6 +1,6 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { staff } from "./helpers";
 
-const email = process.env.E2E_ADMIN_EMAIL ?? process.env.SEED_ADMIN_EMAIL ?? "admin@brokersodo.local";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? process.env.SEED_ADMIN_PASSWORD ?? "";
 const PASSWORD = "e2e-pass-123";
 const randomPhone = () => `09${String(Math.floor(10_000_000 + Math.random() * 89_999_999))}`;
@@ -19,15 +19,6 @@ async function signUp(page: Page, name: string) {
   await expect(page).toHaveURL(/\/account$/);
 }
 
-async function staff(browser: Browser) {
-  const admin = await browser.newPage();
-  await admin.goto("/admin/login");
-  await admin.getByLabel("Email").fill(email);
-  await admin.getByLabel("Password", { exact: true }).fill(adminPassword);
-  await admin.getByRole("button", { name: "Sign in" }).click();
-  await expect(admin.getByRole("heading", { level: 1 })).toContainText("Welcome back");
-  return admin;
-}
 
 test("staff add a job sector; it appears in filters and forms, then can be hidden", async ({ page, browser }) => {
   test.skip(!adminPassword, "Set E2E_ADMIN_PASSWORD or SEED_ADMIN_PASSWORD");

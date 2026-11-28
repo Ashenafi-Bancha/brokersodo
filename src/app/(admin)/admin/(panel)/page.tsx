@@ -46,13 +46,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   const [active, newInquiries, pendingSubs, openWanted, closedMonth, inquiriesWeek, byCategory, categories, inquiryDays, stages, activity, unassigned, staleDrafts, recentSubs, topViewed] =
     await Promise.all([
-      db.listing.count({ where: { status: { in: ["PUBLISHED", "RESERVED"] } } }),
+      db.listing.count({ where: { status: { in: ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED"] } } }),
       db.inquiry.count({ where: { status: "NEW" } }),
       db.propertySubmission.count({ where: { status: "PENDING" } }),
       db.wantedRequest.count({ where: { status: "OPEN" } }),
       db.listing.count({ where: { status: { in: ["SOLD", "RENTED"] }, soldAt: { gte: monthStart } } }),
       db.inquiry.count({ where: { createdAt: { gte: weekAgo } } }),
-      db.listing.groupBy({ by: ["categoryId"], where: { status: { in: ["PUBLISHED", "RESERVED"] } }, _count: { _all: true } }),
+      db.listing.groupBy({ by: ["categoryId"], where: { status: { in: ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED"] } }, _count: { _all: true } }),
       db.category.findMany({ select: { id: true, nameEn: true } }),
       db.$queryRaw<{ day: string; count: bigint }[]>`
         SELECT to_char("createdAt" AT TIME ZONE 'UTC' AT TIME ZONE 'Africa/Addis_Ababa', 'YYYY-MM-DD') AS day, count(*)::bigint AS count
@@ -63,7 +63,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       db.listing.findMany({ where: { status: "DRAFT", updatedAt: { lt: weekAgo } }, orderBy: { updatedAt: "asc" }, take: 5, select: { id: true, refCode: true, titleEn: true, updatedAt: true } }),
       db.propertySubmission.findMany({ where: { status: "PENDING" }, orderBy: { createdAt: "asc" }, take: 5, select: { id: true, title: true, name: true, createdAt: true } }),
       db.listing.findMany({
-        where: { status: { in: ["PUBLISHED", "RESERVED"] } },
+        where: { status: { in: ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED"] } },
         orderBy: { viewCount: "desc" },
         take: 5,
         select: { id: true, refCode: true, titleEn: true, viewCount: true, price: true, priceOnRequest: true, images: { where: { isCover: true }, take: 1, select: { url: true } } },

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const key = createHash("sha256").update(`${id}|${ip}|${ua}|${day}|${process.env.AUTH_SECRET ?? ""}`).digest("hex").slice(0, 40);
   try {
     await db.listingView.create({ data: { id: key, listingId: id } });
-    await db.listing.updateMany({ where: { id, status: { in: ["PUBLISHED", "RESERVED"] } }, data: { viewCount: { increment: 1 } } });
+    await db.listing.updateMany({ where: { id, status: { in: ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED"] } }, data: { viewCount: { increment: 1 } } });
     if (Math.random() < 0.01) {
       await db.listingView.deleteMany({ where: { createdAt: { lt: new Date(Date.now() - 2 * 86400_000) } } });
     }

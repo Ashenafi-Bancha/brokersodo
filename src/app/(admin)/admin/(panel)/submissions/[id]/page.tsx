@@ -51,6 +51,12 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
             ) : (
               <p className="text-sm text-muted">No photos were uploaded.</p>
             )}
+            {s.videoFile && (
+              <div className="mt-4">
+                <h3 className="mb-2 text-sm font-bold text-fg">Video</h3>
+                <video src={s.videoFile} controls preload="metadata" playsInline className="aspect-video w-full rounded-btn bg-navy-900" data-testid="submission-video" />
+              </div>
+            )}
           </section>
           <section className="rounded-card bg-surface p-5 shadow-card">
             <h2 className="mb-4 text-lg font-bold text-fg">Details</h2>
@@ -58,7 +64,7 @@ export default async function SubmissionPage({ params }: { params: Promise<{ id:
               {[
                 ["Category", s.category?.nameEn ?? "—"],
                 ["Deal", s.dealType === "RENT" ? `Rent ${rentSuffix(s.rentPeriod)}` : "Sale"],
-                ["Expected price", s.expectedPrice != null ? formatETB(s.expectedPrice) : "—"],
+                ["Expected price", s.expectedPrice != null ? `${formatETB(s.expectedPrice)}${s.isNegotiable ? " · negotiable" : ""}` : s.isNegotiable ? "Negotiable" : "—"],
                 ["Area", s.area?.nameEn ?? "—"],
                 ...specs.map((x) => [x.label, x.value]),
               ].map(([k, v]) => (

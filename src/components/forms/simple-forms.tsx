@@ -7,9 +7,9 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Honeypot, Input, Select, Textarea } from "@/components/ui/form-controls";
 import { useFormError } from "./use-form-error";
-import { contactSchema, wantedSchema, type ContactInput, type WantedInput } from "@/lib/validators/public-forms";
+import { contactSchema, wantedResponseSchema, wantedSchema, type ContactInput, type WantedInput, type WantedResponseInput } from "@/lib/validators/public-forms";
 import { CONTACT_METHODS } from "@/lib/validators/common";
-import { createContactMessageAction, createWantedAction } from "@/server/actions/public";
+import { createContactMessageAction, createWantedAction, createWantedResponseAction } from "@/server/actions/public";
 import { cn } from "@/lib/utils";
 
 export function Success({ title, body }: { title: string; body: string }) {
@@ -162,6 +162,45 @@ export function ContactForm() {
       <ServerError msg={serverError} />
       <Button type="submit" disabled={formState.isSubmitting} className="self-start">
         {formState.isSubmitting && <Loader2 className="animate-spin" />} {tf("submit")}
+      </Button>
+    </form>
+  );
+}
+
+/** "I have this": an owner answers a public Wanted post. Goes to BrokerSodo staff. */
+export function WantedResponseForm({ wantedId }: { wantedId: string }) {
+  const t = useTranslations("wanted");
+  const tf = useTranslations("form");
+  const err = useFormError();
+  const form = useForm<WantedResponseInput>({ resolver: zodResolver(wantedResponseSchema), defaultValues: { wantedId, name: "", phone: "", message: "", website: "" } });
+  const { register, formState } = form;
+  const [done, setDone] = React.useState(false);
+  const [serverError, setServerError] = React.useState<string | null>(null);
+  const onSubmit = form.handleSubmit(async (values) => {
+    setServerError(null);
+    const r = await createWantedResponseAction(values);
+    if (r.ok) setDone(true);
+    else setServerError(err(r.error) ?? tf("errors.generic"));
+  });
+  if (done) return <Success title={t("responseDoneTitle")} body={t("responseDoneBody")} />;
+  const e = formState.errors;
+  return (
+    <form onSubmit={onSubmit} noValidate className="relative mt-3 flex flex-col gap-3">
+      <Honeypot {...register("website")} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field id={`wr-name-${wantedId}`} label={tf("name")} required error={err(e.name?.message)}>
+          <Input id={`wr-name-${wantedId}`} autoComplete="name" {...register("name")} />
+        </Field>
+        <Field id={`wr-phone-${wantedId}`} label={tf("phone")} required hint={tf("phoneHint")} error={err(e.phone?.message)}>
+          <Input id={`wr-phone-${wantedId}`} type="tel" inputMode="tel" autoComplete="tel" {...register("phone")} />
+        </Field>
+      </div>
+      <Field id={`wr-msg-${wantedId}`} label={t("responseMessage")} optionalLabel={tf("optional")}>
+        <Textarea id={`wr-msg-${wantedId}`} rows={2} placeholder={t("responsePlaceholder")} {...register("message")} />
+      </Field>
+      <ServerError msg={serverError} />
+      <Button type="submit" size="sm" disabled={formState.isSubmitting} className="self-start">
+        {formState.isSubmitting && <Loader2 className="animate-spin" />} {t("responseSubmit")}
       </Button>
     </form>
   );

@@ -28,7 +28,7 @@ export function trustedPhoto<T extends { url: string; publicId?: string | null }
     const id = s3IdFromUrl(photo.url);
     return id ? { ...photo, publicId: `s3:${id}` } : null;
   }
-  return /^\/uploads\/submissions\/[0-9a-f-]{36}\.webp$/.test(photo.url) ? { ...photo, publicId: `local:${photo.url.slice("/uploads/".length)}` } : null;
+  return /^\/uploads\/(?:submissions|stores)\/[0-9a-f-]{36}\.webp$/.test(photo.url) ? { ...photo, publicId: `local:${photo.url.slice("/uploads/".length)}` } : null;
 }
 
 /** Validate type and size, sniff the real format with sharp, then store. */

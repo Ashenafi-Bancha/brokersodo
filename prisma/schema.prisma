@@ -39,6 +39,8 @@ enum ListingStatus {
   DRAFT
   PUBLISHED
   RESERVED
+  /// Public, with an "Under negotiation" badge
+  UNDER_NEGOTIATION
   SOLD
   RENTED
   ARCHIVED
@@ -140,6 +142,7 @@ model Area {
   tutors        Tutor[]
   tutorRequests TutorRequest[]
   companies     Company[]
+  stores        Store[]
 
   @@index([sortOrder])
 }
@@ -160,6 +163,8 @@ model Listing {
   descriptionEn String  @default("")
   descriptionAm String?
   videoUrl      String?
+  /// Uploaded video file (our storage); videoUrl stays for YouTube links
+  videoFile     String?
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -274,6 +279,9 @@ model PropertySubmission {
   area            Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
   /// Array of { url, publicId, width, height }
   photos          Json             @default("[]")
+  /// Uploaded video file (our storage), optional
+  videoFile       String?
+  isNegotiable    Boolean          @default(false)
   status          SubmissionStatus @default(PENDING)
   rejectReason    String?
   linkedListingId String?
@@ -286,24 +294,28 @@ model PropertySubmission {
 }
 
 model WantedRequest {
-  id          String       @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   phone       String
   categoryId  String?
-  category    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category    Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   dealType    DealType
   description String
   budgetMin   Int?
   budgetMax   Int?
   areaId      String?
-  area        Area?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
-  status      WantedStatus @default(OPEN)
+  area        Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  status      WantedStatus     @default(OPEN)
   notes       String?
-  matches     Listing[]    @relation("WantedMatches")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  /// Shown on the public Wanted board (no name or phone) after staff approve it
+  isPublic    Boolean          @default(false)
+  responses   WantedResponse[]
+  matches     Listing[]        @relation("WantedMatches")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@index([status, createdAt(sort: Desc)])
+  @@index([isPublic, status, createdAt(sort: Desc)])
 }
 
 model Testimonial {
@@ -767,6 +779,7 @@ model Member {
   tutorRequests  TutorRequest[]
   talentRequests TalentRequest[]
   notifications  Notification[]
+  store          Store?
 
   @@index([isActive, createdAt(sort: Desc)])
 }
@@ -860,4 +873,93 @@ model Notification {
 
   @@index([memberId, readAt])
   @@index([memberId, createdAt(sort: Desc)])
+}
+
+/// An owner answering a public Wanted post ("I have this"). Private: staff follow up.
+model WantedResponse {
+  id        String        @id @default(cuid())
+  wantedId  String
+  wanted    WantedRequest @relation(fields: [wantedId], references: [id], onDelete: Cascade)
+  name      String
+  phone     String
+  message   String?
+  status    InquiryStatus @default(NEW)
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([wantedId])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+/**
+ * ---------------- Business stores ----------------
+ * Shops, salons, hotels, restaurants, cafes and lounges. One store per member account;
+ * staff approve a store before it is public. (Subscriptions/payments come later.)
+ */
+enum StoreStatus {
+  PENDING
+  ACTIVE
+  HIDDEN
+  REJECTED
+}
+
+model Store {
+  id           String      @id @default(cuid())
+  refCode      String      @unique
+  slug         String      @unique
+  memberId     String      @unique
+  member       Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  name         String
+  /// SHOP, SALON_WOMEN, HOTEL, RESTAURANT, CAFE, ... (src/lib/stores.ts)
+  type         String
+  tagline      String?
+  description  String      @default("")
+  /// Public business contact (it is a business, not a private person)
+  phone        String
+  telegram     String?
+  whatsapp     String?
+  areaId       String?
+  area         Area?       @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  address      String?
+  openingHours String?
+  /// { url, publicId, width, height, blurData }
+  logo         Json?
+  cover        Json?
+  status       StoreStatus @default(PENDING)
+  featured     Boolean     @default(false)
+  rejectReason String?
+  staffNotes   String?
+  publishedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items StoreItem[]
+
+  @@index([status, featured, publishedAt(sort: Desc)])
+  @@index([type, status])
+  @@index([areaId, status])
+}
+
+/// A product, menu item or service in a store.
+model StoreItem {
+  id          String   @id @default(cuid())
+  storeId     String
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  /// Free text group shown as a heading, e.g. "Drinks", "Haircuts", "Rooms"
+  section     String   @default("")
+  name        String
+  description String?
+  /// Whole ETB; null = price on request
+  price       Int?
+  /// e.g. "per night", "from", "per kg"
+  priceNote   String?
+  image       Json?
+  isSpecial   Boolean  @default(false)
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([storeId, sortOrder])
 }

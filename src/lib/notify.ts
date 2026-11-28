@@ -12,7 +12,8 @@ export type NotifyType =
   | "TUTOR_REQUEST_STATUS"
   | "NEW_STUDENT"
   | "TALENT_REQUEST_STATUS"
-  | "COMPANY_VERIFIED";
+  | "COMPANY_VERIFIED"
+  | "STORE_STATUS";
 
 /**
  * Adds an update to a member's account. Does nothing for records without an account,

@@ -28,6 +28,8 @@ export default async function NewListingPage({ searchParams }: { searchParams: P
         dealType: s.dealType,
         rentPeriod: s.rentPeriod ?? "MONTH",
         price: s.expectedPrice != null ? String(s.expectedPrice) : "",
+        isNegotiable: s.isNegotiable,
+        videoFile: s.videoFile ?? "",
         areaId: s.areaId ?? "",
         attributes: (s.attributes ?? {}) as Record<string, unknown>,
         ownerName: s.name,

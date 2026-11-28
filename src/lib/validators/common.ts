@@ -5,7 +5,7 @@ export const DEAL_TYPES = ["SALE", "RENT"] as const;
 export const RENT_PERIODS = ["DAY", "MONTH", "YEAR"] as const;
 export const CONDITIONS = ["NEW", "USED", "REFURBISHED"] as const;
 export const CONTACT_METHODS = ["CALL", "TELEGRAM", "WHATSAPP"] as const;
-export const LISTING_STATUSES = ["DRAFT", "PUBLISHED", "RESERVED", "SOLD", "RENTED", "ARCHIVED"] as const;
+export const LISTING_STATUSES = ["DRAFT", "PUBLISHED", "UNDER_NEGOTIATION", "RESERVED", "SOLD", "RENTED", "ARCHIVED"] as const;
 export const INQUIRY_STATUSES = [
   "NEW",
   "CONTACTED",

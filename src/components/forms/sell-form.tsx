@@ -14,7 +14,8 @@ import { AttributeFields } from "./attribute-fields";
 import { useFormError } from "./use-form-error";
 import { submissionSchema, type SubmissionInput } from "@/lib/validators/public-forms";
 import type { AttributeField, AttributeValue } from "@/lib/validators/attribute-schema";
-import { createSubmissionAction, uploadSubmissionPhotoAction } from "@/server/actions/public";
+import { requestVideoUploadAction, createSubmissionAction, uploadSubmissionPhotoAction } from "@/server/actions/public";
+import { VideoUpload } from "./video-upload";
 import { cn } from "@/lib/utils";
 
 type Cat = { id: string; name: string; icon: string; fields: AttributeField[] };
@@ -37,7 +38,7 @@ export function SellForm({ categories, areas }: { categories: Cat[]; areas: Area
 
   const form = useForm<SubmissionInput>({
     resolver: zodResolver(submissionSchema),
-    defaultValues: { categoryId: "", dealType: "SALE", rentPeriod: "MONTH", title: "", details: "", attributes: {}, expectedPrice: "", areaId: "", photos: [], name: "", phone: "", website: "" },
+    defaultValues: { categoryId: "", dealType: "SALE", rentPeriod: "MONTH", title: "", details: "", attributes: {}, expectedPrice: "", areaId: "", photos: [], videoFile: "", isNegotiable: false, name: "", phone: "", website: "" },
     mode: "onTouched",
   });
   const { register, watch, setValue, trigger, formState, control, handleSubmit, setError } = form;
@@ -231,6 +232,13 @@ export function SellForm({ categories, areas }: { categories: Cat[]; areas: Area
                     </Select>
                   </Field>
                 )}
+                <label className="flex cursor-pointer items-start gap-3 rounded-btn bg-bg-2 p-3 text-sm text-fg">
+                  <input type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[var(--primary)]" {...register("isNegotiable")} />
+                  <span>
+                    <span className="font-semibold">{t("negotiableLabel")}</span>
+                    <span className="block text-muted">{t("negotiableHint")}</span>
+                  </span>
+                </label>
                 {cat && cat.fields.length > 0 && (
                   <AttributeFields
                     idPrefix="s-attr"
@@ -289,6 +297,16 @@ export function SellForm({ categories, areas }: { categories: Cat[]; areas: Area
                     </ul>
                   )}
                 />
+                <div className="mt-2">
+                  <p className="text-lg font-bold text-fg">{t("videoLabel")}</p>
+                  <p className="mb-2 text-sm text-muted">{t("videoIntro")}</p>
+                  <VideoUpload
+                    value={watch("videoFile")}
+                    onChange={(url) => setValue("videoFile", url)}
+                    requestTicket={requestVideoUploadAction}
+                    labels={{ add: t("addVideo"), hint: t("videoHint"), uploading: t("videoUploading"), remove: t("removeVideo"), tooBig: t("videoTooBig"), badType: t("videoBadType"), failed: t("videoFailed") }}
+                  />
+                </div>
               </div>
             )}
 

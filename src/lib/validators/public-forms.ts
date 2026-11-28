@@ -40,12 +40,23 @@ export const submissionSchema = z
     expectedPrice: priceSchema,
     areaId: optionalString(40),
     photos: z.array(submissionPhotoSchema).max(10, "photos.max").default([]),
+    videoFile: z.string().max(400).optional().nullable(),
+    isNegotiable: z.boolean().optional().default(false),
     name: nameSchema,
     phone: phoneSchema,
     website: honeypotSchema,
   })
   .transform((v) => ({ ...v, rentPeriod: v.dealType === "RENT" ? (v.rentPeriod ?? "MONTH") : null }));
 export type SubmissionInput = z.input<typeof submissionSchema>;
+
+export const wantedResponseSchema = z.object({
+  wantedId: z.string().min(1).max(40),
+  name: nameSchema,
+  phone: phoneSchema,
+  message: z.string().trim().max(1000).optional().default(""),
+  website: honeypotSchema,
+});
+export type WantedResponseInput = z.input<typeof wantedResponseSchema>;
 
 export const wantedSchema = z
   .object({

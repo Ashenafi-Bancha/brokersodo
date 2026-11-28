@@ -1,19 +1,10 @@
-import { expect, test, type Browser } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { staff } from "./helpers";
 
-const email = process.env.E2E_ADMIN_EMAIL ?? process.env.SEED_ADMIN_EMAIL ?? "admin@brokersodo.local";
 const password = process.env.E2E_ADMIN_PASSWORD ?? process.env.SEED_ADMIN_PASSWORD ?? "";
 
 /** Rows created here start with "E2E" so they can be cleaned up afterwards. */
 
-async function staff(browser: Browser) {
-  const admin = await browser.newPage();
-  await admin.goto("/admin/login");
-  await admin.getByLabel("Email").fill(email);
-  await admin.getByLabel("Password", { exact: true }).fill(password);
-  await admin.getByRole("button", { name: "Sign in" }).click();
-  await expect(admin.getByRole("heading", { level: 1 })).toContainText("Welcome back");
-  return admin;
-}
 
 test("a public talent profile goes live after staff approve it, and an employer asks to connect", async ({ page, browser }) => {
   test.skip(!password, "Set E2E_ADMIN_PASSWORD or SEED_ADMIN_PASSWORD");

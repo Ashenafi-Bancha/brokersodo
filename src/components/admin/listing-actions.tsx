@@ -14,8 +14,7 @@ import {
   Trash2,
   CheckCircle2,
   KeyRound,
-  Undo2,
-} from "lucide-react";
+  Undo2, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConfirm, useRunAction } from "./confirm";
 import {
@@ -40,7 +39,7 @@ export function useListingStatusActions() {
 
   const setStatus = async (
     l: Mini,
-    action: "publish" | "reserve" | "sold" | "rented" | "archive" | "draft",
+    action: "publish" | "negotiating" | "reserve" | "sold" | "rented" | "archive" | "draft",
   ) => {
     let date: string | undefined;
     if (action === "sold" || action === "rented") {
@@ -169,7 +168,15 @@ export function ListingRowMenu({
                 <Send className="size-4" /> {closed ? "Re-publish" : "Publish"}
               </DropdownMenu.Item>
             )}
-            {listing.status === "PUBLISHED" && (
+            {(listing.status === "PUBLISHED" || listing.status === "RESERVED") && (
+              <DropdownMenu.Item
+                className={item}
+                onSelect={() => setStatus(listing, "negotiating")}
+              >
+                <Handshake className="size-4" /> Under negotiation
+              </DropdownMenu.Item>
+            )}
+            {(listing.status === "PUBLISHED" || listing.status === "UNDER_NEGOTIATION") && (
               <DropdownMenu.Item
                 className={item}
                 onSelect={() => setStatus(listing, "reserve")}
@@ -258,7 +265,18 @@ export function ListingQuickActions({
           <Send /> Publish
         </Button>
       )}
-      {listing.status === "PUBLISHED" && (
+      {(listing.status === "PUBLISHED" || listing.status === "RESERVED") && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="border-line"
+          disabled={pending}
+          onClick={() => setStatus(listing, "negotiating")}
+        >
+          <Handshake /> Under negotiation
+        </Button>
+      )}
+      {(listing.status === "PUBLISHED" || listing.status === "UNDER_NEGOTIATION") && (
         <Button
           size="sm"
           variant="outline"

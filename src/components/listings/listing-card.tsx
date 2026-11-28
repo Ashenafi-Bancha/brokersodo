@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { MapPin, ShieldCheck, Star, Search as SearchIcon } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
+import { ListingStatusBadge } from "./status-badge";
 import { CategoryIcon } from "@/components/layout/brand";
 import { FavoriteButton } from "./favorite-button";
 import { Price } from "./price";
@@ -87,7 +88,7 @@ export function ListingCard({
           ) : (
             <Badge variant={listing.dealType === "RENT" ? "rent" : "sale"}>{listing.dealType === "RENT" ? t("rent") : t("sale")}</Badge>
           )}
-          {reserved && <Badge variant="reserved">{t("reserved")}</Badge>}
+          {(reserved || listing.status === "UNDER_NEGOTIATION") && <ListingStatusBadge status={listing.status} />}
         </div>
         {!closed && (
           <div className="absolute top-2.5 right-2.5 z-10">
@@ -112,6 +113,7 @@ export function ListingCard({
         </h3>
         {keyAttrs.length > 0 && <p className="truncate text-[13px] font-medium text-fg-2">{keyAttrs.join(" · ")}</p>}
         <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
+          {listing.status === "PUBLISHED" && <ListingStatusBadge status="PUBLISHED" />}
           {listing.isNegotiable && !closed && <Badge variant="negotiable">{t("negotiable")}</Badge>}
           {listing.isVerified && (
             <Badge variant="verified">

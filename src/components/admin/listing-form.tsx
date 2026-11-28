@@ -16,7 +16,8 @@ import { ImageManager, type ManagedImage } from "./image-manager";
 import { listingFormSchema, type ListingFormInput } from "@/lib/validators/admin";
 import { CONDITIONS, LISTING_STATUSES, RENT_PERIODS } from "@/lib/validators/common";
 import type { AttributeField, AttributeValue } from "@/lib/validators/attribute-schema";
-import { saveListingAction } from "@/server/actions/admin-listings";
+import { requestListingVideoUploadAction, saveListingAction } from "@/server/actions/admin-listings";
+import { VideoUpload } from "@/components/forms/video-upload";
 import { cn } from "@/lib/utils";
 
 export type ListingFormOptions = {
@@ -212,6 +213,15 @@ export function ListingForm({ id, refCode, slug, initial, categories, areas, sta
           <Field id="videoUrl" label="YouTube video" optionalLabel="optional" error={errors.videoUrl?.message}>
             <Input id="videoUrl" type="url" placeholder="https://youtu.be/…" {...register("videoUrl")} />
           </Field>
+          <div>
+            <p className="mb-1 text-sm font-semibold text-fg">Video file <span className="font-normal text-muted">(optional)</span></p>
+            <VideoUpload
+              value={watch("videoFile")}
+              onChange={(url) => setValue("videoFile", url, { shouldDirty: true })}
+              requestTicket={requestListingVideoUploadAction}
+              labels={{ add: "Upload a video", hint: "MP4, WebM or MOV, up to 50 MB. Shown under the photos.", uploading: "Uploading", remove: "Remove video", tooBig: "The video must be 50 MB or smaller.", badType: "Use an MP4, WebM or MOV video.", failed: "Upload failed. Check the connection and try again." }}
+            />
+          </div>
         </Section>
 
         <Section title="Photos" description="Drag to reorder. The cover photo is shown on cards. Public photos get the BrokerSodo watermark automatically.">

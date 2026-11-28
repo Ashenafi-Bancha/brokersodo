@@ -244,3 +244,22 @@ export async function getSitemapListings() {
     take: 45000,
   });
 }
+
+/** Open wanted requests staff chose to show publicly. Never selects the name or phone. */
+export async function getPublicWanted(limit = 30) {
+  return db.wantedRequest.findMany({
+    where: { isPublic: true, status: "OPEN" },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      dealType: true,
+      description: true,
+      budgetMin: true,
+      budgetMax: true,
+      createdAt: true,
+      category: { select: { nameEn: true, nameAm: true, icon: true } },
+      area: { select: { nameEn: true, nameAm: true } },
+    },
+  });
+}

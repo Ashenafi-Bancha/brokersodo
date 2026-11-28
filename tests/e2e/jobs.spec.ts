@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { staff } from "./helpers";
 
-const email = process.env.E2E_ADMIN_EMAIL ?? process.env.SEED_ADMIN_EMAIL ?? "admin@brokersodo.local";
 const password = process.env.E2E_ADMIN_PASSWORD ?? process.env.SEED_ADMIN_PASSWORD ?? "";
 
 /** Rows created here start with "E2E" so they can be cleaned up afterwards. */
@@ -32,12 +32,7 @@ test("employer posts a job, staff publish it, a graduate applies", async ({ page
   await expect(page.getByText(title)).toHaveCount(0);
 
   // 2. Staff publish it.
-  const admin = await browser.newPage();
-  await admin.goto("/admin/login");
-  await admin.getByLabel("Email").fill(email);
-  await admin.getByLabel("Password", { exact: true }).fill(password);
-  await admin.getByRole("button", { name: "Sign in" }).click();
-  await expect(admin.getByRole("heading", { level: 1 })).toContainText("Welcome back");
+  const admin = await staff(browser);
   await admin.goto("/admin/jobs");
   await admin.getByPlaceholder(/Search jobs/).fill(title);
   await admin.getByRole("button", { name: new RegExp(`^${title}`) }).click();

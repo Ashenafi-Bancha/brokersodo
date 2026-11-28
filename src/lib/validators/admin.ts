@@ -66,6 +66,7 @@ export const listingFormSchema = z
       .nullable()
       .transform((v) => v || null)
       .refine((v) => !v || /^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(v), "Must be a YouTube link"),
+    videoFile: z.string().max(400).optional().nullable(),
     categoryId: z.string().min(1, "Choose a category"),
     dealType: z.enum(DEAL_TYPES),
     rentPeriod: z.enum(RENT_PERIODS).optional().nullable(),
@@ -103,7 +104,7 @@ export type ListingFormData = z.output<typeof listingFormSchema>;
 
 export const statusChangeSchema = z.object({
   ids: z.array(z.string()).min(1).max(200),
-  action: z.enum(["publish", "reserve", "sold", "rented", "archive", "draft", "feature", "unfeature", "verify", "unverify"]),
+  action: z.enum(["publish", "negotiating", "reserve", "sold", "rented", "archive", "draft", "feature", "unfeature", "verify", "unverify"]),
   date: optionalDate,
 });
 
@@ -160,6 +161,7 @@ export const wantedUpdateSchema = z.object({
   status: z.enum(WANTED_STATUSES).optional(),
   notes: z.string().max(5000).nullable().optional(),
   matchListingIds: z.array(z.string()).max(50).optional(),
+  isPublic: z.boolean().optional(),
 });
 
 export const rejectSubmissionSchema = z.object({

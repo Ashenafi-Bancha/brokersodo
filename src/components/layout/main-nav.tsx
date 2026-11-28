@@ -59,6 +59,7 @@ export function MainNav({ categories }: { categories: NavCategory[] }) {
       {page("/jobs", t("jobs"))}
       {page("/tutors", t("tutors"))}
       {page("/talent", t("talent"))}
+      {page("/stores", t("stores"))}
       {page("/wanted", t("wanted"))}
       {page("/about", t("about"))}
       {page("/contact", t("contact"))}

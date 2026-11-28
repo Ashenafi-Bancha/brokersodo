@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic";
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const session = await requireStaff().catch(() => null);
   if (!session) redirect("/admin/login");
-  const [submissions, inquiries, wanted, pendingJobs, newApplicants, tutors, tutorRequests, talentRequests, reviews, seekers, companies] = await Promise.all([
+  const [submissions, inquiries, wanted, pendingJobs, newApplicants, tutors, tutorRequests, talentRequests, reviews, seekers, companies, stores] = await Promise.all([
     db.propertySubmission.count({ where: { status: "PENDING" } }),
     db.inquiry.count({ where: { status: "NEW" } }),
-    db.wantedRequest.count({ where: { status: "OPEN" } }),
+    db.wantedRequest.count({ where: { OR: [{ status: "OPEN" }, { responses: { some: { status: "NEW" } } }] } }),
     db.jobPost.count({ where: { status: { in: ["PENDING", "UNDER_REVIEW"] } } }),
     db.jobApplication.count({ where: { status: "NEW" } }),
     db.tutor.count({ where: { status: "PENDING" } }),
@@ -22,11 +22,12 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     db.jobSeeker.count({ where: { status: "NEW", visibility: "PUBLIC" } }),
     // Companies waiting for verification
     db.company.count({ where: { verified: false } }),
+    db.store.count({ where: { status: "PENDING" } }),
   ]);
   return (
     <AdminShell
       me={{ name: session.user.name ?? "Staff", email: session.user.email ?? "", role: session.user.role }}
-      counts={{ submissions, inquiries, wanted, jobs: pendingJobs + newApplicants, tutors, tutorRequests, talentRequests, reviews, seekers, companies }}
+      counts={{ submissions, inquiries, wanted, jobs: pendingJobs + newApplicants, tutors, tutorRequests, talentRequests, reviews, seekers, companies, stores }}
     >
       {children}
     </AdminShell>

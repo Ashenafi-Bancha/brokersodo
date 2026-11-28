@@ -7,6 +7,7 @@ import { parseAttributeSchema, validateAttributes } from "@/lib/validators/attri
 import { listingSlug, nextRefCode } from "@/lib/ref-code";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { getStorage, storeImage, UploadError, type StoredImage } from "@/lib/storage";
+import { createVideoUpload, verifiedVideo, type VideoTicket } from "@/lib/storage/video";
 import { adminAction, logActivity, revalidatePublic, type ActionResult } from "./_helpers";
 
 const STAFF = ["ADMIN", "BROKER"] as const;
@@ -54,6 +55,7 @@ export async function saveListingAction(id: string | null, input: unknown): Prom
       descriptionEn: sanitizeRichText(d.descriptionEn),
       descriptionAm: d.descriptionAm ? sanitizeRichText(d.descriptionAm) : null,
       videoUrl: d.videoUrl,
+      videoFile: await verifiedVideo(d.videoFile),
       categoryId: d.categoryId,
       dealType: d.dealType,
       rentPeriod: d.dealType === "RENT" ? d.rentPeriod : null,
@@ -169,6 +171,9 @@ export async function changeListingStatusAction(input: unknown): Promise<ActionR
       case "publish":
         data = { status: "PUBLISHED", soldAt: null };
         break;
+      case "negotiating":
+        data = { status: "UNDER_NEGOTIATION" };
+        break;
       case "reserve":
         data = { status: "RESERVED" };
         break;
@@ -273,5 +278,16 @@ export async function deleteListingsAction(input: unknown): Promise<ActionResult
     await logActivity(session, "delete", "Listing", rows.length === 1 ? rows[0].id : null, `Deleted ${refs.slice(0, 10).join(", ")}${refs.length > 10 ? "…" : ""}`, { ids: rows.map((r) => r.id) });
     revalidatePublic();
     return { ok: true, data: { count: rows.length }, message: rows.length === 1 ? `${refs[0]} deleted` : `${rows.length} listings deleted` };
+  });
+}
+
+/** Staff: a one-time link to upload a listing video (max 50 MB) straight to storage. */
+export async function requestListingVideoUploadAction(input: { type?: unknown; size?: unknown }): Promise<ActionResult<VideoTicket>> {
+  return adminAction([...STAFF], async () => {
+    try {
+      return { ok: true, data: await createVideoUpload(String(input?.type ?? ""), Number(input?.size)) };
+    } catch {
+      return { ok: false, error: "Only MP4, WebM or MOV videos up to 50 MB" };
+    }
   });
 }

@@ -15,7 +15,7 @@ import type { StorageProvider, StoredImage } from "./types";
 sharp.cache(false);
 sharp.concurrency(1);
 
-const ID = /^(listings|submissions)\/[0-9a-f-]{36}$/;
+const ID = /^(listings|submissions|stores)\/[0-9a-f-]{36}$/;
 const LARGEST = IMAGE_WIDTHS[IMAGE_WIDTHS.length - 1];
 
 /**
@@ -64,7 +64,7 @@ function originalKey(id: string) {
 export function s3IdFromUrl(url: string): string | null {
   const base = `${s3PublicBase()}/`;
   if (!url.startsWith(base)) return null;
-  const m = url.slice(base.length).match(/^((?:listings|submissions)\/[0-9a-f-]{36})-w(?:480|960|1600)\.webp$/);
+  const m = url.slice(base.length).match(/^((?:listings|submissions|stores)\/[0-9a-f-]{36})-w(?:480|960|1600)\.webp$/);
   return m ? m[1] : null;
 }
 
@@ -88,11 +88,12 @@ async function saveImage(input: Buffer, folder: string): Promise<StoredImage> {
   let finalSize = { width: 0, height: 0 };
   for (const w of IMAGE_WIDTHS) {
     const resized = await sharp(original).resize({ width: w, height: w, fit: "inside", withoutEnlargement: true }).toBuffer({ resolveWithObject: true });
-    const mark = await watermarkFor(resized.info.width);
+    // Store photos and logos are the business's own branding: no BrokerSodo watermark.
+    const mark = folder === "stores" ? null : await watermarkFor(resized.info.width);
     const margin = Math.max(6, Math.round(resized.info.width * 0.015));
-    const canPlace = mark.width + margin < resized.info.width && mark.height + margin < resized.info.height;
+    const canPlace = !!mark && mark.width + margin < resized.info.width && mark.height + margin < resized.info.height;
     const out = await sharp(resized.data)
-      .composite(canPlace ? [{ input: mark.data, left: resized.info.width - mark.width - margin, top: resized.info.height - mark.height - margin }] : [])
+      .composite(canPlace && mark ? [{ input: mark.data, left: resized.info.width - mark.width - margin, top: resized.info.height - mark.height - margin }] : [])
       .webp({ quality: w === 480 ? 68 : 74 })
       .toBuffer();
     await put(variantKey(id, w), out);

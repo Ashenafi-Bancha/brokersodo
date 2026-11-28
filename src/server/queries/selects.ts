@@ -41,6 +41,7 @@ export const publicListingDetailSelect = {
   descriptionEn: true,
   descriptionAm: true,
   videoUrl: true,
+  videoFile: true,
   addressHint: true,
   lat: true,
   lng: true,
@@ -59,5 +60,5 @@ export type PublicListingCard = Prisma.ListingGetPayload<{ select: typeof public
 export type PublicListingDetail = Prisma.ListingGetPayload<{ select: typeof publicListingDetailSelect }>;
 
 /** Statuses visible on the public site. */
-export const PUBLIC_STATUSES = ["PUBLISHED", "RESERVED", "SOLD", "RENTED"] as const;
-export const BROWSABLE_STATUSES = ["PUBLISHED", "RESERVED"] as const;
+export const PUBLIC_STATUSES = ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED", "SOLD", "RENTED"] as const;
+export const BROWSABLE_STATUSES = ["PUBLISHED", "UNDER_NEGOTIATION", "RESERVED"] as const;

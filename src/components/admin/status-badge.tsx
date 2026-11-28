@@ -4,6 +4,7 @@ const MAP: Record<string, { variant: Parameters<typeof Badge>[0]["variant"]; lab
   DRAFT: { variant: "draft", label: "Draft" },
   PUBLISHED: { variant: "published", label: "Published" },
   RESERVED: { variant: "warning", label: "Reserved" },
+  UNDER_NEGOTIATION: { variant: "info", label: "Under negotiation" },
   SOLD: { variant: "info", label: "Sold" },
   RENTED: { variant: "info", label: "Rented" },
   ARCHIVED: { variant: "archived", label: "Archived" },

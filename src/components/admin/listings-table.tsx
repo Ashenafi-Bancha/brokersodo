@@ -79,7 +79,7 @@ export function ListingsTable({ rows, isAdmin, categories, brokers }: { rows: Ad
       emptyText="No listings match."
       toolbar={(table) => (
         <>
-          <ColumnSelectFilter table={table} column="status" label="Status" options={["DRAFT", "PUBLISHED", "RESERVED", "SOLD", "RENTED", "ARCHIVED"].map((s) => ({ value: s, label: s.charAt(0) + s.slice(1).toLowerCase() }))} />
+          <ColumnSelectFilter table={table} column="status" label="Status" options={["DRAFT", "PUBLISHED", "UNDER_NEGOTIATION", "RESERVED", "SOLD", "RENTED", "ARCHIVED"].map((s) => ({ value: s, label: s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ") }))} />
           <ColumnSelectFilter table={table} column="category" label="Category" options={categories.map((c) => ({ value: c, label: c }))} />
           <ColumnSelectFilter table={table} column="dealType" label="Deal" options={[{ value: "SALE", label: "Sale" }, { value: "RENT", label: "Rent" }]} />
           <ColumnSelectFilter table={table} column="brokerId" label="Broker" options={brokers.map((b) => ({ value: b.id, label: b.name }))} />

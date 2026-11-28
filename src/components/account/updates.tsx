@@ -14,6 +14,7 @@ const STATUS_GROUP: Record<string, string> = {
   TALENT_STATUS: "seekerStatus",
   TUTOR_REQUEST_STATUS: "requestStatus",
   TALENT_REQUEST_STATUS: "talentRequestStatus",
+  STORE_STATUS: "storeStatus",
 };
 
 /** The member's latest updates. Opening the overview marks them as read. */

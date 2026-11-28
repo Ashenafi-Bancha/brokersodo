@@ -1,6 +1,6 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { staff } from "./helpers";
 
-const email = process.env.E2E_ADMIN_EMAIL ?? process.env.SEED_ADMIN_EMAIL ?? "admin@brokersodo.local";
 const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? process.env.SEED_ADMIN_PASSWORD ?? "";
 
 /** Rows created here start with "E2E" so they can be cleaned up afterwards. */
@@ -19,15 +19,6 @@ async function signUp(page: Page, name: string, phone: string) {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Hello");
 }
 
-async function staff(browser: Browser) {
-  const admin = await browser.newPage();
-  await admin.goto("/admin/login");
-  await admin.getByLabel("Email").fill(email);
-  await admin.getByLabel("Password", { exact: true }).fill(adminPassword);
-  await admin.getByRole("button", { name: "Sign in" }).click();
-  await expect(admin.getByRole("heading", { level: 1 })).toContainText("Welcome back");
-  return admin;
-}
 
 test("sign up, sign out, sign in; account pages need a session and members cannot open the admin", async ({ page, request }) => {
   // Both languages render (Amharic pages are pre-built, so pages that read the cookie must be dynamic).

@@ -15,11 +15,12 @@ export default async function WantedPage() {
       category: { select: { nameEn: true } },
       area: { select: { nameEn: true } },
       matches: { select: { id: true, refCode: true, titleEn: true, price: true } },
+      responses: { orderBy: { createdAt: "desc" }, select: { id: true, name: true, phone: true, message: true, status: true, createdAt: true } },
     },
   });
   return (
     <>
-      <AdminPageHeader title="Wanted requests" description="Buyers telling us what they need. Find a match, link it and call them." crumbs={[{ label: "Wanted" }]} />
+      <AdminPageHeader title="Wanted requests" description="Buyers telling us what they need. Find a match, link it and call them. Turn on “Show on website” to list a request on the public Wanted board (no name or phone); owners who have a match answer here." crumbs={[{ label: "Wanted" }]} />
       <WantedView
         isAdmin={session.user.role === "ADMIN"}
         rows={rows.map((r) => ({
@@ -36,6 +37,8 @@ export default async function WantedPage() {
           notes: r.notes,
           createdAt: r.createdAt.toISOString(),
           matches: r.matches,
+          isPublic: r.isPublic,
+          responses: r.responses.map((x) => ({ ...x, createdAt: x.createdAt.toISOString() })),
         }))}
       />
     </>

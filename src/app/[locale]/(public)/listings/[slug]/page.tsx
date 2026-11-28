@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarDays, Eye, MapPin, Phone, ShieldAlert, ShieldCheck, Star, Search as SearchIcon, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
+import { ListingStatusBadge } from "@/components/listings/status-badge";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { TelegramIcon, WhatsAppIcon } from "@/components/layout/icons";
@@ -63,7 +64,7 @@ export default async function ListingDetailPage({ params }: Props) {
   const title = localized(listing, "title", locale);
   const url = siteUrl(localePath(locale, `/listings/${listing.slug}`));
   const closed = listing.status === "SOLD" || listing.status === "RENTED";
-  const reserved = listing.status === "RESERVED";
+  const reserved = listing.status === "RESERVED" || listing.status === "UNDER_NEGOTIATION";
   const fields = parseAttributeSchema(listing.category.attributeSchema);
   const attrs = (listing.attributes ?? {}) as Record<string, unknown>;
   const specs = fields
@@ -142,8 +143,8 @@ export default async function ListingDetailPage({ params }: Props) {
 
         {(closed || reserved) && (
           <div role="status" className={`mb-5 flex items-start gap-3 rounded-card p-4 ${closed ? "bg-[#DCFCE7] text-sold dark:bg-sold/20 dark:text-[#86efac]" : "border-2 border-amber-500 bg-reserved-bg text-reserved dark:bg-amber-900/40 dark:text-amber-200"}`}>
-            <span className="font-brand text-lg">{closed ? (listing.status === "RENTED" ? t("rented") : t("sold")) : t("reserved")}</span>
-            <p className="text-sm font-medium">{closed ? t("mutedNotice") : t("reservedNotice")}</p>
+            <span className="font-brand text-lg">{closed ? (listing.status === "RENTED" ? t("rented") : t("sold")) : listing.status === "UNDER_NEGOTIATION" ? t("underNegotiation") : t("reserved")}</span>
+            <p className="text-sm font-medium">{closed ? t("mutedNotice") : listing.status === "UNDER_NEGOTIATION" ? t("negotiationNotice") : t("reservedNotice")}</p>
           </div>
         )}
 
@@ -169,6 +170,7 @@ export default async function ListingDetailPage({ params }: Props) {
                     <SearchIcon className="size-3" /> {t("inspected")}
                   </Badge>
                 )}
+                <ListingStatusBadge status={listing.status} />
                 {listing.isNegotiable && !closed && <Badge variant="negotiable">{t("negotiable")}</Badge>}
               </div>
               <h1 className="text-2xl font-extrabold text-fg sm:text-3xl">{title}</h1>
@@ -220,6 +222,11 @@ export default async function ListingDetailPage({ params }: Props) {
               </section>
             )}
 
+            {listing.videoFile && (
+              <section aria-label={t("video")} className="overflow-hidden rounded-card bg-navy-900 shadow-card">
+                <video src={listing.videoFile} controls preload="metadata" playsInline className="aspect-video w-full" />
+              </section>
+            )}
             {listing.videoUrl && <YouTube url={listing.videoUrl} title={`${t("video")} — ${title}`} />}
 
             {listing.lat != null && listing.lng != null && (

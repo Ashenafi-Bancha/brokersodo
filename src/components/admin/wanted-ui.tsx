@@ -14,8 +14,7 @@ import { RowActions } from "./row-actions";
 import {
   deleteWantedAction,
   suggestMatchesAction,
-  updateWantedAction,
-} from "@/server/actions/admin-inbox";
+  updateWantedAction, updateWantedResponseAction } from "@/server/actions/admin-inbox";
 import { formatETB, formatPhoneDisplay, relativeTime } from "@/lib/format";
 import { telLink, whatsappLink } from "@/lib/contact";
 import { WANTED_STATUSES } from "@/lib/validators/common";
@@ -39,6 +38,8 @@ export type WantedRow = {
     titleEn: string;
     price: number | null;
   }[];
+  isPublic: boolean;
+  responses: { id: string; name: string; phone: string; message: string | null; status: string; createdAt: string }[];
 };
 
 const budget = (r: WantedRow) =>
@@ -191,6 +192,7 @@ function WantedDetail({
   const { run, pending } = useRunAction();
   const [status, setStatus] = React.useState(row.status);
   const [notes, setNotes] = React.useState(row.notes ?? "");
+  const [isPublic, setIsPublic] = React.useState(row.isPublic);
   const [selected, setSelected] = React.useState<Set<string>>(
     new Set(row.matches.map((m) => m.id)),
   );
@@ -289,6 +291,36 @@ function WantedDetail({
         )}
       </div>
 
+      {row.responses.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-bold text-fg">Owners who answered ({row.responses.length})</p>
+          <ul className="space-y-2">
+            {row.responses.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-2 rounded-btn border border-line p-2 text-sm">
+                <span className="font-semibold text-fg">{r.name}</span>
+                <a href={`tel:${r.phone}`} className="font-bold text-primary">
+                  {r.phone}
+                </a>
+                <StatusBadge status={r.status} />
+                <span className="text-xs text-muted">{relativeTime(r.createdAt)}</span>
+                {r.message && <p className="w-full text-fg-2">{r.message}</p>}
+                {r.status === "NEW" && (
+                  <Button size="xs" variant="secondary" disabled={pending} onClick={() => run(() => updateWantedResponseAction(r.id, "CONTACTED"), () => router.refresh())}>
+                    Mark called
+                  </Button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <label className="flex cursor-pointer items-start gap-2.5 rounded-btn bg-bg-2 p-3 text-sm text-fg">
+        <input type="checkbox" className="mt-0.5 size-4" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+        <span>
+          <span className="font-semibold">Show on website</span>
+          <span className="block text-xs text-muted">Lists the request on the public Wanted board without the name or phone, so owners with a match can answer.</span>
+        </span>
+      </label>
       <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
         <label className="flex flex-col gap-1 text-sm font-semibold text-fg">
           Status
@@ -355,6 +387,7 @@ function WantedDetail({
                   status:
                     selected.size && status === "OPEN" ? "MATCHED" : status,
                   notes,
+                  isPublic,
                   matchListingIds: [...selected],
                 }),
               () => {
