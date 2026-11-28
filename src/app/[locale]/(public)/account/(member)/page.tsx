@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScopedIntl } from "@/components/scoped-intl";
 import { CancelRequestButton } from "@/components/account/account-forms";
 import { Empty, Panel, StatusPill } from "@/components/account/status-pill";
+import { Updates } from "@/components/account/updates";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 import { requireMemberPage } from "@/lib/member-auth";
@@ -72,6 +73,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="flex flex-col gap-6">
+      <Updates memberId={me.id} />
       <ul className="grid gap-4 md:grid-cols-3">
         {cards.map((c) => (
           <li key={c.href} className="flex flex-col gap-3 rounded-card bg-surface p-5 shadow-card">

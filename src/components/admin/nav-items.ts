@@ -17,6 +17,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/tutor-requests", label: "Tutor requests", icon: "BookOpen", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },
   { href: "/admin/reviews", label: "Tutor reviews", icon: "Star", roles: ["ADMIN", "BROKER"], group: "Jobs & tutors" },
   { href: "/admin/categories", label: "Categories", icon: "Shapes", roles: ["ADMIN"], group: "Setup" },
+  { href: "/admin/job-categories", label: "Job & tutor categories", icon: "Shapes", roles: ["ADMIN"], group: "Setup" },
   { href: "/admin/areas", label: "Areas", icon: "MapPin", roles: ["ADMIN"], group: "Setup" },
   { href: "/admin/content", label: "Content", icon: "FileText", roles: ["ADMIN"], group: "Setup" },
   { href: "/admin/settings", label: "Site settings", icon: "Settings", roles: ["ADMIN"], group: "Setup" },

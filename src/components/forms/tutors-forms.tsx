@@ -8,7 +8,8 @@ import { Field, Honeypot, Input, Select, Textarea } from "@/components/ui/form-c
 import { ServerError, Success } from "./simple-forms";
 import { ChipGroup, ConsentBox, FormSection, useSubmit } from "./form-kit";
 import { tutorRequestSchema, tutorReviewSchema, tutorSchema, type TutorInput, type TutorRequestInput, type TutorReviewInput } from "@/lib/validators/jobs";
-import { EDUCATION_LEVELS, LANGUAGES, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { EDUCATION_LEVELS, LANGUAGES, TUTOR_LEVELS, TUTOR_MODES } from "@/lib/jobs-catalog";
+import { useCatalogList } from "@/lib/use-catalog";
 import { createTutorAction, createTutorRequestAction, createTutorReviewAction } from "@/server/actions/jobs-public";
 import { saveMyTutorAction } from "@/server/actions/member";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ export function TutorJoinForm({ areas, member, initial }: { areas: Opt[]; member
   const t = useTranslations("tutors");
   const tf = useTranslations("form");
   const options = useOptions();
+  const subjectList = useCatalogList("subject");
   const form = useForm<TutorInput>({
     resolver: zodResolver(tutorSchema),
     defaultValues: {
@@ -72,7 +74,7 @@ export function TutorJoinForm({ areas, member, initial }: { areas: Opt[]; member
     <form onSubmit={onSubmit} noValidate className="relative flex flex-col gap-8 rounded-card bg-surface p-5 shadow-card sm:p-8">
       <Honeypot {...register("website")} />
       <FormSection title={t("subjects")}>
-        <ChipGroup legend={t("subjectsPick")} hint={t("chooseHint")} required multiple options={options("subject", TUTOR_SUBJECTS)} value={watch("subjects") ?? []} onChange={pick("subjects")} error={err(e.subjects?.message)} />
+        <ChipGroup legend={t("subjectsPick")} hint={t("chooseHint")} required multiple options={options("subject", subjectList)} value={watch("subjects") ?? []} onChange={pick("subjects")} error={err(e.subjects?.message)} />
         <ChipGroup legend={t("levelsPick")} hint={t("chooseHint")} required multiple options={options("level", TUTOR_LEVELS)} value={watch("levels") ?? []} onChange={pick("levels")} error={err(e.levels?.message)} />
         <ChipGroup legend={t("modesPick")} required multiple options={options("mode", TUTOR_MODES)} value={watch("modes") ?? []} onChange={pick("modes")} error={err(e.modes?.message)} />
         <ChipGroup legend={t("languagesPick")} multiple options={options("language", LANGUAGES)} value={watch("languages") ?? []} onChange={pick("languages")} />
@@ -143,8 +145,9 @@ export function TutorRequestForm({
   const t = useTranslations("tutors");
   const tf = useTranslations("form");
   const options = useOptions();
+  const subjectList = useCatalogList("subject");
   // On a tutor's page, only offer what that tutor teaches.
-  const subjects = tutor && !tutor.subjects.includes("ALL_SUBJECTS") ? tutor.subjects : TUTOR_SUBJECTS;
+  const subjects = tutor && !tutor.subjects.includes("ALL_SUBJECTS") ? tutor.subjects : subjectList;
   const levels = tutor ? tutor.levels : TUTOR_LEVELS;
   const modes = tutor ? tutor.modes : TUTOR_MODES;
   const form = useForm<TutorRequestInput>({

@@ -554,6 +554,7 @@ model JobSeeker {
   publishedAt    DateTime?
   /// The member account that owns this profile (one per account)
   memberId       String?         @unique
+  cv             CvFile?
   member         Member?         @relation(fields: [memberId], references: [id], onDelete: SetNull)
   areaId         String?
   area           Area?           @relation(fields: [areaId], references: [id], onDelete: SetNull)
@@ -580,6 +581,9 @@ enum TalentRequestStatus {
 model TalentRequest {
   id           String              @id @default(cuid())
   seekerId     String?
+  /// The employer's account, when they asked while signed in
+  memberId     String?
+  member       Member?             @relation(fields: [memberId], references: [id], onDelete: SetNull)
   seeker       JobSeeker?          @relation(fields: [seekerId], references: [id], onDelete: SetNull)
   employerName String
   contactName  String
@@ -592,6 +596,7 @@ model TalentRequest {
 
   @@index([status, createdAt(sort: Desc)])
   @@index([seekerId])
+  @@index([memberId])
 }
 
 /**
@@ -752,14 +757,16 @@ model Member {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  sessions      MemberSession[]
-  seeker        JobSeeker?
-  tutor         Tutor?
-  company       Company?
-  jobs          JobPost[]
-  applications  JobApplication[]
-  savedJobs     SavedJob[]
-  tutorRequests TutorRequest[]
+  sessions       MemberSession[]
+  seeker         JobSeeker?
+  tutor          Tutor?
+  company        Company?
+  jobs           JobPost[]
+  applications   JobApplication[]
+  savedJobs      SavedJob[]
+  tutorRequests  TutorRequest[]
+  talentRequests TalentRequest[]
+  notifications  Notification[]
 
   @@index([isActive, createdAt(sort: Desc)])
 }
@@ -805,4 +812,52 @@ model SavedJob {
 
   @@id([memberId, jobId])
   @@index([jobId])
+}
+
+/**
+ * Job sectors ("sector") and tutoring subjects ("subject") that staff manage.
+ * Built-in values live in code (src/lib/jobs-catalog.ts) with translated labels; a row here
+ * renames, reorders or hides a built-in value, or adds a new one.
+ */
+model CatalogOption {
+  id        String   @id @default(cuid())
+  group     String
+  /// Stable key stored on jobs, profiles and requests, e.g. "IT" or "SOLAR_TECH"
+  value     String
+  labelEn   String
+  labelAm   String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([group, value])
+  @@index([group, isActive, sortOrder])
+}
+
+/// A job seeker's CV (PDF). Kept in the database, never in public storage; served only through /api/cv/[id] after an access check.
+model CvFile {
+  id        String    @id @default(cuid())
+  seekerId  String    @unique
+  seeker    JobSeeker @relation(fields: [seekerId], references: [id], onDelete: Cascade)
+  fileName  String
+  size      Int
+  data      Bytes
+  createdAt DateTime  @default(now())
+}
+
+/// Updates shown in a member's account (status changes, new applicants, new student requests).
+model Notification {
+  id        String    @id @default(cuid())
+  memberId  String
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  /// e.g. APPLICATION_STATUS, JOB_STATUS, NEW_APPLICANT; rendered in the reader's language
+  type      String
+  data      Json      @default("{}")
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([memberId, readAt])
+  @@index([memberId, createdAt(sort: Desc)])
 }

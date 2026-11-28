@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { TutorRequestsView } from "@/components/admin/tutors-admin";
 import { requireStaffPage } from "@/lib/auth";
-import { CATALOG_EN } from "@/lib/catalog-labels";
+import { getAdminLabels } from "@/lib/catalog-labels";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Tutor requests" };
@@ -30,7 +30,7 @@ export default async function TutorRequestsPage() {
       />
       <TutorRequestsView
         isAdmin={session.user.role === "ADMIN"}
-        labels={CATALOG_EN}
+        labels={await getAdminLabels()}
         tutors={tutors.map((t) => ({ id: t.id, refCode: t.refCode, name: t.fullName, subjects: t.subjects, levels: t.levels, modes: t.modes, areaId: t.areaId, hourlyRate: t.hourlyRate }))}
         rows={rows.map((r) => ({
           id: r.id,

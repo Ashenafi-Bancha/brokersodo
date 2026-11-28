@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { JobsView } from "@/components/admin/jobs-admin";
 import { requireStaffPage } from "@/lib/auth";
-import { CATALOG_EN } from "@/lib/catalog-labels";
+import { getAdminLabels } from "@/lib/catalog-labels";
 import { dateFromDeadline } from "@/lib/jobs-catalog";
 import { db } from "@/lib/db";
 
@@ -14,7 +14,7 @@ export default async function AdminJobsPage() {
     db.jobPost.findMany({
       orderBy: [{ status: "asc" }, { createdAt: "desc" }],
       take: 2000,
-      include: { area: { select: { nameEn: true } }, applications: { orderBy: { createdAt: "desc" } } },
+      include: { area: { select: { nameEn: true } }, applications: { orderBy: { createdAt: "desc" }, include: { member: { select: { seeker: { select: { cv: { select: { id: true } } } } } } } } },
     }),
     db.area.findMany({ orderBy: [{ sortOrder: "asc" }, { nameEn: "asc" }], select: { id: true, nameEn: true } }),
   ]);
@@ -28,7 +28,7 @@ export default async function AdminJobsPage() {
       />
       <JobsView
         isAdmin={session.user.role === "ADMIN"}
-        labels={CATALOG_EN}
+        labels={await getAdminLabels()}
         areas={areas.map((a) => ({ id: a.id, name: a.nameEn }))}
         rows={jobs.map((j) => ({
           id: j.id,
@@ -71,6 +71,7 @@ export default async function AdminJobsPage() {
             field: a.field,
             experience: a.experience,
             skills: a.skills,
+            cvId: a.member?.seeker?.cv?.id ?? null,
             message: a.message,
             status: a.status,
             notes: a.notes,

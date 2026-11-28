@@ -2,6 +2,9 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getMember } from "@/lib/member-auth";
+import { areActiveValues } from "@/lib/catalog";
+import { CV_MAX_BYTES } from "@/lib/cv-access";
+import { notify } from "@/lib/notify";
 import { rateLimit } from "@/lib/rate-limit";
 import { listingSlug, nextRefCode } from "@/lib/ref-code";
 import { deadlineFromDate, splitSkills } from "@/lib/jobs-catalog";
@@ -40,6 +43,7 @@ export async function saveMyTalentAction(input: unknown): Promise<PublicActionRe
   if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
   const d = parsed.data;
   if (!(await rateLimit(`member-save:${me.id}`, 30, 60 * 60)).ok) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("sector", d.sector))) return { ok: false, error: "invalid", fieldErrors: { sector: ["required"] } };
   const data = {
     name: d.name,
     // The profile always uses the account's phone, so nobody can list someone else's number.
@@ -82,6 +86,7 @@ export async function saveMyTutorAction(input: unknown): Promise<PublicActionRes
   if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
   const d = parsed.data;
   if (!(await rateLimit(`member-save:${me.id}`, 30, 60 * 60)).ok) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("subject", d.subjects))) return { ok: false, error: "invalid", fieldErrors: { subjects: ["required"] } };
   const displayName = d.fullName.split(/\s+/)[0].slice(0, 40);
   const data = {
     displayName,
@@ -148,6 +153,7 @@ export async function saveMyCompanyAction(input: unknown): Promise<PublicActionR
   const parsed = companySchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "invalid", fieldErrors: fieldErrors(parsed.error.issues) };
   const d = parsed.data;
+  if (!(await areActiveValues("sector", d.sector))) return { ok: false, error: "invalid", fieldErrors: { sector: ["required"] } };
   const data = { name: d.name, sector: d.sector, about: d.about, website: d.website, areaId: await validArea(d.areaId) };
   const existing = await db.company.findUnique({ where: { memberId: me.id }, select: { id: true, name: true } });
   if (existing) {
@@ -170,6 +176,7 @@ export async function postMyJobAction(input: unknown): Promise<PublicActionResul
   const d = parsed.data;
   if (d.website) return { ok: true };
   if (!(await rateLimit(`member-job:${me.id}`, 10, 24 * 60 * 60)).ok) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("sector", d.sector))) return { ok: false, error: "invalid", fieldErrors: { sector: ["required"] } };
   const job = await db.$transaction(async (tx) => {
     const refCode = await nextRefCode(tx, "J");
     return tx.jobPost.create({
@@ -224,11 +231,13 @@ export async function setMyApplicantStatusAction(id: string, status: string): Pr
   if (!(EMPLOYER_APPLICANT_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "generic" };
   const company = await db.company.findUnique({ where: { memberId: me.id }, select: { verified: true } });
   if (!company?.verified) return { ok: false, error: "notVerified" };
-  const r = await db.jobApplication.updateMany({
+  const app = await db.jobApplication.findFirst({
     where: { id: String(id).slice(0, 40), job: { memberId: me.id }, status: { not: "WITHDRAWN" } },
-    data: { status: status as (typeof EMPLOYER_APPLICANT_STATUSES)[number] },
+    select: { id: true, status: true, memberId: true, job: { select: { title: true } } },
   });
-  if (r.count === 0) return { ok: false, error: "generic" };
+  if (!app) return { ok: false, error: "generic" };
+  await db.jobApplication.update({ where: { id: app.id }, data: { status: status as (typeof EMPLOYER_APPLICANT_STATUSES)[number] } });
+  if (app.status !== status) await notify(app.memberId, "APPLICATION_STATUS", { title: app.job.title, status }, "/account/talent");
   return done();
 }
 
@@ -272,4 +281,43 @@ export async function myJobStateAction(jobId: string): Promise<{ signedIn: boole
     db.jobApplication.findFirst({ where: { jobId: id, OR: [{ memberId: me.id }, { phone: me.phone }] }, select: { id: true } }),
   ]);
   return { signedIn: true, saved: !!saved, applied: !!applied, name: me.name, phone: me.phone };
+}
+
+/* ---------------- CV ---------------- */
+
+/** Upload or replace the CV on your talent profile (PDF up to 3 MB). */
+export async function uploadMyCvAction(formData: FormData): Promise<PublicActionResult> {
+  const me = await getMember();
+  if (!me) return { ok: false, error: "signIn" };
+  const seeker = await db.jobSeeker.findUnique({ where: { memberId: me.id }, select: { id: true } });
+  if (!seeker) return { ok: false, error: "cvNoProfile" };
+  if (!(await rateLimit(`member-cv:${me.id}`, 10, 60 * 60)).ok) return { ok: false, error: "rateLimited" };
+  const file = formData.get("cv");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "cvMissing" };
+  if (file.size > CV_MAX_BYTES) return { ok: false, error: "cvTooBig" };
+  const bytes = Buffer.from(await file.arrayBuffer());
+  // Check the file itself, not the name or the browser's type: a PDF starts with "%PDF-".
+  if (bytes.subarray(0, 5).toString("latin1") !== "%PDF-") return { ok: false, error: "cvNotPdf" };
+  const fileName = (file.name || "cv.pdf").replace(/[^\w.\- ]+/g, "_").slice(0, 80);
+  await db.cvFile.upsert({
+    where: { seekerId: seeker.id },
+    create: { seekerId: seeker.id, fileName, size: bytes.length, data: bytes },
+    update: { fileName, size: bytes.length, data: bytes, createdAt: new Date() },
+  });
+  return done();
+}
+
+export async function deleteMyCvAction(): Promise<PublicActionResult> {
+  const me = await getMember();
+  if (!me) return { ok: false, error: "signIn" };
+  await db.cvFile.deleteMany({ where: { seeker: { memberId: me.id } } });
+  return done();
+}
+
+/** Prefill for forms on cached public pages (talent "Ask to connect"). */
+export async function myContactPrefillAction(): Promise<{ name?: string; phone?: string; company?: string }> {
+  const me = await getMember();
+  if (!me) return {};
+  const company = await db.company.findUnique({ where: { memberId: me.id }, select: { name: true } });
+  return { name: me.name, phone: me.phone.replace(/^\+251/, "0"), company: company?.name };
 }

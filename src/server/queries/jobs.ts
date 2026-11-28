@@ -5,13 +5,12 @@ import { db } from "@/lib/db";
 import {
   EDUCATION_LEVELS,
   JOB_AUDIENCES,
-  JOB_SECTORS,
   JOB_TYPES,
   LANGUAGES,
   TUTOR_LEVELS,
   TUTOR_MODES,
-  TUTOR_SUBJECTS,
   WORK_MODES,
+  isCatalogKey,
   isOneOf,
 } from "@/lib/jobs-catalog";
 
@@ -71,7 +70,7 @@ export function parseJobFilters(sp: Record<string, string | string[] | undefined
   const page = Number(one("page"));
   return {
     q: one("q")?.slice(0, 80) || undefined,
-    sector: isOneOf(JOB_SECTORS, one("sector")) ? one("sector") : undefined,
+    sector: isCatalogKey(one("sector")) ? one("sector") : undefined,
     type: isOneOf(JOB_TYPES, one("type")) ? one("type") : undefined,
     audience: isOneOf(JOB_AUDIENCES, one("for")) && one("for") !== "ANY" ? one("for") : undefined,
     education: isOneOf(EDUCATION_LEVELS, one("education")) ? one("education") : undefined,
@@ -206,7 +205,7 @@ export function parseTutorFilters(sp: Record<string, string | string[] | undefin
   const one = (k: string) => (typeof sp[k] === "string" ? (sp[k] as string).trim() : undefined);
   const page = Number(one("page"));
   return {
-    subject: isOneOf(TUTOR_SUBJECTS, one("subject")) ? one("subject") : undefined,
+    subject: isCatalogKey(one("subject")) ? one("subject") : undefined,
     level: isOneOf(TUTOR_LEVELS, one("level")) ? one("level") : undefined,
     mode: isOneOf(TUTOR_MODES, one("mode")) ? one("mode") : undefined,
     area: one("area")?.slice(0, 60) || undefined,
@@ -312,7 +311,7 @@ export function parseTalentFilters(sp: Record<string, string | string[] | undefi
   const page = Number(one("page"));
   return {
     q: one("q")?.slice(0, 80) || undefined,
-    sector: isOneOf(JOB_SECTORS, one("sector")) ? one("sector") : undefined,
+    sector: isCatalogKey(one("sector")) ? one("sector") : undefined,
     type: isOneOf(["GRADUATE", "SKILLED"] as const, one("type")) ? one("type") : undefined,
     education: isOneOf(EDUCATION_LEVELS, one("education")) ? one("education") : undefined,
     area: one("area")?.slice(0, 60) || undefined,

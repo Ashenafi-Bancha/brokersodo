@@ -80,6 +80,10 @@ export type TutorSubject = (typeof TUTOR_SUBJECTS)[number];
 export type TutorLevel = (typeof TUTOR_LEVELS)[number];
 export type TutorMode = (typeof TUTOR_MODES)[number];
 
+/** Shape of a catalog key (built-in or added by staff): "IT", "SOLAR_TECH". Existence is checked on the server. */
+export const CATALOG_KEY = /^[A-Z][A-Z0-9_]{1,39}$/;
+export const isCatalogKey = (v: unknown): v is string => typeof v === "string" && CATALOG_KEY.test(v);
+
 /** A typed membership check for values that come from the URL or the database. */
 export function isOneOf<T extends string>(list: readonly T[], value: unknown): value is T {
   return typeof value === "string" && (list as readonly string[]).includes(value);

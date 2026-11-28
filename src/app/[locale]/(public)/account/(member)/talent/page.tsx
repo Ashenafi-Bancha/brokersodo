@@ -4,7 +4,7 @@ import { ExternalLink, Info } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ScopedIntl } from "@/components/scoped-intl";
 import { SeekerForm } from "@/components/forms/jobs-forms";
-import { WithdrawButton } from "@/components/account/account-forms";
+import { CvUpload, WithdrawButton } from "@/components/account/account-forms";
 import { Empty, Panel, StatusPill } from "@/components/account/status-pill";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/format";
@@ -29,7 +29,7 @@ export default async function MyTalentPage({ params }: { params: Promise<{ local
   const [t, areas, seeker, applications, saved] = await Promise.all([
     getTranslations("account"),
     getAreas(),
-    db.jobSeeker.findUnique({ where: { memberId: me.id } }),
+    db.jobSeeker.findUnique({ where: { memberId: me.id }, include: { cv: { select: { id: true, fileName: true, size: true } } } }),
     db.jobApplication.findMany({
       where: { memberId: me.id },
       orderBy: { createdAt: "desc" },
@@ -88,6 +88,15 @@ export default async function MyTalentPage({ params }: { params: Promise<{ local
       </div>
 
       <aside className="flex flex-col gap-6">
+        <Panel title={t("cvTitle")}>
+          {seeker ? (
+            <ScopedIntl namespaces={["account", "form"]}>
+              <CvUpload cv={seeker.cv} />
+            </ScopedIntl>
+          ) : (
+            <Empty>{t("cvNeedsProfile")}</Empty>
+          )}
+        </Panel>
         <Panel title={t("myApplications")}>
           {applications.length === 0 ? (
             <Empty>

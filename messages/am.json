@@ -316,7 +316,11 @@
       "badLogin": "የተሳሳተ ስልክ ቁጥር ወይም የይለፍ ቃል።",
       "signIn": "እባክዎ እንደገና ይግቡ።",
       "noCompany": "መጀመሪያ የድርጅትዎን መረጃ ያስገቡ።",
-      "notVerified": "አመልካቾችን ለማስተዳደር መጀመሪያ ድርጅትዎ መረጋገጥ አለበት።"
+      "notVerified": "አመልካቾችን ለማስተዳደር መጀመሪያ ድርጅትዎ መረጋገጥ አለበት።",
+      "cvNoProfile": "መጀመሪያ የሙያ መገለጫዎን ያስቀምጡ፣ ከዚያ ሲቪዎን ያክሉ።",
+      "cvMissing": "የPDF ፋይል ይምረጡ።",
+      "cvTooBig": "ሲቪው ከ3 ሜባ መብለጥ የለበትም።",
+      "cvNotPdf": "የPDF ፋይሎች ብቻ ይጫናሉ።"
     },
     "savedTitle": "ተቀምጧል",
     "saveChanges": "ለውጦችን አስቀምጥ"
@@ -1083,6 +1087,38 @@
     "answer": {
       "ACCEPTED": "ተቀብለዋል",
       "DECLINED": "አልተቀበሉም"
+    },
+    "cvTitle": "የእርስዎ ሲቪ",
+    "cvNone": "እስካሁን ሲቪ የለም። ሲቪ ለሚያመለክቱባቸው ቀጣሪዎች ይረዳል።",
+    "cvUpload": "ሲቪ ጫን (PDF)",
+    "cvReplace": "ሲቪ ቀይር",
+    "cvDelete": "አስወግድ",
+    "cvDeleteConfirm": "ሲቪዎን ያስወግዱ?",
+    "cvHint": "PDF፣ እስከ 3 ሜባ። እርስዎ፣ ቡድናችን እና ያመለከቱባቸው የተረጋገጡ ቀጣሪዎች ብቻ ይከፍቱታል።",
+    "cvNeedsProfile": "መጀመሪያ የሙያ መገለጫዎን ያስቀምጡ፣ ከዚያ ሲቪዎን እዚህ ያክሉ።",
+    "openCv": "ሲቪ ክፈት",
+    "updates": "ማሳወቂያዎች",
+    "noUpdates": "እስካሁን ማሳወቂያ የለም። አንድ ነገር ሲቀየር እዚህ እናሳውቅዎታለን።",
+    "newUpdates": "{count, plural, one {# አዲስ ማሳወቂያ} other {# አዲስ ማሳወቂያዎች}}",
+    "findTalent": "ባለሙያ ያግኙ",
+    "talentRequestsTitle": "ለመገናኘት የጠየቋቸው ሰዎች",
+    "noTalentRequests": "በ«ባለሙያ ያግኙ» ባለሙያዎችን ያግኙ እና «እንድናገናኝዎ ይጠይቁ» ይጫኑ። ጥያቄዎችዎ እዚህ ይታያሉ።",
+    "talentRequestStatus": {
+      "NEW": "ደርሶናል",
+      "CONTACTED": "እየደወልን ነው",
+      "CONNECTED": "ተገናኝተዋል",
+      "CLOSED": "ተዘግቷል"
+    },
+    "notify": {
+      "APPLICATION_STATUS": "ለ«{title}» ያቀረቡት ማመልከቻ፦ {status}",
+      "NEW_APPLICANT": "ለ«{title}» አዲስ አመልካች",
+      "JOB_STATUS": "የእርስዎ ሥራ «{title}»፦ {status}",
+      "TUTOR_STATUS": "የአስጠኚ መገለጫዎ፦ {status}",
+      "TALENT_STATUS": "የሙያ መገለጫዎ፦ {status}",
+      "TUTOR_REQUEST_STATUS": "የ{subject} አስጠኚ ጥያቄዎ፦ {status}",
+      "NEW_STUDENT": "አዲስ የ{subject} ተማሪ ጥያቄ ተልኮልዎታል",
+      "TALENT_REQUEST_STATUS": "{profession} ለመገናኘት ያቀረቡት ጥያቄ፦ {status}",
+      "COMPANY_VERIFIED": "{name} ተረጋግጧል። አሁን አመልካቾችዎን ማየት ይችላሉ።"
     }
   }
 }

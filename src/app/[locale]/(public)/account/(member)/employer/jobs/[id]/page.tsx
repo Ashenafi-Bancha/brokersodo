@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowLeft, Lock, Phone } from "lucide-react";
+import { ArrowLeft, FileText, Lock, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ScopedIntl } from "@/components/scoped-intl";
 import { ApplicantStatusSelect } from "@/components/account/account-forms";
@@ -36,7 +36,7 @@ export default async function MyJobApplicantsPage({ params }: { params: Promise<
       applications: {
         where: { status: { not: "WITHDRAWN" } },
         orderBy: { createdAt: "desc" },
-        select: { id: true, name: true, phone: true, education: true, field: true, experience: true, skills: true, message: true, status: true, createdAt: true },
+        select: { id: true, name: true, phone: true, education: true, field: true, experience: true, skills: true, message: true, status: true, createdAt: true, member: { select: { seeker: { select: { cv: { select: { id: true } } } } } } },
       },
     },
   });
@@ -75,6 +75,11 @@ export default async function MyJobApplicantsPage({ params }: { params: Promise<
                     {verified ? <ApplicantStatusSelect id={a.id} status={a.status} options={options} /> : <StatusPill status={a.status} label={t(`appStatus.${a.status}` as "appStatus.NEW")} />}
                   </div>
                   {a.skills && <p className="mt-2 text-sm text-fg-2">{a.skills}</p>}
+                  {verified && a.member?.seeker?.cv && (
+                    <a href={`/api/cv/${a.member.seeker.cv.id}`} target="_blank" rel="noopener" className="mt-2 mr-4 inline-flex items-center gap-1.5 font-bold text-primary">
+                      <FileText className="size-4" /> {t("openCv")}
+                    </a>
+                  )}
                   {a.message && <p className="mt-2 rounded-btn bg-bg-2 p-2 text-sm whitespace-pre-line text-fg-2">{a.message}</p>}
                   {verified && (
                     <a href={telLink(a.phone)} className="mt-2 inline-flex items-center gap-1.5 font-bold text-primary">

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { FilterBar } from "@/components/jobs/filter-bar";
 import { HowSteps, Pager, SafetyBox, TutorCard } from "@/components/jobs/cards";
-import { LANGUAGES, TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS } from "@/lib/jobs-catalog";
+import { LANGUAGES, TUTOR_LEVELS, TUTOR_MODES } from "@/lib/jobs-catalog";
+import { getActiveValues } from "@/lib/catalog";
 import { formatETB } from "@/lib/format";
 import { alternates, localePath } from "@/lib/seo";
 import { localized } from "@/lib/utils";
@@ -83,7 +84,7 @@ export default async function TutorsPage({ params, searchParams }: { params: Pro
           submitLabel={t("search")}
           clearLabel={t("clear")}
           fields={[
-            { name: "subject", label: t("filterSubject"), anyLabel: t("anySubject"), value: f.subject, options: TUTOR_SUBJECTS.filter((s) => s !== "ALL_SUBJECTS").map((s) => ({ value: s, label: tc(`subject.${s}` as "subject.MATHS") })) },
+            { name: "subject", label: t("filterSubject"), anyLabel: t("anySubject"), value: f.subject, options: (await getActiveValues("subject")).filter((s) => s !== "ALL_SUBJECTS").map((s) => ({ value: s, label: tc(`subject.${s}` as "subject.MATHS") })) },
             { name: "level", label: t("filterLevel"), anyLabel: t("anyLevel"), value: f.level, options: TUTOR_LEVELS.map((s) => ({ value: s, label: tc(`level.${s}` as "level.KG") })) },
             { name: "mode", label: t("filterMode"), anyLabel: t("anyMode"), value: f.mode, options: TUTOR_MODES.map((s) => ({ value: s, label: tc(`mode.${s}` as "mode.HOME") })) },
             { name: "area", label: t("filterArea"), anyLabel: t("anyArea"), value: f.area, options: areas.map((a) => ({ value: a.slug, label: localized(a, "name", locale) })) },

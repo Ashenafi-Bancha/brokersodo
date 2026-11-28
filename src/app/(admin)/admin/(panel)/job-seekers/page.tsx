@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { SeekersView } from "@/components/admin/jobs-admin";
 import { requireStaffPage } from "@/lib/auth";
-import { CATALOG_EN } from "@/lib/catalog-labels";
+import { getAdminLabels } from "@/lib/catalog-labels";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Talent pool" };
 
 export default async function SeekersPage() {
   const session = await requireStaffPage();
-  const rows = await db.jobSeeker.findMany({ orderBy: [{ status: "asc" }, { createdAt: "desc" }], take: 5000, include: { area: { select: { nameEn: true } } } });
+  const rows = await db.jobSeeker.findMany({ orderBy: [{ status: "asc" }, { createdAt: "desc" }], take: 5000, include: { area: { select: { nameEn: true } }, cv: { select: { id: true } } } });
   return (
     <>
       <AdminPageHeader
@@ -19,7 +19,7 @@ export default async function SeekersPage() {
       />
       <SeekersView
         isAdmin={session.user.role === "ADMIN"}
-        labels={CATALOG_EN}
+        labels={await getAdminLabels()}
         rows={rows.map((s) => ({
           id: s.id,
           name: s.name,
@@ -37,6 +37,7 @@ export default async function SeekersPage() {
           status: s.status,
           notes: s.notes,
           createdAt: s.createdAt.toISOString(),
+          cvId: s.cv?.id ?? null,
           profile: {
             id: s.id,
             slug: s.slug,

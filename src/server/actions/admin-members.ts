@@ -1,11 +1,13 @@
 "use server";
 import { db } from "@/lib/db";
+import { notify } from "@/lib/notify";
 import { adminAction, logActivity, revalidatePublic, type ActionResult } from "./_helpers";
 
 /** Verifying a company lets its owner see applicants' names and phones for their own jobs. */
 export async function setCompanyVerifiedAction(companyId: string, verified: boolean): Promise<ActionResult> {
   return adminAction(["ADMIN", "BROKER"], async (session) => {
-    const c = await db.company.update({ where: { id: companyId }, data: { verified: !!verified }, select: { name: true } });
+    const c = await db.company.update({ where: { id: companyId }, data: { verified: !!verified }, select: { name: true, memberId: true } });
+    if (verified) await notify(c.memberId, "COMPANY_VERIFIED", { name: c.name }, "/account/employer");
     // Their jobs show the verified badge too.
     await db.jobPost.updateMany({ where: { companyId }, data: { employerVerified: !!verified } });
     await logActivity(session, verified ? "verify" : "unverify", "Company", companyId, `${c.name} ${verified ? "verified" : "unverified"}`);

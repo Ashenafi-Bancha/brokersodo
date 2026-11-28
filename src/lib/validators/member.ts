@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { JOB_SECTORS } from "@/lib/jobs-catalog";
+import { CATALOG_KEY } from "@/lib/jobs-catalog";
 import { honeypotSchema, nameSchema, optionalString, phoneSchema } from "./common";
 
 /** 8+ characters with at least one letter and one number; bcrypt reads at most 72 bytes. */
@@ -40,7 +40,7 @@ export const accountNameSchema = z.object({ name: nameSchema });
 
 export const companySchema = z.object({
   name: z.string().trim().min(2, "employer.min").max(120, "employer.max"),
-  sector: z.enum(JOB_SECTORS, { errorMap: () => ({ message: "required" }) }),
+  sector: z.string().regex(CATALOG_KEY, "required"),
   about: optionalString(1500),
   website: optionalString(200),
   areaId: optionalString(40),

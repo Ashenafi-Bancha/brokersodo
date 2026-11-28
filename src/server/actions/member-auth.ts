@@ -27,7 +27,7 @@ export async function signUpAction(input: unknown): Promise<PublicActionResult> 
   const d = parsed.data;
   if (d.website) return { ok: true };
   const fp = await clientFingerprint();
-  if (!(await rateLimit(`member-signup:${fp}`, 5, 60 * 60)).ok) return { ok: false, error: "rateLimited" };
+  if (!(await rateLimit(`member-signup:${fp}`, 20, 60 * 60)).ok) return { ok: false, error: "rateLimited" };
   try {
     const member = await db.member.create({
       data: { name: d.name, phone: d.phone, passwordHash: await hashMemberPassword(d.password), lastLoginAt: new Date() },

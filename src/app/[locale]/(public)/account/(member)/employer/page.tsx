@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { BadgeCheck, Clock, Plus, Users } from "lucide-react";
+import { BadgeCheck, Clock, Plus, UserRoundSearch, Users } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ScopedIntl } from "@/components/scoped-intl";
@@ -26,7 +26,7 @@ export default async function EmployerPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   setRequestLocale(locale);
   const me = await requireMemberPage(locale, "/account/employer");
-  const [t, areas, company, jobs] = await Promise.all([
+  const [t, areas, company, jobs, talentRequests] = await Promise.all([
     getTranslations("account"),
     getAreas(),
     db.company.findUnique({ where: { memberId: me.id } }),
@@ -44,6 +44,12 @@ export default async function EmployerPage({ params }: { params: Promise<{ local
         createdAt: true,
         _count: { select: { applications: true } },
       },
+    }),
+    db.talentRequest.findMany({
+      where: { memberId: me.id },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      select: { id: true, status: true, createdAt: true, seeker: { select: { displayName: true, profession: true, slug: true } } },
     }),
   ]);
   const initial: Partial<CompanyInput> | undefined = company
@@ -123,6 +129,39 @@ export default async function EmployerPage({ params }: { params: Promise<{ local
               })}
             </ul>
           </ScopedIntl>
+        )}
+      </Panel>
+      <Panel
+        className="lg:col-span-2"
+        title={t("talentRequestsTitle")}
+        action={
+          <Button asChild size="sm" variant="secondary">
+            <Link href="/talent">
+              <UserRoundSearch /> {t("findTalent")}
+            </Link>
+          </Button>
+        }
+      >
+        {talentRequests.length === 0 ? (
+          <Empty>{t("noTalentRequests")}</Empty>
+        ) : (
+          <ul className="divide-y divide-line">
+            {talentRequests.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  {r.seeker?.slug ? (
+                    <Link href={`/talent/${r.seeker.slug}`} className="font-semibold text-fg hover:text-primary">
+                      {r.seeker.displayName} · {r.seeker.profession}
+                    </Link>
+                  ) : (
+                    <p className="font-semibold text-fg">{r.seeker ? `${r.seeker.displayName} · ${r.seeker.profession}` : "—"}</p>
+                  )}
+                  <p className="text-xs text-muted">{formatDate(r.createdAt, locale)}</p>
+                </div>
+                <StatusPill status={r.status} label={t(`talentRequestStatus.${r.status}` as "talentRequestStatus.NEW")} />
+              </li>
+            ))}
+          </ul>
         )}
       </Panel>
     </div>

@@ -3,19 +3,22 @@ import { honeypotSchema, nameSchema, optionalString, phoneSchema, priceSchema } 
 import {
   EDUCATION_LEVELS,
   JOB_AUDIENCES,
-  JOB_SECTORS,
   JOB_TYPES,
   LANGUAGES,
   SALARY_PERIODS,
   SEEKER_TYPES,
   TUTOR_LEVELS,
   TUTOR_MODES,
-  TUTOR_SUBJECTS,
   WORK_MODES,
+  CATALOG_KEY,
   dateFromDeadline,
 } from "@/lib/jobs-catalog";
 
 const choice = <T extends readonly [string, ...string[]]>(list: T) => z.enum(list, { errorMap: () => ({ message: "required" }) });
+
+/** A job sector or tutoring subject key; the server checks it is an active option (src/lib/catalog.ts). */
+const catalogKey = z.string({ required_error: "required" }).regex(CATALOG_KEY, "required");
+const catalogKeys = (max: number) => z.array(catalogKey).min(1, "choose.one").max(max).transform((v) => [...new Set(v)]);
 
 /** Whole number typed in a text field ("3", "") with an upper limit. */
 const smallInt = (max: number, fallback: number | null = 0) =>
@@ -94,7 +97,7 @@ export const jobPostSchema = z
     title: text(4, 120, "title"),
     employerName: text(2, 120, "employer"),
     showEmployer: z.boolean().default(true),
-    sector: choice(JOB_SECTORS),
+    sector: catalogKey,
     jobType: choice(JOB_TYPES),
     audience: choice(JOB_AUDIENCES),
     education: choice(EDUCATION_LEVELS),
@@ -137,7 +140,7 @@ export const seekerSchema = z.object({
   phone: phoneSchema,
   seekerType: choice(SEEKER_TYPES),
   profession: text(2, 120, "profession"),
-  sector: choice(JOB_SECTORS),
+  sector: catalogKey,
   education: choice(EDUCATION_LEVELS),
   field: optionalString(120),
   graduationYear: smallInt(2100, null).refine((v) => v == null || (v >= 1980 && v <= new Date().getFullYear() + 1), "number.invalid"),
@@ -163,7 +166,7 @@ const pickSome = <T extends readonly [string, ...string[]]>(list: T, max: number
 export const tutorSchema = z.object({
   fullName: nameSchema,
   phone: phoneSchema,
-  subjects: pickSome(TUTOR_SUBJECTS, 6),
+  subjects: catalogKeys(6),
   levels: pickSome(TUTOR_LEVELS, 6),
   modes: pickSome(TUTOR_MODES, 3),
   education: choice(EDUCATION_LEVELS),
@@ -184,7 +187,7 @@ export const tutorRequestSchema = z.object({
   tutorId: optionalString(40),
   name: nameSchema,
   phone: phoneSchema,
-  subject: choice(TUTOR_SUBJECTS),
+  subject: catalogKey,
   level: choice(TUTOR_LEVELS),
   mode: choice(TUTOR_MODES),
   areaId: optionalString(40),
@@ -234,7 +237,7 @@ export const adminJobSchema = z
     showEmployer: z.boolean(),
     employerVerified: z.boolean(),
     featured: z.boolean(),
-    sector: choice(JOB_SECTORS),
+    sector: catalogKey,
     jobType: choice(JOB_TYPES),
     audience: choice(JOB_AUDIENCES),
     education: choice(EDUCATION_LEVELS),
@@ -263,7 +266,7 @@ export const adminTutorSchema = z.object({
   displayName: text(2, 40, "name"),
   fullName: nameSchema,
   phone: phoneSchema,
-  subjects: pickSome(TUTOR_SUBJECTS, 12),
+  subjects: catalogKeys(12),
   levels: pickSome(TUTOR_LEVELS, 6),
   modes: pickSome(TUTOR_MODES, 3),
   education: choice(EDUCATION_LEVELS),

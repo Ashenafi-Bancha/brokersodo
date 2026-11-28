@@ -37,7 +37,6 @@ import {
 import {
   EDUCATION_LEVELS,
   JOB_AUDIENCES,
-  JOB_SECTORS,
   JOB_TYPES,
   SALARY_PERIODS,
   WORK_MODES,
@@ -58,6 +57,8 @@ export type Labels = Record<string, Record<string, string>>;
 type Area = { id: string; name: string };
 
 const LabelsCtx = React.createContext<Labels>({});
+/** Active sectors or subjects for option lists inside a LabelsProvider. */
+export const useActiveList = (group: "sector" | "subject") => activeList(React.useContext(LabelsCtx), group);
 export const useLabel = () => {
   const labels = React.useContext(LabelsCtx);
   return (group: string, v: string) => labels[group]?.[v] ?? v;
@@ -71,6 +72,9 @@ export function LabelsProvider({
 }) {
   return <LabelsCtx.Provider value={labels}>{children}</LabelsCtx.Provider>;
 }
+
+/** Active sectors or subjects, in the order staff set (from getAdminLabels). */
+export const activeList = (labels: Labels, group: "sector" | "subject") => (labels._active?.[group] ?? "").split(",").filter(Boolean);
 
 const titleCase = (s: string) =>
   s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ");
@@ -181,6 +185,7 @@ export type ApplicantRow = {
   experience: number;
   skills: string | null;
   message: string | null;
+  cvId?: string | null;
   status: (typeof APPLICATION_STATUSES)[number];
   notes: string | null;
   createdAt: string;
@@ -423,7 +428,7 @@ export function JobsView({
               table={t}
               column="sector"
               label="Sector"
-              options={JOB_SECTORS.map((s) => ({
+              options={activeList(labels, "sector").map((s) => ({
                 value: s,
                 label: labels.sector?.[s] ?? s,
               }))}
@@ -657,6 +662,7 @@ function JobEditor({
 }) {
   const router = useRouter();
   const { run, pending } = useRunAction();
+  const sectorList = useActiveList("sector");
   const [v, setV] = React.useState(job);
   const set = <K extends keyof JobRow>(k: K, val: JobRow[K]) =>
     setV((p) => ({ ...p, [k]: val }));
@@ -711,7 +717,7 @@ function JobEditor({
             value={v.sector}
             onChange={(e) => set("sector", e.target.value)}
           >
-            <Options group="sector" list={JOB_SECTORS} />
+            <Options group="sector" list={sectorList} />
           </Select>
         </L>
         <L label="Job type">
@@ -964,6 +970,11 @@ function ApplicantItem({ a, job }: { a: ApplicantRow; job: JobRow }) {
             {a.field ? ` · ${a.field}` : ""} · {a.experience} yrs experience
           </p>
           {a.skills && <p className="text-sm text-fg-2">Skills: {a.skills}</p>}
+          {a.cvId && (
+            <a href={`/api/cv/${a.cvId}`} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+              <ExternalLink className="size-4" /> Open CV
+            </a>
+          )}
           {a.message && (
             <p className="mt-1 rounded-sm bg-bg-2 p-2 text-sm whitespace-pre-line text-fg-2">
               {a.message}
@@ -1129,6 +1140,7 @@ export type SeekerRow = {
   notes: string | null;
   createdAt: string;
   profile: TalentProfileRow;
+  cvId: string | null;
 };
 
 export function SeekersView({
@@ -1256,7 +1268,7 @@ export function SeekersView({
               table={t}
               column="sector"
               label="Sector"
-              options={JOB_SECTORS.map((s) => ({
+              options={activeList(labels, "sector").map((s) => ({
                 value: s,
                 label: labels.sector?.[s] ?? s,
               }))}
@@ -1344,6 +1356,11 @@ function SeekerDetail({
         ))}
       </dl>
       {s.skills && <p className="text-sm text-fg-2">Skills: {s.skills}</p>}
+      {s.cvId && (
+        <a href={`/api/cv/${s.cvId}`} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline">
+          <ExternalLink className="size-4" /> Open CV
+        </a>
+      )}
       {s.about && (
         <p className="rounded-btn bg-bg-2 p-3 text-sm whitespace-pre-line text-fg-2">
           {s.about}

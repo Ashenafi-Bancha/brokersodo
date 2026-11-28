@@ -18,9 +18,10 @@ import {
   type SeekerInput,
   type TalentRequestInput,
 } from "@/lib/validators/jobs";
-import { EDUCATION_LEVELS, JOB_AUDIENCES, JOB_SECTORS, JOB_TYPES, LANGUAGES, SALARY_PERIODS, SEEKER_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
+import { useCatalogList } from "@/lib/use-catalog";
+import { EDUCATION_LEVELS, JOB_AUDIENCES, JOB_TYPES, LANGUAGES, SALARY_PERIODS, SEEKER_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
 import { applyToJobAction, createJobPostAction, createSeekerAction, createTalentRequestAction } from "@/server/actions/jobs-public";
-import { myJobStateAction, postMyJobAction, saveMyTalentAction } from "@/server/actions/member";
+import { myContactPrefillAction, myJobStateAction, postMyJobAction, saveMyTalentAction } from "@/server/actions/member";
 
 type Opt = { id: string; name: string };
 
@@ -67,6 +68,7 @@ export function JobPostForm({ areas, member }: { areas: Opt[]; member?: { compan
   const t = useTranslations("jobs");
   const tf = useTranslations("form");
   const { options } = useCatalog();
+  const sectors = useCatalogList("sector");
   const form = useForm<JobPostInput>({
     resolver: zodResolver(jobPostSchema),
     defaultValues: {
@@ -132,7 +134,7 @@ export function JobPostForm({ areas, member }: { areas: Opt[]; member?: { compan
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="jp-sector" label={t("sector")} required error={err(e.sector?.message)}>
-            <CatalogSelect id="jp-sector" group="sector" list={JOB_SECTORS} placeholder="—" aria-invalid={!!e.sector} {...register("sector")} />
+            <CatalogSelect id="jp-sector" group="sector" list={sectors} placeholder="—" aria-invalid={!!e.sector} {...register("sector")} />
           </Field>
           <Field id="jp-type" label={t("type")} required>
             <CatalogSelect id="jp-type" group="jobType" list={JOB_TYPES} {...register("jobType")} />
@@ -276,6 +278,7 @@ export function SeekerForm({ areas, defaultType, member, initial }: { areas: Opt
   const t = useTranslations("jobs");
   const tf = useTranslations("form");
   const { options } = useCatalog();
+  const sectors = useCatalogList("sector");
   const form = useForm<SeekerInput>({
     resolver: zodResolver(seekerSchema),
     defaultValues: {
@@ -332,7 +335,7 @@ export function SeekerForm({ areas, defaultType, member, initial }: { areas: Opt
           <Input id="sk-prof" placeholder={t("professionPlaceholder")} aria-invalid={!!e.profession} {...register("profession")} />
         </Field>
         <Field id="sk-sector" label={t("seekerSector")} required error={err(e.sector?.message)}>
-          <CatalogSelect id="sk-sector" group="sector" list={JOB_SECTORS} placeholder="—" aria-invalid={!!e.sector} {...register("sector")} />
+          <CatalogSelect id="sk-sector" group="sector" list={sectors} placeholder="—" aria-invalid={!!e.sector} {...register("sector")} />
         </Field>
         <Field id="sk-edu" label={t("education")} required error={err(e.education?.message)}>
           <CatalogSelect id="sk-edu" group="education" list={EDUCATION_LEVELS} placeholder="—" aria-invalid={!!e.education} {...register("education")} />
@@ -405,8 +408,22 @@ export function TalentRequestForm({ seekerId }: { seekerId: string }) {
     resolver: zodResolver(talentRequestSchema),
     defaultValues: { seekerId, employerName: "", contactName: "", phone: "", message: "", website: "" },
   });
-  const { register, formState } = form;
+  const { register, formState, setValue, getValues } = form;
   const { onSubmit, done, serverError, err } = useSubmit(form, createTalentRequestAction);
+  React.useEffect(() => {
+    let live = true;
+    myContactPrefillAction()
+      .then((p) => {
+        if (!live) return;
+        if (p.company && !getValues("employerName")) setValue("employerName", p.company);
+        if (p.name && !getValues("contactName")) setValue("contactName", p.name);
+        if (p.phone && !getValues("phone")) setValue("phone", p.phone);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [getValues, setValue]);
   if (done) return <Success title={t("requestDoneTitle")} body={t("requestDoneBody")} />;
   const e = formState.errors;
   return (

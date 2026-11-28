@@ -14,6 +14,10 @@ import {
 } from "@/lib/validators/jobs";
 import { deadlineFromDate, splitSkills } from "@/lib/jobs-catalog";
 import { getMember } from "@/lib/member-auth";
+import { areActiveValues } from "@/lib/catalog";
+import { notify } from "@/lib/notify";
+
+const badChoice = { ok: false as const, error: "invalid", fieldErrors: { _: ["required"] } };
 import type { PublicActionResult } from "./public";
 
 function fieldErrors(issues: { path: (string | number)[]; message: string }[]) {
@@ -42,6 +46,7 @@ export async function createJobPostAction(input: unknown): Promise<PublicActionR
   const d = parsed.data;
   if (d.website) return botOk;
   if (await limited("job-post", 4, 60 * 60)) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("sector", d.sector))) return { ...badChoice, fieldErrors: { sector: ["required"] } };
   try {
     const areaId = await validArea(d.areaId);
     const job = await db.$transaction(async (tx) => {
@@ -92,7 +97,7 @@ export async function applyToJobAction(input: unknown): Promise<PublicActionResu
   try {
     const job = await db.jobPost.findFirst({
       where: { id: d.jobId, status: "PUBLISHED", OR: [{ deadline: null }, { deadline: { gte: new Date() } }] },
-      select: { id: true },
+      select: { id: true, title: true, memberId: true },
     });
     if (!job) return { ok: false, error: "jobClosed" };
     const me = await getMember();
@@ -109,6 +114,7 @@ export async function applyToJobAction(input: unknown): Promise<PublicActionResu
         message: d.message,
       },
     });
+    await notify(job.memberId, "NEW_APPLICANT", { title: job.title }, `/account/employer/jobs/${job.id}`);
     return { ok: true };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return { ok: true };
@@ -124,6 +130,7 @@ export async function createSeekerAction(input: unknown): Promise<PublicActionRe
   const d = parsed.data;
   if (d.website) return botOk;
   if (await limited("job-seeker", 4, 60 * 60)) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("sector", d.sector))) return { ...badChoice, fieldErrors: { sector: ["required"] } };
   try {
     await db.jobSeeker.create({
       data: {
@@ -163,6 +170,7 @@ export async function createTutorAction(input: unknown): Promise<PublicActionRes
   const d = parsed.data;
   if (d.website) return botOk;
   if (await limited("tutor-join", 3, 60 * 60)) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("subject", d.subjects))) return { ...badChoice, fieldErrors: { subjects: ["required"] } };
   try {
     const areaId = await validArea(d.areaId);
     // Only the first name is shown publicly.
@@ -205,6 +213,7 @@ export async function createTutorRequestAction(input: unknown): Promise<PublicAc
   const d = parsed.data;
   if (d.website) return botOk;
   if (await limited("tutor-request", 6, 60 * 30)) return { ok: false, error: "rateLimited" };
+  if (!(await areActiveValues("subject", d.subject))) return { ...badChoice, fieldErrors: { subject: ["required"] } };
   try {
     const tutor = d.tutorId ? await db.tutor.findFirst({ where: { id: d.tutorId, status: "ACTIVE" }, select: { id: true } }) : null;
     const me = await getMember();
@@ -279,8 +288,9 @@ export async function createTalentRequestAction(input: unknown): Promise<PublicA
   try {
     const seeker = await db.jobSeeker.findFirst({ where: { id: d.seekerId, visibility: "PUBLIC", status: "ACTIVE" }, select: { id: true } });
     if (!seeker) return { ok: false, error: "generic" };
+    const me = await getMember();
     await db.talentRequest.create({
-      data: { seekerId: seeker.id, employerName: d.employerName, contactName: d.contactName, phone: d.phone, message: d.message },
+      data: { memberId: me?.id ?? null, seekerId: seeker.id, employerName: d.employerName, contactName: d.contactName, phone: d.phone, message: d.message },
     });
     return { ok: true };
   } catch (e) {

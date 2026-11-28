@@ -4,7 +4,8 @@ import { localePath } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
 import { getAreas, getCategories, getSitemapListings } from "@/server/queries/public";
 import { getSitemapJobsAndTutors } from "@/server/queries/jobs";
-import { JOB_SECTORS, TUTOR_SUBJECTS, catalogSlug } from "@/lib/jobs-catalog";
+import { catalogSlug } from "@/lib/jobs-catalog";
+import { getActiveValues } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const tutors = extra.tutors.map((t) => entry(`/tutors/${t.slug}`, { lastModified: t.updatedAt, changeFrequency: "weekly", priority: 0.6 }));
   const talent = extra.talent.map((p) => entry(`/talent/${p.slug}`, { lastModified: p.updatedAt, changeFrequency: "weekly", priority: 0.5 }));
   // Service category pages ("IT jobs", "Maths tutors"); one each, no thin combinations.
-  const sectorPages = JOB_SECTORS.map((s) => entry(`/jobs/category/${catalogSlug(s)}`, { changeFrequency: "daily", priority: 0.6 }));
-  const subjectPages = TUTOR_SUBJECTS.filter((s) => s !== "ALL_SUBJECTS").map((s) => entry(`/tutors/subject/${catalogSlug(s)}`, { changeFrequency: "weekly", priority: 0.6 }));
+  const sectorPages = (await getActiveValues("sector")).map((s) => entry(`/jobs/category/${catalogSlug(s)}`, { changeFrequency: "daily", priority: 0.6 }));
+  const subjectPages = (await getActiveValues("subject")).filter((s) => s !== "ALL_SUBJECTS").map((s) => entry(`/tutors/subject/${catalogSlug(s)}`, { changeFrequency: "weekly", priority: 0.6 }));
   return [...staticPages, ...cats, ...catAreas, ...items, ...jobs, ...tutors, ...talent, ...sectorPages, ...subjectPages];
 }

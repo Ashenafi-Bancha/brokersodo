@@ -5,7 +5,7 @@ import { PageHero } from "@/components/layout/page-hero";
 import { ScopedIntl } from "@/components/scoped-intl";
 import { TutorRequestForm } from "@/components/forms/tutors-forms";
 import { SafetyBox } from "@/components/jobs/cards";
-import { TUTOR_LEVELS, TUTOR_MODES, TUTOR_SUBJECTS, isOneOf } from "@/lib/jobs-catalog";
+import { TUTOR_LEVELS, TUTOR_MODES, isCatalogKey, isOneOf } from "@/lib/jobs-catalog";
 import { getAreas } from "@/server/queries/public";
 import { alternates } from "@/lib/seo";
 import { localized } from "@/lib/utils";
@@ -26,7 +26,7 @@ export default async function RequestTutorPage({ params, searchParams }: { param
   const [t, areas] = await Promise.all([getTranslations("tutors"), getAreas()]);
   // Carry the filters the visitor already chose on /tutors into the form.
   const defaults = {
-    subject: isOneOf(TUTOR_SUBJECTS, sp.subject) ? sp.subject : undefined,
+    subject: isCatalogKey(sp.subject) ? sp.subject : undefined,
     level: isOneOf(TUTOR_LEVELS, sp.level) ? sp.level : undefined,
     mode: isOneOf(TUTOR_MODES, sp.mode) ? sp.mode : undefined,
     areaId: areas.some((a) => a.id === sp.area) ? sp.area : undefined,

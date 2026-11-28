@@ -3,7 +3,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, FileText, Loader2, Trash2, Upload } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, Honeypot, Input, Select, Textarea } from "@/components/ui/form-controls";
@@ -22,16 +22,18 @@ import {
   type SignInInput,
   type SignUpInput,
 } from "@/lib/validators/member";
-import { JOB_SECTORS } from "@/lib/jobs-catalog";
+import { useCatalogList } from "@/lib/use-catalog";
 import { changePasswordAction, signInAction, signUpAction, updateAccountNameAction } from "@/server/actions/member-auth";
 import {
   cancelMyTutorRequestAction,
   closeMyJobAction,
+  deleteMyCvAction,
   myJobStateAction,
   respondToTutorRequestAction,
   saveMyCompanyAction,
   setMyApplicantStatusAction,
   toggleSavedJobAction,
+  uploadMyCvAction,
   withdrawMyApplicationAction,
 } from "@/server/actions/member";
 import { cn } from "@/lib/utils";
@@ -186,6 +188,7 @@ export function CompanyForm({ areas, initial }: { areas: Opt[]; initial?: Partia
   const t = useTranslations("account");
   const tf = useTranslations("form");
   const tc = useTranslations("catalog");
+  const sectors = useCatalogList("sector");
   const router = useRouter();
   const form = useForm<CompanyInput>({
     resolver: zodResolver(companySchema),
@@ -206,7 +209,7 @@ export function CompanyForm({ areas, initial }: { areas: Opt[]; initial?: Partia
         <Field id="co-sector" label={t("companySector")} required error={err(e.sector?.message)}>
           <Select id="co-sector" aria-invalid={!!e.sector} {...register("sector")}>
             <option value="">—</option>
-            {JOB_SECTORS.map((s) => (
+            {sectors.map((s) => (
               <option key={s} value={s}>
                 {tc(`sector.${s}` as "sector.OTHER")}
               </option>
@@ -372,5 +375,80 @@ export function SaveJobButton({ jobId, signInHref }: { jobId: string; signInHref
     >
       {saved ? <BookmarkCheck className="text-primary" /> : <Bookmark />} {saved ? t("savedJob") : t("saveJob")}
     </Button>
+  );
+}
+
+/** Upload, replace, view or remove the CV on your talent profile. */
+export function CvUpload({ cv }: { cv: { id: string; fileName: string; size: number } | null }) {
+  const t = useTranslations("account");
+  const err = useFormError();
+  const router = useRouter();
+  const [pending, start] = React.useTransition();
+  const [error, setError] = React.useState<string | null>(null);
+  const input = React.useRef<HTMLInputElement>(null);
+  const upload = (file: File) =>
+    start(async () => {
+      setError(null);
+      if (file.size > 3 * 1024 * 1024) return setError(err("cvTooBig") ?? "");
+      const fd = new FormData();
+      fd.set("cv", file);
+      const r = await uploadMyCvAction(fd);
+      if (r.ok) router.refresh();
+      else setError(err(r.error) ?? r.error);
+      if (input.current) input.current.value = "";
+    });
+  return (
+    <div className="flex flex-col gap-3">
+      {cv ? (
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <FileText className="size-5 text-primary" aria-hidden />
+          <a href={`/api/cv/${cv.id}`} target="_blank" rel="noopener" className="font-semibold text-fg underline-offset-2 hover:underline">
+            {cv.fileName}
+          </a>
+          <span className="text-muted">{Math.max(1, Math.round(cv.size / 1024))} KB</span>
+        </p>
+      ) : (
+        <p className="text-sm text-fg-2">{t("cvNone")}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <input
+          ref={input}
+          id="cv-file"
+          type="file"
+          accept="application/pdf,.pdf"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+          }}
+        />
+        <Button type="button" size="sm" variant="secondary" disabled={pending} onClick={() => input.current?.click()}>
+          {pending ? <Loader2 className="animate-spin" /> : <Upload />} {cv ? t("cvReplace") : t("cvUpload")}
+        </Button>
+        {cv && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={pending}
+            onClick={() => {
+              if (!window.confirm(t("cvDeleteConfirm"))) return;
+              start(async () => {
+                await deleteMyCvAction();
+                router.refresh();
+              });
+            }}
+          >
+            <Trash2 /> {t("cvDelete")}
+          </Button>
+        )}
+      </div>
+      <p className="text-xs text-muted">{t("cvHint")}</p>
+      {error && (
+        <p role="alert" className="text-sm font-medium text-error">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

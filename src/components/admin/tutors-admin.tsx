@@ -23,6 +23,8 @@ import {
   L,
   LabelsProvider,
   Toggle,
+  activeList,
+  useActiveList,
   useLabel,
   type Labels,
 } from "./jobs-admin";
@@ -38,7 +40,6 @@ import {
   LANGUAGES,
   TUTOR_LEVELS,
   TUTOR_MODES,
-  TUTOR_SUBJECTS,
 } from "@/lib/jobs-catalog";
 import { TUTOR_REQUEST_STATUSES, TUTOR_STATUSES } from "@/lib/validators/jobs";
 import { formatETB, formatPhoneDisplay, relativeTime } from "@/lib/format";
@@ -250,7 +251,7 @@ export function TutorsView({
               table={t}
               column="subjects"
               label="Subject"
-              options={TUTOR_SUBJECTS.map((s) => ({
+              options={activeList(labels, "subject").map((s) => ({
                 value: s,
                 label: labels.subject?.[s] ?? s,
               }))}
@@ -301,6 +302,7 @@ function TutorEditor({
   const [v, setV] = React.useState(tutor);
   const set = <K extends keyof TutorRow>(k: K, val: TutorRow[K]) =>
     setV((p) => ({ ...p, [k]: val }));
+  const subjectList = useActiveList("subject");
   const opts = (group: string, list: readonly string[]) =>
     list.map((x) => ({ value: x, label: label(group, x) }));
   const quick = (status: string, reason?: string) =>
@@ -440,7 +442,7 @@ function TutorEditor({
       <ChipGroup
         legend="Subjects"
         multiple
-        options={opts("subject", TUTOR_SUBJECTS)}
+        options={opts("subject", subjectList)}
         value={v.subjects}
         onChange={(x) => set("subjects", x as string[])}
       />

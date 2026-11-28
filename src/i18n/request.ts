@@ -1,6 +1,7 @@
 import { getRequestConfig } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { routing } from "./routing";
+import { catalogMessages } from "@/lib/catalog";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
@@ -8,9 +9,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const messages = (await import(`../../messages/${locale}.json`)).default;
   // English is the fallback for any key missing from another locale.
   const fallback = locale === "en" ? messages : (await import(`../../messages/en.json`)).default;
+  // Job sectors and tutoring subjects that staff renamed or added in the admin.
+  const catalog = await catalogMessages(locale);
   return {
     locale,
-    messages: deepMerge(fallback, messages),
+    messages: deepMerge(deepMerge(fallback, messages), { catalog }),
     timeZone: "Africa/Addis_Ababa",
   };
 });

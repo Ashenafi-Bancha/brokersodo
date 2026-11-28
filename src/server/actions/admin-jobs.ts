@@ -16,6 +16,14 @@ import {
   inboxUpdateSchema,
 } from "@/lib/validators/jobs";
 import { adminAction, logActivity, revalidatePublic, type ActionResult } from "./_helpers";
+import { getCatalog } from "@/lib/catalog";
+import { notify } from "@/lib/notify";
+
+/** Staff may keep a hidden sector or subject on a record, but not invent one. */
+async function knownValues(group: "sector" | "subject", values: string[]) {
+  const all = new Set((await getCatalog(group)).map((i) => i.value));
+  return values.every((v) => all.has(v));
+}
 
 const STAFF = ["ADMIN", "BROKER"] as const;
 
@@ -29,7 +37,8 @@ async function areaOrNull(id: string | null | undefined) {
 export async function saveJobAction(input: unknown): Promise<ActionResult<{ id: string }>> {
   return adminAction([...STAFF], async (session) => {
     const d = adminJobSchema.parse(input);
-    const before = d.id ? await db.jobPost.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true } }) : null;
+    if (!(await knownValues("sector", [d.sector]))) return { ok: false, error: "Unknown sector" };
+    const before = d.id ? await db.jobPost.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true, memberId: true } }) : null;
     if (d.id && !before) return { ok: false, error: "Job not found" };
     const publishing = d.status === "PUBLISHED" && before?.status !== "PUBLISHED";
     // A published job always gets a deadline so the board never fills with stale posts.
@@ -74,6 +83,7 @@ export async function saveJobAction(input: unknown): Promise<ActionResult<{ id: 
             select: { id: true, refCode: true, title: true },
           });
         });
+    if (before && before.status !== d.status) await notify(before.memberId, "JOB_STATUS", { title: job.title, status: d.status }, "/account/employer");
     await logActivity(session, d.id ? (publishing ? "publish" : "update") : "create", "JobPost", job.id, `${job.refCode} ${job.title}${publishing ? " published" : ""}`);
     revalidatePublic();
     return { ok: true, data: { id: job.id }, message: publishing ? "Job published" : "Job saved" };
@@ -83,7 +93,7 @@ export async function saveJobAction(input: unknown): Promise<ActionResult<{ id: 
 export async function setJobStatusAction(id: string, status: string, reason?: string): Promise<ActionResult> {
   return adminAction([...STAFF], async (session) => {
     if (!(JOB_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "Unknown status" };
-    const before = await db.jobPost.findUnique({ where: { id }, select: { status: true, deadline: true, publishedAt: true } });
+    const before = await db.jobPost.findUnique({ where: { id }, select: { status: true, deadline: true, publishedAt: true, memberId: true } });
     if (!before) return { ok: false, error: "Job not found" };
     const s = status as (typeof JOB_STATUSES)[number];
     const reopen = s === "PUBLISHED" && (!before.deadline || before.deadline < new Date());
@@ -97,6 +107,7 @@ export async function setJobStatusAction(id: string, status: string, reason?: st
       },
       select: { refCode: true, title: true },
     });
+    if (before.status !== s) await notify(before.memberId, "JOB_STATUS", { title: job.title, status: s }, "/account/employer");
     await logActivity(session, "status", "JobPost", id, `${job.refCode} ${job.title}: ${before.status} → ${s}`);
     revalidatePublic();
     return { ok: true, message: s === "PUBLISHED" ? "Job published" : `Job marked ${s.toLowerCase()}` };
@@ -141,11 +152,13 @@ export async function updateApplicationAction(input: unknown): Promise<ActionRes
   return adminAction([...STAFF], async (session) => {
     const d = inboxUpdateSchema.parse(input);
     if (!(APPLICATION_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const prev = await db.jobApplication.findUnique({ where: { id: d.id }, select: { status: true } });
     const a = await db.jobApplication.update({
       where: { id: d.id },
       data: { status: d.status as (typeof APPLICATION_STATUSES)[number], notes: d.notes?.trim() || null },
-      select: { name: true, job: { select: { refCode: true } } },
+      select: { name: true, memberId: true, job: { select: { refCode: true, title: true } } },
     });
+    if (prev?.status !== d.status) await notify(a.memberId, "APPLICATION_STATUS", { title: a.job.title, status: d.status }, "/account/talent");
     await logActivity(session, "status", "JobApplication", d.id, `${a.name} for ${a.job.refCode} → ${d.status}`);
     return { ok: true, message: "Applicant updated" };
   });
@@ -155,11 +168,13 @@ export async function updateSeekerAction(input: unknown): Promise<ActionResult> 
   return adminAction([...STAFF], async (session) => {
     const d = inboxUpdateSchema.parse(input);
     if (!(SEEKER_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const prevSeeker = await db.jobSeeker.findUnique({ where: { id: d.id }, select: { status: true } });
     const s = await db.jobSeeker.update({
       where: { id: d.id },
       data: { status: d.status as (typeof SEEKER_STATUSES)[number], notes: d.notes?.trim() || null },
-      select: { name: true },
+      select: { name: true, memberId: true },
     });
+    if (prevSeeker?.status !== d.status) await notify(s.memberId, "TALENT_STATUS", { status: d.status }, "/account/talent");
     await ensureTalentSlug(d.id);
     await logActivity(session, "status", "JobSeeker", d.id, `Job seeker ${s.name} → ${d.status}`);
     revalidatePublic();
@@ -172,6 +187,7 @@ export async function updateTutorRequestAction(input: unknown): Promise<ActionRe
     const d = inboxUpdateSchema.parse(input);
     if (!(TUTOR_REQUEST_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
     const tutorId = d.tutorId ? ((await db.tutor.findUnique({ where: { id: d.tutorId }, select: { id: true } }))?.id ?? null) : null;
+    const prevReq = await db.tutorRequest.findUnique({ where: { id: d.id }, select: { status: true, tutorId: true } });
     const r = await db.tutorRequest.update({
       where: { id: d.id },
       data: {
@@ -179,8 +195,10 @@ export async function updateTutorRequestAction(input: unknown): Promise<ActionRe
         notes: d.notes?.trim() || null,
         ...(d.tutorId !== undefined ? { tutorId } : {}),
       },
-      select: { name: true },
+      select: { name: true, subject: true, memberId: true, tutorId: true, tutor: { select: { memberId: true } } },
     });
+    if (prevReq?.status !== d.status) await notify(r.memberId, "TUTOR_REQUEST_STATUS", { subject: r.subject, status: d.status }, "/account");
+    if (r.tutorId && r.tutorId !== prevReq?.tutorId) await notify(r.tutor?.memberId, "NEW_STUDENT", { subject: r.subject }, "/account/tutor");
     await logActivity(session, "status", "TutorRequest", d.id, `Tutor request from ${r.name} → ${d.status}`);
     return { ok: true, message: "Request updated" };
   });
@@ -204,7 +222,8 @@ export async function deletePersonAction(kind: "application" | "seeker" | "tutor
 export async function saveTutorAction(input: unknown): Promise<ActionResult<{ id: string }>> {
   return adminAction([...STAFF], async (session) => {
     const d = adminTutorSchema.parse(input);
-    const before = d.id ? await db.tutor.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true } }) : null;
+    if (!(await knownValues("subject", d.subjects))) return { ok: false, error: "Unknown subject" };
+    const before = d.id ? await db.tutor.findUnique({ where: { id: d.id }, select: { status: true, publishedAt: true, memberId: true } }) : null;
     if (d.id && !before) return { ok: false, error: "Tutor not found" };
     const going = d.status === "ACTIVE" && before?.status !== "ACTIVE";
     const data = {
@@ -239,6 +258,7 @@ export async function saveTutorAction(input: unknown): Promise<ActionResult<{ id
             select: { id: true, refCode: true, displayName: true },
           });
         });
+    if (before && before.status !== d.status) await notify(before.memberId, "TUTOR_STATUS", { status: d.status }, "/account/tutor");
     await logActivity(session, d.id ? (going ? "publish" : "update") : "create", "Tutor", tutor.id, `${tutor.refCode} ${tutor.displayName}${going ? " listed" : ""}`);
     revalidatePublic();
     return { ok: true, data: { id: tutor.id }, message: going ? "Tutor is now live" : "Tutor saved" };
@@ -249,7 +269,7 @@ export async function setTutorStatusAction(id: string, status: string, reason?: 
   return adminAction([...STAFF], async (session) => {
     if (!(TUTOR_STATUSES as readonly string[]).includes(status)) return { ok: false, error: "Unknown status" };
     const s = status as (typeof TUTOR_STATUSES)[number];
-    const before = await db.tutor.findUnique({ where: { id }, select: { publishedAt: true, status: true } });
+    const before = await db.tutor.findUnique({ where: { id }, select: { publishedAt: true, status: true, memberId: true } });
     if (!before) return { ok: false, error: "Tutor not found" };
     const tu = await db.tutor.update({
       where: { id },
@@ -260,6 +280,7 @@ export async function setTutorStatusAction(id: string, status: string, reason?: 
       },
       select: { refCode: true, displayName: true },
     });
+    if (before.status !== s) await notify(before.memberId, "TUTOR_STATUS", { status: s }, "/account/tutor");
     await logActivity(session, "status", "Tutor", id, `${tu.refCode} ${tu.displayName}: ${before.status} → ${s}`);
     revalidatePublic();
     return { ok: true, message: s === "ACTIVE" ? "Tutor is now live" : `Tutor marked ${s.toLowerCase()}` };
@@ -323,11 +344,13 @@ export async function updateTalentRequestAction(input: unknown): Promise<ActionR
   return adminAction([...STAFF], async (session) => {
     const d = inboxUpdateSchema.parse(input);
     if (!(TALENT_REQUEST_STATUSES as readonly string[]).includes(d.status)) return { ok: false, error: "Unknown status" };
+    const prevTr = await db.talentRequest.findUnique({ where: { id: d.id }, select: { status: true } });
     const r = await db.talentRequest.update({
       where: { id: d.id },
       data: { status: d.status as (typeof TALENT_REQUEST_STATUSES)[number], notes: d.notes?.trim() || null },
-      select: { employerName: true },
+      select: { employerName: true, memberId: true, seeker: { select: { profession: true } } },
     });
+    if (prevTr?.status !== d.status) await notify(r.memberId, "TALENT_REQUEST_STATUS", { profession: r.seeker?.profession ?? "", status: d.status }, "/account/employer");
     await logActivity(session, "status", "TalentRequest", d.id, `Talent request from ${r.employerName} → ${d.status}`);
     return { ok: true, message: "Request updated" };
   });

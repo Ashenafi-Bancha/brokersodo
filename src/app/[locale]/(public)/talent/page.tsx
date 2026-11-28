@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { FilterBar } from "@/components/jobs/filter-bar";
 import { HowSteps, Pager, SafetyBox, TalentCard } from "@/components/jobs/cards";
-import { EDUCATION_LEVELS, JOB_SECTORS, SEEKER_TYPES } from "@/lib/jobs-catalog";
+import { EDUCATION_LEVELS, SEEKER_TYPES } from "@/lib/jobs-catalog";
+import { getActiveValues } from "@/lib/catalog";
 import { alternates, localePath } from "@/lib/seo";
 import { localized } from "@/lib/utils";
 import { getTalentCount, parseTalentFilters, searchTalent } from "@/server/queries/jobs";
@@ -79,7 +80,7 @@ export default async function TalentPage({ params, searchParams }: { params: Pro
           clearLabel={t("clear")}
           search={{ name: "q", label: t("searchLabel"), placeholder: t("searchPlaceholder"), value: f.q }}
           fields={[
-            { name: "sector", label: t("filterSector"), anyLabel: t("anySector"), value: f.sector, options: JOB_SECTORS.map((s) => ({ value: s, label: tc(`sector.${s}` as "sector.OTHER") })) },
+            { name: "sector", label: t("filterSector"), anyLabel: t("anySector"), value: f.sector, options: (await getActiveValues("sector")).map((s) => ({ value: s, label: tc(`sector.${s}` as "sector.OTHER") })) },
             { name: "type", label: t("filterType"), anyLabel: t("anyType"), value: f.type, options: SEEKER_TYPES.map((s) => ({ value: s, label: tc(`audience.${s}` as "audience.ANY") })) },
             { name: "education", label: t("filterEducation"), anyLabel: t("anyEducation"), value: f.education, options: EDUCATION_LEVELS.map((s) => ({ value: s, label: tc(`education.${s}` as "education.NONE") })) },
             { name: "area", label: t("filterArea"), anyLabel: t("anyArea"), value: f.area, options: areas.map((a) => ({ value: a.slug, label: localized(a, "name", locale) })) },

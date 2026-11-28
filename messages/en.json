@@ -316,7 +316,11 @@
       "badLogin": "Wrong phone number or password.",
       "signIn": "Please sign in again.",
       "noCompany": "Add your company details first.",
-      "notVerified": "We need to verify your company before you can manage applicants."
+      "notVerified": "We need to verify your company before you can manage applicants.",
+      "cvNoProfile": "Save your talent profile first, then add your CV.",
+      "cvMissing": "Choose a PDF file.",
+      "cvTooBig": "The CV must be 3 MB or smaller.",
+      "cvNotPdf": "Only PDF files can be uploaded."
     },
     "savedTitle": "Saved",
     "saveChanges": "Save changes"
@@ -1083,6 +1087,38 @@
     "answer": {
       "ACCEPTED": "You accepted",
       "DECLINED": "You declined"
+    },
+    "cvTitle": "Your CV",
+    "cvNone": "No CV yet. A CV helps employers you apply to.",
+    "cvUpload": "Upload CV (PDF)",
+    "cvReplace": "Replace CV",
+    "cvDelete": "Remove",
+    "cvDeleteConfirm": "Remove your CV?",
+    "cvHint": "PDF, up to 3 MB. Only you, our team and verified employers you apply to can open it.",
+    "cvNeedsProfile": "Save your talent profile first, then add your CV here.",
+    "openCv": "Open CV",
+    "updates": "Updates",
+    "noUpdates": "No updates yet. We let you know here when something changes.",
+    "newUpdates": "{count, plural, one {# new update} other {# new updates}}",
+    "findTalent": "Find talent",
+    "talentRequestsTitle": "People you asked to meet",
+    "noTalentRequests": "Find skilled people on Find Talent and tap “Ask to connect”. Your requests appear here.",
+    "talentRequestStatus": {
+      "NEW": "Received",
+      "CONTACTED": "We are calling",
+      "CONNECTED": "Connected",
+      "CLOSED": "Closed"
+    },
+    "notify": {
+      "APPLICATION_STATUS": "Your application for “{title}”: {status}",
+      "NEW_APPLICANT": "New applicant for “{title}”",
+      "JOB_STATUS": "Your job “{title}”: {status}",
+      "TUTOR_STATUS": "Your tutor profile: {status}",
+      "TALENT_STATUS": "Your talent profile: {status}",
+      "TUTOR_REQUEST_STATUS": "Your {subject} tutor request: {status}",
+      "NEW_STUDENT": "A new {subject} student request was sent to you",
+      "TALENT_REQUEST_STATUS": "Your request to meet a {profession}: {status}",
+      "COMPANY_VERIFIED": "{name} is verified. You can now see your applicants."
     }
   }
 }

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/misc";
 import { FilterBar } from "@/components/jobs/filter-bar";
 import { HowSteps, JobCard, Pager, SafetyBox } from "@/components/jobs/cards";
-import { EDUCATION_LEVELS, JOB_SECTORS, JOB_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
+import { EDUCATION_LEVELS, JOB_TYPES, WORK_MODES } from "@/lib/jobs-catalog";
+import { getActiveValues } from "@/lib/catalog";
 import { alternates, localePath } from "@/lib/seo";
 import { cn, localized } from "@/lib/utils";
 import { JOB_SORTS, getJobCounts, parseJobFilters, searchJobs } from "@/server/queries/jobs";
@@ -116,7 +117,7 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
           submitLabel={t("search")}
           clearLabel={t("clear")}
           fields={[
-            { name: "sector", label: t("filterSector"), anyLabel: t("anySector"), value: f.sector, options: JOB_SECTORS.map((s) => ({ value: s, label: tc(`sector.${s}` as "sector.OTHER") })) },
+            { name: "sector", label: t("filterSector"), anyLabel: t("anySector"), value: f.sector, options: (await getActiveValues("sector")).map((s) => ({ value: s, label: tc(`sector.${s}` as "sector.OTHER") })) },
             { name: "type", label: t("filterType"), anyLabel: t("anyType"), value: f.type, options: JOB_TYPES.map((s) => ({ value: s, label: tc(`jobType.${s}` as "jobType.FULL_TIME") })) },
             { name: "education", label: t("filterEducation"), anyLabel: t("anyEducation"), value: f.education, options: EDUCATION_LEVELS.map((s) => ({ value: s, label: tc(`education.${s}` as "education.NONE") })) },
             { name: "area", label: t("filterArea"), anyLabel: t("anyArea"), value: f.area, options: areas.map((a) => ({ value: a.slug, label: localized(a, "name", locale) })) },
@@ -180,7 +181,7 @@ export default async function JobsPage({ params, searchParams }: { params: Promi
           <section className="mt-12">
             <h2 className="mb-4 font-brand text-h3 text-fg">{t("sectionsTitle")}</h2>
             <ul className="flex flex-wrap gap-2">
-              {JOB_SECTORS.filter((s) => counts.bySector[s]).map((s) => (
+              {(await getActiveValues("sector")).filter((s) => counts.bySector[s]).map((s) => (
                 <li key={s}>
                   <Link prefetch={false} href={`/jobs?sector=${s}`} className="inline-flex min-h-10 items-center gap-2 rounded-pill bg-surface px-4 text-sm font-semibold text-fg shadow-card hover:text-primary">
                     {tc(`sector.${s}` as "sector.OTHER")} <span className="rounded-pill bg-bg-2 px-2 text-xs">{counts.bySector[s]}</span>
